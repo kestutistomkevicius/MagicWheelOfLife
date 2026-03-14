@@ -30,9 +30,24 @@ export type CategoryRow = {
 export type Database = {
   public: {
     Tables: {
-      profiles: { Row: ProfileRow; Insert: Omit<ProfileRow, 'created_at'>; Update: Partial<Omit<ProfileRow, 'id'>> }
-      wheels: { Row: WheelRow; Insert: Omit<WheelRow, 'id' | 'created_at' | 'updated_at'>; Update: Partial<Pick<WheelRow, 'name' | 'updated_at'>> }
-      categories: { Row: CategoryRow; Insert: Omit<CategoryRow, 'id' | 'created_at' | 'updated_at'>; Update: Partial<Pick<CategoryRow, 'name' | 'position' | 'score_asis' | 'score_tobe' | 'updated_at'>> }
+      profiles: {
+        Row: ProfileRow
+        Insert: Omit<ProfileRow, 'created_at'>
+        Update: Partial<Omit<ProfileRow, 'id'>>
+        Relationships: []
+      }
+      wheels: {
+        Row: WheelRow
+        Insert: Omit<WheelRow, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Pick<WheelRow, 'name' | 'updated_at'>>
+        Relationships: []
+      }
+      categories: {
+        Row: CategoryRow
+        Insert: Omit<CategoryRow, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Pick<CategoryRow, 'name' | 'position' | 'score_asis' | 'score_tobe' | 'updated_at'>>
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {
