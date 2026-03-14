@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 01-foundation-03-PLAN.md
-last_updated: "2026-03-14T21:11:41.687Z"
+stopped_at: Completed 01-foundation-05-PLAN.md
+last_updated: "2026-03-14T21:20:41.591Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 6
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation P01 | 3 | 2 tasks | 18 files |
 | Phase 01-foundation P02 | 2 | 2 tasks | 10 files |
 | Phase 01-foundation P03 | 3 | 2 tasks | 5 files |
+| Phase 01-foundation P05 | 8m | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: supabase/.env.local excluded via .gitignore — Google OAuth credentials never committed
 - [Phase 01-foundation]: AUTH-03 (Apple OAuth) deferred to Phase 7 — documented in config.toml and README
 - [Phase 01-foundation]: Deterministic UUIDs (000...0001, 000...0002) for seed users — cross-phase references without runtime queries
+- [Phase 01-foundation]: AuthPage mode toggle uses aria-label to distinguish toggle buttons from submit buttons in tests
+- [Phase 01-foundation]: AppShell uses bg-surface Tailwind token for warm/earthy content area
 
 ### Pending Todos
 
@@ -87,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-14T21:11:41.682Z
-Stopped at: Completed 01-foundation-03-PLAN.md
+Last session: 2026-03-14T21:20:41.587Z
+Stopped at: Completed 01-foundation-05-PLAN.md
 Resume file: None
