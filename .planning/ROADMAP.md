@@ -29,10 +29,18 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Success Criteria** (what must be TRUE):
   1. A new developer can clone the repo, run `supabase start` and `npm run dev`, and reach the app at localhost:5173 with no manual setup beyond env vars
   2. User can register with email and password, and the new account persists in the local database
-  3. User can sign in with Google OAuth and with Apple OAuth
+  3. User can sign in with Google OAuth (Apple OAuth deferred to Phase 7)
   4. User session survives a browser refresh — the user remains logged in
   5. User can log out from any page and is redirected to the public (unauthenticated) state
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Vite + React + TypeScript + Tailwind + shadcn scaffold, Vitest setup, test stubs
+- [ ] 01-02-PLAN.md — Supabase AuthContext, ProtectedRoute, React Router structure, placeholder pages
+- [ ] 01-03-PLAN.md — Supabase config.toml (Google OAuth), seed.sql (free + premium dev users)
+- [ ] 01-04-PLAN.md — AuthPage: sign-in/create-account toggle, email form, Google OAuth button
+- [ ] 01-05-PLAN.md — AppShell layout, Sidebar navigation, sign-out wiring
+- [ ] 01-06-PLAN.md — Human verification checkpoint: end-to-end auth flows
 
 ### Phase 2: Wheel & Scoring
 **Goal**: Users can create a wheel, manage its life-area categories, score each area with sliders, and see the radar chart update in real time
@@ -103,7 +111,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/6 | Ready to execute | - |
 | 2. Wheel & Scoring | 0/TBD | Not started | - |
 | 3. Action Items | 0/TBD | Not started | - |
 | 4. Snapshots & Comparison | 0/TBD | Not started | - |
