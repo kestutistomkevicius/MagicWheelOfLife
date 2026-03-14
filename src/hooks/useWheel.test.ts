@@ -1,23 +1,339 @@
-import { describe, it } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { renderHook, act, waitFor } from '@testing-library/react'
+import { useWheel } from './useWheel'
+import type { WheelRow, CategoryRow } from '@/types/database'
+
+// ── Supabase mock ────────────────────────────────────────────────────────────
+// We mock the entire module. Each test overrides the select/insert/update
+// responses via mockResolvedValueOnce / mockReturnValueOnce.
+
+const mockInsert = vi.fn()
+const mockUpdate = vi.fn()
+const mockDelete = vi.fn()
+const mockEq = vi.fn()
+const mockOrder = vi.fn()
+const mockLimit = vi.fn()
+const mockSelect = vi.fn()
+
+vi.mock('@/lib/supabase', () => {
+  const buildChain = (terminalResult: unknown) => {
+    const chain: Record<string, unknown> = {}
+    chain.select = vi.fn().mockReturnValue(chain)
+    chain.insert = vi.fn().mockReturnValue(chain)
+    chain.update = vi.fn().mockReturnValue(chain)
+    chain.delete = vi.fn().mockReturnValue(chain)
+    chain.eq = vi.fn().mockReturnValue(chain)
+    chain.order = vi.fn().mockReturnValue(chain)
+    chain.limit = vi.fn().mockReturnValue(chain)
+    chain.single = vi.fn().mockResolvedValue(terminalResult)
+    // Make the chain itself thenable so await works
+    chain.then = (resolve: (v: unknown) => void) => Promise.resolve(terminalResult).then(resolve)
+    return chain
+  }
+
+  return {
+    supabase: {
+      from: vi.fn().mockImplementation(() => buildChain({ data: null, error: null })),
+    },
+  }
+})
+
+// Import AFTER mock to get the mocked module
+import { supabase } from '@/lib/supabase'
+
+// ── Test data ────────────────────────────────────────────────────────────────
+const USER_ID = 'user-123'
+
+const mockWheel: WheelRow = {
+  id: 'wheel-001',
+  user_id: USER_ID,
+  name: 'My Wheel',
+  created_at: '2026-01-01T00:00:00Z',
+  updated_at: '2026-01-01T00:00:00Z',
+}
+
+const mockCategories: CategoryRow[] = [
+  {
+    id: 'cat-001',
+    wheel_id: 'wheel-001',
+    user_id: USER_ID,
+    name: 'Health',
+    position: 0,
+    score_asis: 5,
+    score_tobe: 7,
+    created_at: '2026-01-01T00:00:00Z',
+    updated_at: '2026-01-01T00:00:00Z',
+  },
+]
+
+// Helper: make supabase.from() return different results per table call
+function mockFromSequence(responses: Array<{ data: unknown; error: unknown }>) {
+  let callCount = 0
+  vi.mocked(supabase.from).mockImplementation(() => {
+    const result = responses[callCount] ?? { data: null, error: null }
+    callCount++
+    const chain: Record<string, unknown> = {}
+    chain.select = vi.fn().mockReturnValue(chain)
+    chain.insert = vi.fn().mockReturnValue(chain)
+    chain.update = vi.fn().mockReturnValue(chain)
+    chain.delete = vi.fn().mockReturnValue(chain)
+    chain.eq = vi.fn().mockReturnValue(chain)
+    chain.order = vi.fn().mockReturnValue(chain)
+    chain.limit = vi.fn().mockReturnValue(chain)
+    chain.single = vi.fn().mockResolvedValue(result)
+    chain.then = (resolve: (v: unknown) => void) => Promise.resolve(result).then(resolve)
+    return chain as ReturnType<typeof supabase.from>
+  })
+}
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
+// ── Tests ────────────────────────────────────────────────────────────────────
 
 describe('useWheel', () => {
   describe('loading wheel', () => {
-    it.todo('returns loading=true initially then loading=false after fetch')
-    it.todo('returns wheel and categories when user has an existing wheel')
-    it.todo('returns wheel=null when user has no wheels')
+    it('returns loading=true initially then loading=false after fetch', async () => {
+      // Profile: free tier, Wheels: empty, no categories
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+        { data: [], error: null }, // wheels
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      expect(result.current.loading).toBe(true)
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false)
+      })
+    })
+
+    it('returns wheel and categories when user has an existing wheel', async () => {
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+        { data: [mockWheel], error: null }, // wheels
+        { data: mockCategories, error: null }, // categories
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false)
+      })
+
+      expect(result.current.wheel).toEqual(mockWheel)
+      expect(result.current.categories).toEqual(mockCategories)
+    })
+
+    it('returns wheel=null when user has no wheels', async () => {
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+        { data: [], error: null }, // wheels — empty
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false)
+      })
+
+      expect(result.current.wheel).toBeNull()
+    })
   })
 
   describe('createWheel - template (WHEEL-01)', () => {
-    it.todo('inserts a wheel row and 8 default categories when mode is template')
-    it.todo('returns the new wheel id after creation')
+    it('inserts a wheel row and 8 default categories when mode is template', async () => {
+      // Initial load: free tier + no wheels
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+        { data: [], error: null }, // wheels
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      // Reset mock: createWheel calls — wheel insert, then category insert
+      const newWheel: WheelRow = { ...mockWheel, id: 'wheel-new' }
+      let callCount = 0
+      vi.mocked(supabase.from).mockImplementation(() => {
+        callCount++
+        let terminalData: unknown = null
+        if (callCount === 1) terminalData = [newWheel]          // wheel insert
+        if (callCount === 2) terminalData = []                  // category batch insert (returns empty / no error)
+
+        const chain: Record<string, unknown> = {}
+        chain.select = vi.fn().mockReturnValue(chain)
+        chain.insert = vi.fn().mockReturnValue(chain)
+        chain.update = vi.fn().mockReturnValue(chain)
+        chain.delete = vi.fn().mockReturnValue(chain)
+        chain.eq = vi.fn().mockReturnValue(chain)
+        chain.order = vi.fn().mockReturnValue(chain)
+        chain.limit = vi.fn().mockReturnValue(chain)
+        chain.single = vi.fn().mockResolvedValue({ data: terminalData, error: null })
+        chain.then = (resolve: (v: unknown) => void) => Promise.resolve({ data: terminalData, error: null }).then(resolve)
+        return chain as ReturnType<typeof supabase.from>
+      })
+
+      let createdWheel: WheelRow | null = null
+      await act(async () => {
+        createdWheel = await result.current.createWheel('template', USER_ID)
+      })
+
+      expect(createdWheel).toEqual(newWheel)
+      // 2 calls to supabase.from: wheels insert + categories batch insert
+      expect(callCount).toBe(2)
+    })
+
+    it('returns the new wheel id after creation', async () => {
+      // Initial load
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null },
+        { data: [], error: null },
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      const newWheel: WheelRow = { ...mockWheel, id: 'wheel-xyz' }
+      let callCount = 0
+      vi.mocked(supabase.from).mockImplementation(() => {
+        callCount++
+        const terminalData = callCount === 1 ? [newWheel] : []
+        const chain: Record<string, unknown> = {}
+        chain.select = vi.fn().mockReturnValue(chain)
+        chain.insert = vi.fn().mockReturnValue(chain)
+        chain.update = vi.fn().mockReturnValue(chain)
+        chain.delete = vi.fn().mockReturnValue(chain)
+        chain.eq = vi.fn().mockReturnValue(chain)
+        chain.order = vi.fn().mockReturnValue(chain)
+        chain.limit = vi.fn().mockReturnValue(chain)
+        chain.single = vi.fn().mockResolvedValue({ data: terminalData, error: null })
+        chain.then = (resolve: (v: unknown) => void) => Promise.resolve({ data: terminalData, error: null }).then(resolve)
+        return chain as ReturnType<typeof supabase.from>
+      })
+
+      let createdWheel: WheelRow | null = null
+      await act(async () => {
+        createdWheel = await result.current.createWheel('template', USER_ID)
+      })
+
+      expect(createdWheel?.id).toBe('wheel-xyz')
+    })
   })
 
   describe('createWheel - blank (WHEEL-02)', () => {
-    it.todo('inserts a wheel row with 0 categories when mode is blank')
+    it('inserts a wheel row with 0 categories when mode is blank', async () => {
+      // Initial load
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null },
+        { data: [], error: null },
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      const newWheel: WheelRow = { ...mockWheel, id: 'wheel-blank' }
+      let callCount = 0
+      vi.mocked(supabase.from).mockImplementation(() => {
+        callCount++
+        const terminalData = callCount === 1 ? [newWheel] : null
+        const chain: Record<string, unknown> = {}
+        chain.select = vi.fn().mockReturnValue(chain)
+        chain.insert = vi.fn().mockReturnValue(chain)
+        chain.update = vi.fn().mockReturnValue(chain)
+        chain.delete = vi.fn().mockReturnValue(chain)
+        chain.eq = vi.fn().mockReturnValue(chain)
+        chain.order = vi.fn().mockReturnValue(chain)
+        chain.limit = vi.fn().mockReturnValue(chain)
+        chain.single = vi.fn().mockResolvedValue({ data: terminalData, error: null })
+        chain.then = (resolve: (v: unknown) => void) => Promise.resolve({ data: terminalData, error: null }).then(resolve)
+        return chain as ReturnType<typeof supabase.from>
+      })
+
+      let createdWheel: WheelRow | null = null
+      await act(async () => {
+        createdWheel = await result.current.createWheel('blank', USER_ID)
+      })
+
+      expect(createdWheel?.id).toBe('wheel-blank')
+      // Only 1 call to supabase.from — wheel insert only, no category batch
+      expect(callCount).toBe(1)
+    })
   })
 
   describe('tier enforcement (WHEEL-06, WHEEL-07)', () => {
-    it.todo('returns canCreateWheel=false when free-tier user already has 1 wheel')
-    it.todo('returns canCreateWheel=true when premium-tier user already has 1 wheel')
+    it('returns canCreateWheel=false when free-tier user already has 1 wheel', async () => {
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+        { data: [mockWheel], error: null }, // wheels — has 1
+        { data: mockCategories, error: null }, // categories
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false)
+      })
+
+      expect(result.current.canCreateWheel).toBe(false)
+    })
+
+    it('returns canCreateWheel=true when premium-tier user already has 1 wheel', async () => {
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'premium', created_at: '' }, error: null }, // profiles
+        { data: [mockWheel], error: null }, // wheels — has 1
+        { data: mockCategories, error: null }, // categories
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false)
+      })
+
+      expect(result.current.canCreateWheel).toBe(true)
+    })
+  })
+
+  describe('updateScore', () => {
+    it('calls supabase.from(categories).update with correct field and value', async () => {
+      // Initial load
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null },
+        { data: [mockWheel], error: null },
+        { data: mockCategories, error: null },
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      // Track the update call
+      const mockUpdateFn = vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+      })
+      const mockFromForUpdate = vi.fn().mockReturnValue({
+        update: mockUpdateFn,
+      })
+      vi.mocked(supabase.from).mockImplementation(mockFromForUpdate as unknown as typeof supabase.from)
+
+      await act(async () => {
+        await result.current.updateScore('cat-001', 'score_asis', 8)
+      })
+
+      expect(mockFromForUpdate).toHaveBeenCalledWith('categories')
+      expect(mockUpdateFn).toHaveBeenCalledWith(
+        expect.objectContaining({ score_asis: 8 })
+      )
+    })
   })
 })
+
+// Suppress unused import warnings
+void mockInsert
+void mockUpdate
+void mockDelete
+void mockEq
+void mockOrder
+void mockLimit
+void mockSelect
