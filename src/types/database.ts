@@ -28,6 +28,7 @@ export type CategoryRow = {
 }
 
 export type Database = {
+  __InternalSupabase: { PostgrestVersion: '12' }
   public: {
     Tables: {
       profiles: {
