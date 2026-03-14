@@ -8,8 +8,8 @@
 ### Authentication
 
 - [x] **AUTH-01**: User can register with email and password
-- [ ] **AUTH-02**: User can sign in with Google (OAuth)
-- [ ] **AUTH-03**: User can sign in with Apple (OAuth)
+- [x] **AUTH-02**: User can sign in with Google (OAuth)
+- [x] **AUTH-03**: User can sign in with Apple (OAuth)
 - [x] **AUTH-04**: User session persists across browser refresh
 - [x] **AUTH-05**: User can log out from any page
 
@@ -59,10 +59,10 @@
 
 ### Dev & Test Infrastructure
 
-- [ ] **DEV-01**: Local Supabase seed includes a free-tier user (pre-created email + password, 1 wheel, scored categories, some action items)
-- [ ] **DEV-02**: Local Supabase seed includes a premium-tier user with a wheel containing 4+ snapshots with meaningfully different scores (for testing overlay comparison and trend chart)
-- [ ] **DEV-03**: Seeded action items include a mix: some completed, some with deadlines, some open
-- [ ] **DEV-04**: Seeded snapshots have scores that tell a visible story (e.g., Health improved, Career declined) so overlay and table are immediately testable
+- [x] **DEV-01**: Local Supabase seed includes a free-tier user (pre-created email + password, 1 wheel, scored categories, some action items)
+- [x] **DEV-02**: Local Supabase seed includes a premium-tier user with a wheel containing 4+ snapshots with meaningfully different scores (for testing overlay comparison and trend chart)
+- [x] **DEV-03**: Seeded action items include a mix: some completed, some with deadlines, some open
+- [x] **DEV-04**: Seeded snapshots have scores that tell a visible story (e.g., Health improved, Career declined) so overlay and table are immediately testable
 
 ### Deployment
 
@@ -131,14 +131,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | AUTH-01 | Phase 1 | Complete |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Complete |
+| AUTH-03 | Phase 1 | Complete |
 | AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Complete |
-| DEV-01 | Phase 1 | Pending |
-| DEV-02 | Phase 1 | Pending |
-| DEV-03 | Phase 1 | Pending |
-| DEV-04 | Phase 1 | Pending |
+| DEV-01 | Phase 1 | Complete |
+| DEV-02 | Phase 1 | Complete |
+| DEV-03 | Phase 1 | Complete |
+| DEV-04 | Phase 1 | Complete |
 | WHEEL-01 | Phase 2 | Pending |
 | WHEEL-02 | Phase 2 | Pending |
 | WHEEL-03 | Phase 2 | Pending |
