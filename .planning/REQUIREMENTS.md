@@ -17,17 +17,17 @@
 
 - [x] **WHEEL-01**: User can create a wheel from the default 8-category template
 - [x] **WHEEL-02**: User can create a wheel from a blank canvas (0 categories, add own)
-- [ ] **WHEEL-03**: User can add a category to their wheel (max 12 total)
-- [ ] **WHEEL-04**: User can rename a category; shown a warning if snapshots already exist
-- [ ] **WHEEL-05**: User can remove a category (min 3 total); shown a warning if snapshots already exist
+- [x] **WHEEL-03**: User can add a category to their wheel (max 12 total)
+- [x] **WHEEL-04**: User can rename a category; shown a warning if snapshots already exist
+- [x] **WHEEL-05**: User can remove a category (min 3 total); shown a warning if snapshots already exist
 - [x] **WHEEL-06**: Free-tier user is limited to 1 wheel; sees upgrade prompt when attempting to create a second
 - [x] **WHEEL-07**: Premium-tier user can create unlimited wheels
 
 ### Scoring
 
-- [ ] **SCORE-01**: User can set an as-is score (1–10) per category via a slider
-- [ ] **SCORE-02**: User can set a to-be score (1–10) per category via a slider
-- [ ] **SCORE-03**: Wheel chart updates in real time as the user drags a slider (no save needed to see the visual)
+- [x] **SCORE-01**: User can set an as-is score (1–10) per category via a slider
+- [x] **SCORE-02**: User can set a to-be score (1–10) per category via a slider
+- [x] **SCORE-03**: Wheel chart updates in real time as the user drags a slider (no save needed to see the visual)
 
 ### Action Items
 
@@ -141,14 +141,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DEV-04 | Phase 1 | Complete |
 | WHEEL-01 | Phase 2 | Complete |
 | WHEEL-02 | Phase 2 | Complete |
-| WHEEL-03 | Phase 2 | Pending |
-| WHEEL-04 | Phase 2 | Pending |
-| WHEEL-05 | Phase 2 | Pending |
+| WHEEL-03 | Phase 2 | Complete |
+| WHEEL-04 | Phase 2 | Complete |
+| WHEEL-05 | Phase 2 | Complete |
 | WHEEL-06 | Phase 2 | Complete |
 | WHEEL-07 | Phase 2 | Complete |
-| SCORE-01 | Phase 2 | Pending |
-| SCORE-02 | Phase 2 | Pending |
-| SCORE-03 | Phase 2 | Pending |
+| SCORE-01 | Phase 2 | Complete |
+| SCORE-02 | Phase 2 | Complete |
+| SCORE-03 | Phase 2 | Complete |
 | ACTION-01 | Phase 3 | Pending |
 | ACTION-02 | Phase 3 | Pending |
 | ACTION-03 | Phase 3 | Pending |

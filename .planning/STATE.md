@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-wheel-scoring-01-PLAN.md
-last_updated: "2026-03-14T23:02:35.107Z"
+stopped_at: Completed 02-wheel-scoring-02-PLAN.md
+last_updated: "2026-03-14T23:04:58.188Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 12
-  completed_plans: 7
+  completed_plans: 8
   percent: 0
 ---
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation P04 | 25 | 2 tasks | 7 files |
 | Phase 01-foundation P06 | checkpoint | 1 tasks | 4 files |
 | Phase 02-wheel-scoring P01 | 3 | 2 tasks | 3 files |
+| Phase 02-wheel-scoring P02 | 5 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,7 @@ Recent decisions affecting current work:
 - [Phase 02-wheel-scoring]: wheels table created before count_user_wheels() function — SQL validates function body references at definition time
 - [Phase 02-wheel-scoring]: Free-tier wheel limit enforced at DB level (RLS INSERT policy + SECURITY DEFINER count) not frontend-only
 - [Phase 02-wheel-scoring]: Seed profiles inserted explicitly in seed.sql — trigger fires only on new auth.users inserts, not pre-existing seed rows
+- [Phase 02-wheel-scoring]: Wave 0 test scaffold: it.todo() stubs named before implementation so verify commands in plans 03-05 run green immediately
 
 ### Pending Todos
 
@@ -100,6 +102,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-14T23:02:35.104Z
-Stopped at: Completed 02-wheel-scoring-01-PLAN.md
+Last session: 2026-03-14T23:04:58.184Z
+Stopped at: Completed 02-wheel-scoring-02-PLAN.md
 Resume file: None
