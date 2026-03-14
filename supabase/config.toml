@@ -93,7 +93,6 @@ enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Disable email confirmation for local development — allows immediate sign-in after registration.
-enable_confirmations = false
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
@@ -106,19 +105,12 @@ enable_confirmations = false
 # If enabled, users will need to reauthenticate or have logged in recently to change their
 # password.
 secure_password_change = false
-# Controls the minimum password length.
-password_min_length = 8
-# Controls the classifications of passwords that will be rejected by Supabase. Use the toggle to
-# enable or disable. Defaults to "" (none).
-password_required_characters = ""
 
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
 enable_signup = true
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = false
-# Sets the SMS OTP expiry duration.
-otp_expiry = 60
 # Template for sending OTP to users
 # otp_length = 6
 

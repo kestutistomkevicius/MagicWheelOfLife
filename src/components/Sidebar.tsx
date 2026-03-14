@@ -17,7 +17,9 @@ const navItems = [
 ]
 
 export function Sidebar() {
-  const { signOut } = useAuth()
+  const { signOut, session } = useAuth()
+  const email = session?.user?.email ?? ''
+  const initial = email.charAt(0).toUpperCase()
 
   return (
     <aside className="flex h-screen w-56 flex-col bg-[#292524] text-stone-300">
@@ -47,8 +49,14 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Sign out */}
-      <div className="border-t border-stone-700 p-2">
+      {/* User + Sign out */}
+      <div className="border-t border-stone-700 p-3 space-y-2">
+        <div className="flex items-center gap-3 px-1">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-400 text-xs font-bold text-white">
+            {initial}
+          </div>
+          <span className="truncate text-xs text-stone-300">{email}</span>
+        </div>
         <button
           onClick={signOut}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-100"

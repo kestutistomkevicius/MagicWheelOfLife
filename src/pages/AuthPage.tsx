@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -7,6 +8,7 @@ import { Label } from '@/components/ui/label'
 type Mode = 'sign-in' | 'create-account'
 
 export function AuthPage() {
+  const navigate = useNavigate()
   const [mode, setMode] = useState<Mode>('sign-in')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,8 +26,11 @@ export function AuthPage() {
         : await supabase.auth.signUp({ email, password })
 
     setLoading(false)
-    if (error) setError(error.message)
-    // On success: AuthContext onAuthStateChange fires → session set → ProtectedRoute allows through
+    if (error) {
+      setError(error.message)
+    } else {
+      navigate('/wheel', { replace: true })
+    }
   }
 
   const handleGoogleSignIn = async () => {

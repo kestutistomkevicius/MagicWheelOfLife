@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
 import { AuthPage } from './AuthPage'
 
 // Mock the Supabase client
@@ -28,7 +29,7 @@ describe('AuthPage', () => {
   })
 
   it('renders sign-in form with email and password fields', () => {
-    render(<AuthPage />)
+    render(<MemoryRouter><AuthPage /></MemoryRouter>)
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
     // Default mode is sign-in — submit button says "Sign in"
@@ -37,7 +38,7 @@ describe('AuthPage', () => {
 
   it('calls supabase.auth.signInWithPassword on sign-in submit', async () => {
     const user = userEvent.setup()
-    render(<AuthPage />)
+    render(<MemoryRouter><AuthPage /></MemoryRouter>)
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
     await user.type(screen.getByLabelText(/password/i), 'password123')
     await user.click(screen.getByRole('button', { name: /^sign in$/i }))
@@ -51,7 +52,7 @@ describe('AuthPage', () => {
 
   it('calls supabase.auth.signUp on create account submit', async () => {
     const user = userEvent.setup()
-    render(<AuthPage />)
+    render(<MemoryRouter><AuthPage /></MemoryRouter>)
     // Switch to create-account mode by clicking the toggle
     await user.click(screen.getByRole('button', { name: /create account/i }))
     await user.type(screen.getByLabelText(/email/i), 'new@example.com')
@@ -69,7 +70,7 @@ describe('AuthPage', () => {
   it('shows inline error when sign-in returns an error', async () => {
     mockSignIn.mockResolvedValue({ data: { session: null, user: null }, error: { message: 'Invalid login credentials' } } as any)
     const user = userEvent.setup()
-    render(<AuthPage />)
+    render(<MemoryRouter><AuthPage /></MemoryRouter>)
     await user.type(screen.getByLabelText(/email/i), 'bad@example.com')
     await user.type(screen.getByLabelText(/password/i), 'wrongpass')
     await user.click(screen.getByRole('button', { name: /^sign in$/i }))
@@ -79,13 +80,13 @@ describe('AuthPage', () => {
   })
 
   it('renders "Continue with Google" button', () => {
-    render(<AuthPage />)
+    render(<MemoryRouter><AuthPage /></MemoryRouter>)
     expect(screen.getByRole('button', { name: /continue with google/i })).toBeInTheDocument()
   })
 
   it('calls supabase.auth.signInWithOAuth with provider google on Google button click', async () => {
     const user = userEvent.setup()
-    render(<AuthPage />)
+    render(<MemoryRouter><AuthPage /></MemoryRouter>)
     await user.click(screen.getByRole('button', { name: /continue with google/i }))
     await waitFor(() => {
       expect(mockOAuth).toHaveBeenCalledWith(
@@ -95,7 +96,7 @@ describe('AuthPage', () => {
   })
 
   it('does NOT render an Apple sign-in button', () => {
-    render(<AuthPage />)
+    render(<MemoryRouter><AuthPage /></MemoryRouter>)
     expect(screen.queryByRole('button', { name: /apple/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /continue with apple/i })).not.toBeInTheDocument()
   })
