@@ -1,0 +1,186 @@
+# A string used to distinguish different Supabase projects on the same host. Defaults to the
+# working directory name when running `supabase init`.
+project_id = "wheeloflife"
+
+[api]
+enabled = true
+# Port to use for the API URL.
+port = 54321
+# Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
+# endpoints. `public` and `graphql_public` schemas are always included.
+schemas = ["public", "graphql_public"]
+# Extra schemas to add to the search_path of every request. `public` is always included.
+extra_search_path = ["public", "extensions"]
+# The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
+# for accidental or malicious requests.
+max_rows = 1000
+
+[api.tls]
+enabled = false
+
+[db]
+# Port to use for the local database URL.
+port = 54322
+# Port used by db diff command to initialise the shadow database.
+shadow_port = 54320
+# The database major version to use. This has to be the same as your remote database's. Run `SHOW
+# server_version;` on the remote database to check.
+major_version = 15
+
+[db.pooler]
+enabled = false
+# Port to use for the local connection pooler.
+port = 54329
+# Specifies when a server connection can be reused by other clients.
+# Configure one of the supported pooler modes: `transaction`, `session`.
+pool_mode = "transaction"
+# How many server connections to allow per user/database pair.
+default_pool_size = 20
+# Maximum number of client connections allowed.
+max_client_conn = 100
+
+[realtime]
+enabled = true
+# Bind realtime via either IPv4 or IPv6. (default: IPv6)
+# ip_version = "IPv6"
+# The maximum length in bytes of HTTP request headers. (default: 4096)
+# max_header_length = 4096
+
+[studio]
+enabled = true
+# Port to use for Supabase Studio.
+port = 54323
+# External URL of the API server that frontend connects to.
+api_url = "http://127.0.0.1"
+# OpenAI API Key to use for Supabase AI in the Supabase Studio.
+# openai_api_key = "env(OPENAI_API_KEY)"
+
+# Email testing server. Emails sent with the local dev setup are not actually sent — just
+# captured for later inspection.
+[inbucket]
+enabled = true
+port = 54324
+# Uncomment to expose additional ports for SMTP / POP3 access.
+# smtp_port = 54325
+# pop3_port = 54326
+
+[storage]
+enabled = true
+# The maximum file size allowed (e.g. "5MB", "500KB").
+file_size_limit = "50MiB"
+
+[storage.image_transformation]
+enabled = true
+
+[auth]
+enabled = true
+# The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
+# in emails.
+site_url = "http://localhost:5173"
+# A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
+additional_redirect_urls = ["http://localhost:5173/wheel", "http://localhost:5173/auth", "http://localhost:5173/**"]
+# How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
+jwt_expiry = 3600
+# If disabled, the refresh token will never expire.
+enable_refresh_token_rotation = true
+# Allows session tokens to be refreshed when the user is offline, up to the interval specified by
+# `session_timebox`.
+refresh_token_reuse_interval = 10
+# Allow/disallow new user signups to your project.
+enable_signup = true
+# Allow/disallow anonymous sign-ins to your project.
+enable_anonymous_sign_ins = false
+# Allow/disallow testing manual linking of accounts
+enable_manual_linking = false
+# Disable email confirmation for local development — allows immediate sign-in after registration.
+enable_confirmations = false
+
+[auth.email]
+# Allow/disallow new user signups via email to your project.
+enable_signup = true
+# If enabled, a user will be required to confirm any email change on both the old, and new email
+# addresses. If disabled, only the new email is required to confirm.
+double_confirm_changes = true
+# If enabled, users need to confirm their email address before signing in.
+enable_confirmations = false
+# If enabled, users will need to reauthenticate or have logged in recently to change their
+# password.
+secure_password_change = false
+# Controls the minimum password length.
+password_min_length = 8
+# Controls the classifications of passwords that will be rejected by Supabase. Use the toggle to
+# enable or disable. Defaults to "" (none).
+password_required_characters = ""
+
+[auth.sms]
+# Allow/disallow new user signups via SMS to your project.
+enable_signup = true
+# If enabled, users need to confirm their phone number before signing in.
+enable_confirmations = false
+# Sets the SMS OTP expiry duration.
+otp_expiry = 60
+# Template for sending OTP to users
+# otp_length = 6
+
+# Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`,
+# `textlocal`, `vonage`.
+[auth.sms.twilio]
+enabled = false
+account_sid = ""
+message_service_sid = ""
+# DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
+auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+
+[auth.mfa]
+# Control how many MFA factors can be enrolled at a time per user.
+max_enrolled_factors = 10
+
+# Control use of MFA via App Authenticator (TOTP)
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+# Configure Multi-factor-authentication via Phone Messaging
+[auth.mfa.phone]
+enroll_enabled = false
+verify_enabled = false
+otp_length = 6
+template = "Your code is {{ .Code }} ."
+max_frequency = "5s"
+
+# Configure Multi-factor-authentication via WebAuthn
+# [auth.mfa.web_authn]
+# enroll_enabled = true
+# verify_enabled = true
+
+# Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
+# `discord`, `facebook`, `figma`, `github`, `gitlab`, `google`, `kakao`, `keycloak`, `linkedin_oidc`,
+# `notion`, `twitch`, `twitter`, `slack`, `spotify`, `workos`, `zoom`.
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET)"
+# Redirect URI to register in Google Cloud Console:
+# http://127.0.0.1:54321/auth/v1/callback (note: 127.0.0.1 not localhost)
+
+# AUTH-03: Apple OAuth is DEFERRED to Phase 7.
+# When Phase 7 arrives, uncomment and configure:
+# [auth.external.apple]
+# enabled = true
+# client_id = "env(SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID)"
+# secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+# Requires Apple Developer account and cannot use localhost callback URLs.
+
+# Use an external Postgres instance. Port, host, database, user and password are required.
+# [db.remote]
+# host = "db.foo.supabase.co"
+# port = 5432
+# database = "postgres"
+# user = "postgres"
+# password = "env(DB_PASSWORD)"
+
+[analytics]
+enabled = false
+port = 54327
+# Configure one of the supported backends: `postgres`, `bigquery`.
+backend = "postgres"
