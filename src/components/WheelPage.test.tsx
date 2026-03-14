@@ -135,6 +135,8 @@ import React from 'react'
 describe('WheelPage', () => {
   beforeEach(() => {
     vi.mocked(useWheel).mockReturnValue({ ...defaultWheelResult, setCategories: vi.fn() })
+    mockRenameCategory.mockResolvedValue(undefined)
+    mockRemoveCategory.mockResolvedValue(undefined)
     mockUpdateScore.mockResolvedValue(undefined)
     mockCreateWheel.mockResolvedValue(null)
     mockAddCategory.mockResolvedValue({ id: 'cat-new', wheel_id: 'wheel-1', user_id: 'user-1', name: 'New', position: 3, score_asis: 5, score_tobe: 5, created_at: '', updated_at: '' })
@@ -199,6 +201,17 @@ describe('WheelPage', () => {
   })
 
   describe('snapshot warning dialog (WHEEL-04, WHEEL-05)', () => {
+    const fourCatsResult = {
+      ...defaultWheelResult,
+      categories: [
+        { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 7, created_at: '', updated_at: '' },
+        { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 8, created_at: '', updated_at: '' },
+        { id: 'cat-3', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Finance', position: 2, score_asis: 4, score_tobe: 7, created_at: '', updated_at: '' },
+        { id: 'cat-4', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 3, score_asis: 3, score_tobe: 6, created_at: '', updated_at: '' },
+      ],
+      setCategories: vi.fn(),
+    }
+
     it('shows AlertDialog before rename when wheel has existing snapshots', async () => {
       // Note: hasSnapshots is always false in Phase 2, so SnapshotWarningDialog won't appear
       // This test verifies the rename flow triggers the dialog callback when hasSnapshots is true
@@ -220,7 +233,8 @@ describe('WheelPage', () => {
     })
 
     it('shows AlertDialog before remove when wheel has existing snapshots', () => {
-      // With hasSnapshots=false, removeCategory is called directly
+      // With hasSnapshots=false, removeCategory is called directly (4 categories so remove is enabled)
+      vi.mocked(useWheel).mockReturnValue(fourCatsResult)
       render(<WheelPage />)
       const removeBtn = screen.getAllByText('Remove')[0]
       fireEvent.click(removeBtn)
@@ -228,6 +242,7 @@ describe('WheelPage', () => {
     })
 
     it('skips AlertDialog and removes immediately when wheel has no snapshots', () => {
+      vi.mocked(useWheel).mockReturnValue(fourCatsResult)
       render(<WheelPage />)
       const removeBtn = screen.getAllByText('Remove')[0]
       fireEvent.click(removeBtn)
@@ -239,8 +254,9 @@ describe('WheelPage', () => {
 
   describe('upgrade prompt (WHEEL-06, WHEEL-07)', () => {
     it('shows upgrade prompt dialog when free-tier user clicks create wheel and already has one wheel', () => {
-      vi.mocked(useWheel).mockReturnValueOnce({
+      vi.mocked(useWheel).mockReturnValue({
         ...defaultWheelResult,
+        setCategories: vi.fn(),
         canCreateWheel: false,
       })
       render(<WheelPage />)
@@ -250,8 +266,9 @@ describe('WheelPage', () => {
     })
 
     it('opens create wheel modal when premium-tier user clicks create wheel', () => {
-      vi.mocked(useWheel).mockReturnValueOnce({
+      vi.mocked(useWheel).mockReturnValue({
         ...defaultWheelResult,
+        setCategories: vi.fn(),
         canCreateWheel: true,
       })
       render(<WheelPage />)
