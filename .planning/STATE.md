@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-03-14T20:24:22.236Z"
+stopped_at: Completed 01-foundation-01-PLAN.md
+last_updated: "2026-03-14T21:06:38.418Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 6
+  completed_plans: 1
   percent: 0
 ---
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01-foundation P01 | 3 | 2 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,9 @@ Recent decisions affecting current work:
 - UI components: shadcn/ui (Radix + Tailwind)
 - RLS: Required on every table — always include `WITH CHECK` on INSERT/UPDATE policies
 - Snapshot immutability: snapshot_scores stores value copies, not FK to categories
+- [Phase 01-foundation]: Used Tailwind v3 (not v4) for shadcn/ui compatibility — v4 support still maturing
+- [Phase 01-foundation]: Supabase client throws on missing env vars — fail-fast prevents silent runtime failures
+- [Phase 01-foundation]: it.todo() for test stubs — acknowledged in output but not failing until implementation plans run
 
 ### Pending Todos
 
@@ -76,6 +80,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-14T20:24:22.234Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-foundation/01-CONTEXT.md
+Last session: 2026-03-14T21:06:38.416Z
+Stopped at: Completed 01-foundation-01-PLAN.md
+Resume file: None

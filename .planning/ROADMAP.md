@@ -102,6 +102,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. The frontend is live at a public Vercel URL and loads the landing page without errors
   2. Supabase Cloud has all migrations applied; every table has RLS enabled; a real user can register, create a wheel, and save a snapshot through the production URL
+**Security Checklist** (OWASP gaps to close before go-live):
+  - A05: Supabase Cloud dashboard → Auth → Email confirmation is ON (local config.toml has it disabled for dev)
+  - A06: `npm audit --audit-level=high` passes with zero high/critical vulnerabilities
+  - A08: `package-lock.json` is committed and up to date (ensures dependency integrity)
+  - A09: Supabase Cloud dashboard → Logs → Auth logs enabled and reviewed for anomalies
 **Plans**: TBD
 
 ## Progress
@@ -111,7 +116,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/6 | Ready to execute | - |
+| 1. Foundation | 1/6 | In Progress|  |
 | 2. Wheel & Scoring | 0/TBD | Not started | - |
 | 3. Action Items | 0/TBD | Not started | - |
 | 4. Snapshots & Comparison | 0/TBD | Not started | - |

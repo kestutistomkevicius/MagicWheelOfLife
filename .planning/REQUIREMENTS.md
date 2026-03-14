@@ -7,10 +7,10 @@
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can register with email and password
+- [x] **AUTH-01**: User can register with email and password
 - [ ] **AUTH-02**: User can sign in with Google (OAuth)
 - [ ] **AUTH-03**: User can sign in with Apple (OAuth)
-- [ ] **AUTH-04**: User session persists across browser refresh
+- [x] **AUTH-04**: User session persists across browser refresh
 - [ ] **AUTH-05**: User can log out from any page
 
 ### Wheel Management
@@ -130,10 +130,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
 | AUTH-02 | Phase 1 | Pending |
 | AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Pending |
 | DEV-01 | Phase 1 | Pending |
 | DEV-02 | Phase 1 | Pending |
