@@ -52,7 +52,15 @@ Plans:
   3. User can rename or remove a category; when snapshots exist, a warning dialog appears before the change is applied
   4. User can drag an as-is or to-be slider and watch the radar chart redraw in real time without any save action
   5. A free-tier user attempting to create a second wheel sees an upgrade prompt instead of a creation form; a premium-tier user succeeds
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — DB migration: profiles, wheels, categories tables + RLS + SECURITY DEFINER function + seed data
+- [ ] 02-02-PLAN.md — Wave 0 test scaffolds: it.todo stubs for all hooks and components
+- [ ] 02-03-PLAN.md — Data hooks: useWheel (load, create, updateScore) + useCategories (add, rename, remove)
+- [ ] 02-04-PLAN.md — UI components: WheelChart (dual-series radar) + CategorySlider (as-is/to-be sliders)
+- [ ] 02-05-PLAN.md — WheelPage integration: wire hooks + components, CreateWheelModal, SnapshotWarningDialog
+- [ ] 02-06-PLAN.md — Human verification checkpoint: end-to-end wheel flows
 
 ### Phase 3: Action Items
 **Goal**: Users can attach actionable tasks to each category, set deadlines, check them off, and delete them
@@ -117,7 +125,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 6/6 | Complete   | 2026-03-14 |
-| 2. Wheel & Scoring | 0/TBD | Not started | - |
+| 2. Wheel & Scoring | 0/6 | Not started | - |
 | 3. Action Items | 0/TBD | Not started | - |
 | 4. Snapshots & Comparison | 0/TBD | Not started | - |
 | 5. Trend Chart | 0/TBD | Not started | - |
