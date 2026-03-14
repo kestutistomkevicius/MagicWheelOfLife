@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 01-foundation-05-PLAN.md
-last_updated: "2026-03-14T21:20:41.591Z"
+stopped_at: Completed 01-foundation-04-PLAN.md
+last_updated: "2026-03-14T21:22:09.322Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation P02 | 2 | 2 tasks | 10 files |
 | Phase 01-foundation P03 | 3 | 2 tasks | 5 files |
 | Phase 01-foundation P05 | 8m | 2 tasks | 6 files |
+| Phase 01-foundation P04 | 25 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Deterministic UUIDs (000...0001, 000...0002) for seed users — cross-phase references without runtime queries
 - [Phase 01-foundation]: AuthPage mode toggle uses aria-label to distinguish toggle buttons from submit buttons in tests
 - [Phase 01-foundation]: AppShell uses bg-surface Tailwind token for warm/earthy content area
+- [Phase 01-foundation]: Toggle implemented as single contextual button (shows opposite mode) to avoid duplicate accessible names between toggle and submit
+- [Phase 01-foundation]: shadcn components created manually — CLI requires root tsconfig.json aliases but project uses tsconfig.app.json
 
 ### Pending Todos
 
@@ -90,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-14T21:20:41.587Z
-Stopped at: Completed 01-foundation-05-PLAN.md
+Last session: 2026-03-14T21:22:09.320Z
+Stopped at: Completed 01-foundation-04-PLAN.md
 Resume file: None
