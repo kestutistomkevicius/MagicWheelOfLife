@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 01-foundation-04-PLAN.md
-last_updated: "2026-03-14T21:22:09.322Z"
+stopped_at: Completed 01-foundation-06-PLAN.md
+last_updated: "2026-03-14T22:08:34.071Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation P03 | 3 | 2 tasks | 5 files |
 | Phase 01-foundation P05 | 8m | 2 tasks | 6 files |
 | Phase 01-foundation P04 | 25 | 2 tasks | 7 files |
+| Phase 01-foundation P06 | checkpoint | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: AppShell uses bg-surface Tailwind token for warm/earthy content area
 - [Phase 01-foundation]: Toggle implemented as single contextual button (shows opposite mode) to avoid duplicate accessible names between toggle and submit
 - [Phase 01-foundation]: shadcn components created manually — CLI requires root tsconfig.json aliases but project uses tsconfig.app.json
+- [Phase 01-foundation]: Google OAuth (AUTH-02) skipped during human verification — implementation present, activation requires Google Cloud credentials
+- [Phase 01-foundation]: Post-login navigation uses imperative navigate('/wheel') rather than relying on ProtectedRoute redirect — faster UX, avoids redirect flash
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-14T21:22:09.320Z
-Stopped at: Completed 01-foundation-04-PLAN.md
+Last session: 2026-03-14T22:08:11.993Z
+Stopped at: Completed 01-foundation-06-PLAN.md
 Resume file: None
