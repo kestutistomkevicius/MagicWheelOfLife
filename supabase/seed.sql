@@ -1,0 +1,132 @@
+-- supabase/seed.sql
+-- Dev seed data for local development.
+-- Run: supabase db reset (wipes DB and re-runs all migrations + this seed)
+--
+-- SEED USERS:
+-- free@test.com / test123   → free-tier developer test account
+-- premium@test.com / test123 → premium-tier developer test account
+--
+-- DETERMINISTIC UUIDs: Fixed UUIDs allow later phase seeds to reference these
+-- user IDs directly without querying auth.users first.
+--   free_user_id    = 00000000-0000-0000-0000-000000000001
+--   premium_user_id = 00000000-0000-0000-0000-000000000002
+--
+-- NOTE: Wheel, category, action item, and snapshot data are seeded in later phases
+-- when those tables exist (Phase 2+ migrations).
+
+DO $$
+DECLARE
+  free_user_id uuid := '00000000-0000-0000-0000-000000000001';
+  premium_user_id uuid := '00000000-0000-0000-0000-000000000002';
+BEGIN
+
+  -- ============================================================
+  -- FREE-TIER USER: free@test.com / test123
+  -- Persona: generic mid-career professional
+  -- Wheel: default 8 categories (seeded in Phase 2)
+  -- Scores: mid-range 4-7, some to-be higher than as-is
+  --   Health:           as-is=5, to-be=8
+  --   Career:           as-is=7, to-be=9
+  --   Relationships:    as-is=6, to-be=7
+  --   Finance:          as-is=4, to-be=7
+  --   Fun & Rec:        as-is=5, to-be=8
+  --   Personal Growth:  as-is=6, to-be=8
+  --   Phys. Env:        as-is=7, to-be=7
+  --   Family/Friends:   as-is=6, to-be=8
+  -- Action items (Phase 3): mix of open, completed, and with deadlines
+  -- ============================================================
+
+  INSERT INTO auth.users (
+    id, instance_id, aud, role, email,
+    encrypted_password, email_confirmed_at,
+    raw_app_meta_data, raw_user_meta_data,
+    created_at, updated_at,
+    confirmation_token, email_change,
+    email_change_token_new, recovery_token
+  ) VALUES (
+    free_user_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated', 'authenticated',
+    'free@test.com',
+    crypt('test123', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"name":"Free Tester"}'::jsonb,
+    now() - interval '30 days', now(),
+    '', '', '', ''
+  )
+  ON CONFLICT (id) DO NOTHING;
+
+  INSERT INTO auth.identities (
+    id, user_id, provider_id,
+    identity_data, provider,
+    last_sign_in_at, created_at, updated_at
+  ) VALUES (
+    gen_random_uuid(),
+    free_user_id,
+    free_user_id::text,
+    jsonb_build_object('sub', free_user_id::text, 'email', 'free@test.com'),
+    'email',
+    now(), now(), now()
+  )
+  ON CONFLICT DO NOTHING;
+
+  -- ============================================================
+  -- PREMIUM-TIER USER: premium@test.com / test123
+  -- Persona: ambitious professional who has been tracking for a year
+  -- Wheel: 8 categories with 4 snapshots (Phase 2/4)
+  -- Snapshot dates: ~3 months apart (roughly quarterly reviews)
+  --   Snapshot 1: ~12 months ago
+  --   Snapshot 2: ~9 months ago
+  --   Snapshot 3: ~6 months ago
+  --   Snapshot 4: ~3 months ago (most recent)
+  --
+  -- Score story across 4 snapshots — mixed trajectory to test charts:
+  --   Career:          5 → 6 → 7 → 8  (steadily improving — big focus area)
+  --   Health:          6 → 5 → 6 → 7  (dip then recovery — burnout then gym)
+  --   Relationships:   8 → 7 → 6 → 5  (declining — sacrificed for career)
+  --   Finance:         4 → 4 → 5 → 6  (slowly improving — paid off debt)
+  --   Fun & Rec:       7 → 6 → 5 → 4  (declining — traded for career gains)
+  --   Personal Growth: 5 → 6 → 7 → 7  (improving then plateau)
+  --   Phys. Env:       6 → 6 → 6 → 7  (stable then jump — moved apartment)
+  --   Family/Friends:  7 → 6 → 5 → 5  (declining then stable)
+  --
+  -- Action items (Phase 3): some completed, some with past/future deadlines, some open
+  -- ============================================================
+
+  INSERT INTO auth.users (
+    id, instance_id, aud, role, email,
+    encrypted_password, email_confirmed_at,
+    raw_app_meta_data, raw_user_meta_data,
+    created_at, updated_at,
+    confirmation_token, email_change,
+    email_change_token_new, recovery_token
+  ) VALUES (
+    premium_user_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated', 'authenticated',
+    'premium@test.com',
+    crypt('test123', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"name":"Premium Tester"}'::jsonb,
+    now() - interval '365 days', now(),
+    '', '', '', ''
+  )
+  ON CONFLICT (id) DO NOTHING;
+
+  INSERT INTO auth.identities (
+    id, user_id, provider_id,
+    identity_data, provider,
+    last_sign_in_at, created_at, updated_at
+  ) VALUES (
+    gen_random_uuid(),
+    premium_user_id,
+    premium_user_id::text,
+    jsonb_build_object('sub', premium_user_id::text, 'email', 'premium@test.com'),
+    'email',
+    now(), now(), now()
+  )
+  ON CONFLICT DO NOTHING;
+
+END $$;
