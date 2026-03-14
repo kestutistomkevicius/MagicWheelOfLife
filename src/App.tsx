@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { AppShell } from './components/AppShell'
 import { WheelPage } from './pages/WheelPage'
 import { SnapshotsPage } from './pages/SnapshotsPage'
 import { TrendPage } from './pages/TrendPage'
@@ -16,7 +17,7 @@ export function App() {
       <Routes>
         <Route path="/auth" element={<AuthPagePlaceholder />} />
         <Route element={<ProtectedRoute />}>
-          <Route element={<Outlet />}>
+          <Route element={<AppShell />}>
             <Route path="/wheel" element={<WheelPage />} />
             <Route path="/snapshots" element={<SnapshotsPage />} />
             <Route path="/trend" element={<TrendPage />} />
