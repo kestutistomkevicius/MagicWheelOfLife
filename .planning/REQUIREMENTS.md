@@ -15,13 +15,13 @@
 
 ### Wheel Management
 
-- [ ] **WHEEL-01**: User can create a wheel from the default 8-category template
-- [ ] **WHEEL-02**: User can create a wheel from a blank canvas (0 categories, add own)
+- [x] **WHEEL-01**: User can create a wheel from the default 8-category template
+- [x] **WHEEL-02**: User can create a wheel from a blank canvas (0 categories, add own)
 - [ ] **WHEEL-03**: User can add a category to their wheel (max 12 total)
 - [ ] **WHEEL-04**: User can rename a category; shown a warning if snapshots already exist
 - [ ] **WHEEL-05**: User can remove a category (min 3 total); shown a warning if snapshots already exist
-- [ ] **WHEEL-06**: Free-tier user is limited to 1 wheel; sees upgrade prompt when attempting to create a second
-- [ ] **WHEEL-07**: Premium-tier user can create unlimited wheels
+- [x] **WHEEL-06**: Free-tier user is limited to 1 wheel; sees upgrade prompt when attempting to create a second
+- [x] **WHEEL-07**: Premium-tier user can create unlimited wheels
 
 ### Scoring
 
@@ -139,13 +139,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DEV-02 | Phase 1 | Complete |
 | DEV-03 | Phase 1 | Complete |
 | DEV-04 | Phase 1 | Complete |
-| WHEEL-01 | Phase 2 | Pending |
-| WHEEL-02 | Phase 2 | Pending |
+| WHEEL-01 | Phase 2 | Complete |
+| WHEEL-02 | Phase 2 | Complete |
 | WHEEL-03 | Phase 2 | Pending |
 | WHEEL-04 | Phase 2 | Pending |
 | WHEEL-05 | Phase 2 | Pending |
-| WHEEL-06 | Phase 2 | Pending |
-| WHEEL-07 | Phase 2 | Pending |
+| WHEEL-06 | Phase 2 | Complete |
+| WHEEL-07 | Phase 2 | Complete |
 | SCORE-01 | Phase 2 | Pending |
 | SCORE-02 | Phase 2 | Pending |
 | SCORE-03 | Phase 2 | Pending |

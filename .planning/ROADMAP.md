@@ -125,7 +125,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 6/6 | Complete   | 2026-03-14 |
-| 2. Wheel & Scoring | 0/6 | Not started | - |
+| 2. Wheel & Scoring | 1/6 | In Progress|  |
 | 3. Action Items | 0/TBD | Not started | - |
 | 4. Snapshots & Comparison | 0/TBD | Not started | - |
 | 5. Trend Chart | 0/TBD | Not started | - |
