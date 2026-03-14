@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { CategorySlider } from './CategorySlider'
 
@@ -48,7 +48,6 @@ describe('CategorySlider', () => {
 
   it('displays asisValue as the current as-is score number', () => {
     render(<CategorySlider {...defaultProps} />)
-    // The as-is score number is rendered as a span next to the slider
     const scoreSpans = screen.getAllByText('5')
     expect(scoreSpans.length).toBeGreaterThan(0)
   })
@@ -60,15 +59,15 @@ describe('CategorySlider', () => {
   })
 
   describe('as-is slider (SCORE-01)', () => {
-    it('calls onAsisChange when as-is slider value changes', async () => {
+    it('calls onAsisChange when as-is slider value changes', () => {
       const onAsisChange = vi.fn()
       render(<CategorySlider {...defaultProps} onAsisChange={onAsisChange} />)
       const asisSlider = screen.getByLabelText('As-Is score for Health')
-      await userEvent.type(asisSlider, '{arrowup}')
-      expect(onAsisChange).toHaveBeenCalled()
+      fireEvent.change(asisSlider, { target: { value: '6' } })
+      expect(onAsisChange).toHaveBeenCalledWith(6)
     })
 
-    it('calls onAsisCommit when as-is slider commits', async () => {
+    it('calls onAsisCommit when as-is slider commits (pointer up)', async () => {
       const onAsisCommit = vi.fn()
       render(<CategorySlider {...defaultProps} onAsisCommit={onAsisCommit} />)
       const asisSlider = screen.getByLabelText('As-Is score for Health')
@@ -81,12 +80,12 @@ describe('CategorySlider', () => {
   })
 
   describe('to-be slider (SCORE-02)', () => {
-    it('calls onTobeChange when to-be slider value changes', async () => {
+    it('calls onTobeChange when to-be slider value changes', () => {
       const onTobeChange = vi.fn()
       render(<CategorySlider {...defaultProps} onTobeChange={onTobeChange} />)
       const tobeSlider = screen.getByLabelText('To-Be score for Health')
-      await userEvent.type(tobeSlider, '{arrowup}')
-      expect(onTobeChange).toHaveBeenCalled()
+      fireEvent.change(tobeSlider, { target: { value: '8' } })
+      expect(onTobeChange).toHaveBeenCalledWith(8)
     })
 
     it('calls onTobeCommit when to-be slider commits', async () => {
