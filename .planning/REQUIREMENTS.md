@@ -11,7 +11,7 @@
 - [ ] **AUTH-02**: User can sign in with Google (OAuth)
 - [ ] **AUTH-03**: User can sign in with Apple (OAuth)
 - [x] **AUTH-04**: User session persists across browser refresh
-- [ ] **AUTH-05**: User can log out from any page
+- [x] **AUTH-05**: User can log out from any page
 
 ### Wheel Management
 
@@ -134,7 +134,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-02 | Phase 1 | Pending |
 | AUTH-03 | Phase 1 | Pending |
 | AUTH-04 | Phase 1 | Complete |
-| AUTH-05 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Complete |
 | DEV-01 | Phase 1 | Pending |
 | DEV-02 | Phase 1 | Pending |
 | DEV-03 | Phase 1 | Pending |
