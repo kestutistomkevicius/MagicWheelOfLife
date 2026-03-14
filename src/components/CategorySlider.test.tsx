@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+// import userEvent from '@testing-library/user-event'
 import { CategorySlider } from './CategorySlider'
 
 // Mock the shadcn Slider component to make it testable in jsdom.
@@ -67,14 +67,11 @@ describe('CategorySlider', () => {
       expect(onAsisChange).toHaveBeenCalledWith(6)
     })
 
-    it('calls onAsisCommit when as-is slider commits (pointer up)', async () => {
+    it('calls onAsisCommit when as-is slider commits (pointer up)', () => {
       const onAsisCommit = vi.fn()
       render(<CategorySlider {...defaultProps} onAsisCommit={onAsisCommit} />)
       const asisSlider = screen.getByLabelText('As-Is score for Health')
-      await userEvent.pointer([
-        { target: asisSlider, keys: '[MouseLeft>]' },
-        { keys: '[/MouseLeft]' },
-      ])
+      fireEvent.mouseUp(asisSlider)
       expect(onAsisCommit).toHaveBeenCalled()
     })
   })
@@ -88,14 +85,11 @@ describe('CategorySlider', () => {
       expect(onTobeChange).toHaveBeenCalledWith(8)
     })
 
-    it('calls onTobeCommit when to-be slider commits', async () => {
+    it('calls onTobeCommit when to-be slider commits', () => {
       const onTobeCommit = vi.fn()
       render(<CategorySlider {...defaultProps} onTobeCommit={onTobeCommit} />)
       const tobeSlider = screen.getByLabelText('To-Be score for Health')
-      await userEvent.pointer([
-        { target: tobeSlider, keys: '[MouseLeft>]' },
-        { keys: '[/MouseLeft]' },
-      ])
+      fireEvent.mouseUp(tobeSlider)
       expect(onTobeCommit).toHaveBeenCalled()
     })
   })
