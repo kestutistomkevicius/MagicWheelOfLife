@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-wheel-scoring-03-PLAN.md
-last_updated: "2026-03-14T23:10:15.773Z"
+stopped_at: Completed 02-wheel-scoring-04-PLAN.md
+last_updated: "2026-03-14T23:34:44.315Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 10
   percent: 0
 ---
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-wheel-scoring P01 | 3 | 2 tasks | 3 files |
 | Phase 02-wheel-scoring P02 | 5 | 2 tasks | 5 files |
 | Phase 02-wheel-scoring P03 | 182 | 2 tasks | 5 files |
+| Phase 02-wheel-scoring P04 | continuation | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Recent decisions affecting current work:
 - [Phase 02-wheel-scoring]: Wave 0 test scaffold: it.todo() stubs named before implementation so verify commands in plans 03-05 run green immediately
 - [Phase 02-wheel-scoring]: useWheel fetches profile tier and first wheel independently — canCreateWheel computed client-side from tier + wheel count
 - [Phase 02-wheel-scoring]: useCategories is stateless — hasSnapshots passed in from page level, hook never queries snapshots table
+- [Phase 02-wheel-scoring]: Mocked shadcn Slider as native range input in tests — Radix pointer events don't work in jsdom
+- [Phase 02-wheel-scoring]: CategorySlider aria-label on Slider enables getByLabelText test queries without positional selectors
+- [Phase 02-wheel-scoring]: fireEvent.mouseUp used instead of userEvent.pointer for commit tests — userEvent.pointer does not dispatch native mouseup on range inputs in jsdom
 
 ### Pending Todos
 
@@ -105,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-14T23:10:15.770Z
-Stopped at: Completed 02-wheel-scoring-03-PLAN.md
+Last session: 2026-03-14T23:27:34.265Z
+Stopped at: Completed 02-wheel-scoring-04-PLAN.md
 Resume file: None
