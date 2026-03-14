@@ -130,3 +130,72 @@ BEGIN
   ON CONFLICT DO NOTHING;
 
 END $$;
+
+-- ============================================================
+-- PHASE 2 SEED DATA: profiles, wheels, categories
+-- ============================================================
+-- The handle_new_user() trigger only fires on NEW auth.users inserts.
+-- Seed users were inserted above, so profiles must be inserted manually.
+--
+-- Deterministic wheel UUIDs for cross-phase references:
+--   free_wheel_id    = 00000000-0000-0000-0000-000000000011
+--   premium_wheel_id = 00000000-0000-0000-0000-000000000012
+-- ============================================================
+
+DO $$
+DECLARE
+  free_user_id uuid := '00000000-0000-0000-0000-000000000001';
+  premium_user_id uuid := '00000000-0000-0000-0000-000000000002';
+  free_wheel_id uuid := '00000000-0000-0000-0000-000000000011';
+  premium_wheel_id uuid := '00000000-0000-0000-0000-000000000012';
+BEGIN
+
+  -- profiles (tier set explicitly — trigger not fired for seed users)
+  INSERT INTO public.profiles (id, tier)
+    VALUES (free_user_id, 'free')
+    ON CONFLICT DO NOTHING;
+
+  INSERT INTO public.profiles (id, tier)
+    VALUES (premium_user_id, 'premium')
+    ON CONFLICT DO NOTHING;
+
+  -- wheels
+  INSERT INTO public.wheels (id, user_id, name)
+    VALUES (free_wheel_id, free_user_id, 'My Wheel')
+    ON CONFLICT DO NOTHING;
+
+  INSERT INTO public.wheels (id, user_id, name)
+    VALUES (premium_wheel_id, premium_user_id, 'My Wheel')
+    ON CONFLICT DO NOTHING;
+
+  -- categories for free user wheel
+  -- Health(5,8), Career(7,9), Relationships(6,7), Finance(4,7),
+  -- Fun & Recreation(5,8), Personal Growth(6,8), Physical Environment(7,7), Family & Friends(6,8)
+  INSERT INTO public.categories (wheel_id, user_id, name, position, score_asis, score_tobe)
+    VALUES
+      (free_wheel_id, free_user_id, 'Health',               0, 5, 8),
+      (free_wheel_id, free_user_id, 'Career',               1, 7, 9),
+      (free_wheel_id, free_user_id, 'Relationships',        2, 6, 7),
+      (free_wheel_id, free_user_id, 'Finance',              3, 4, 7),
+      (free_wheel_id, free_user_id, 'Fun & Recreation',     4, 5, 8),
+      (free_wheel_id, free_user_id, 'Personal Growth',      5, 6, 8),
+      (free_wheel_id, free_user_id, 'Physical Environment', 6, 7, 7),
+      (free_wheel_id, free_user_id, 'Family & Friends',     7, 6, 8)
+    ON CONFLICT DO NOTHING;
+
+  -- categories for premium user wheel (current scores — snapshot history seeded in Phase 4)
+  -- Health(7,8), Career(8,9), Relationships(5,7), Finance(6,8),
+  -- Fun & Recreation(4,7), Personal Growth(7,9), Physical Environment(7,7), Family & Friends(5,7)
+  INSERT INTO public.categories (wheel_id, user_id, name, position, score_asis, score_tobe)
+    VALUES
+      (premium_wheel_id, premium_user_id, 'Health',               0, 7, 8),
+      (premium_wheel_id, premium_user_id, 'Career',               1, 8, 9),
+      (premium_wheel_id, premium_user_id, 'Relationships',        2, 5, 7),
+      (premium_wheel_id, premium_user_id, 'Finance',              3, 6, 8),
+      (premium_wheel_id, premium_user_id, 'Fun & Recreation',     4, 4, 7),
+      (premium_wheel_id, premium_user_id, 'Personal Growth',      5, 7, 9),
+      (premium_wheel_id, premium_user_id, 'Physical Environment', 6, 7, 7),
+      (premium_wheel_id, premium_user_id, 'Family & Friends',     7, 5, 7)
+    ON CONFLICT DO NOTHING;
+
+END $$;
