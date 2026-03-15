@@ -278,3 +278,62 @@ BEGIN
   END IF;
 
 END $$;
+
+-- =============================================================
+-- Phase 4: Snapshots for premium user
+-- 4 quarterly snapshots, backdated. Score story:
+--   Career improves (5→6→7→8), Health dips then recovers (6→5→6→7),
+--   Relationships decline (8→7→6→5), Finance grows (4→4→5→6)
+-- Deterministic UUIDs 0101–0104 referenced by Phase 5 (Trend Chart)
+-- =============================================================
+DO $$
+DECLARE
+  premium_user_id  uuid := '00000000-0000-0000-0000-000000000002';
+  premium_wheel_id uuid := '00000000-0000-0000-0000-000000000012';
+  snap1_id uuid := '00000000-0000-0000-0000-000000000101';
+  snap2_id uuid := '00000000-0000-0000-0000-000000000102';
+  snap3_id uuid := '00000000-0000-0000-0000-000000000103';
+  snap4_id uuid := '00000000-0000-0000-0000-000000000104';
+BEGIN
+  INSERT INTO public.snapshots (id, wheel_id, user_id, name, saved_at) VALUES
+    (snap1_id, premium_wheel_id, premium_user_id, 'Q1 Annual Review',  now() - interval '12 months'),
+    (snap2_id, premium_wheel_id, premium_user_id, 'Mid-Year Check-In', now() - interval '9 months'),
+    (snap3_id, premium_wheel_id, premium_user_id, 'Q3 Progress',       now() - interval '6 months'),
+    (snap4_id, premium_wheel_id, premium_user_id, 'Year End Review',   now() - interval '3 months')
+  ON CONFLICT DO NOTHING;
+
+  INSERT INTO public.snapshot_scores (snapshot_id, user_id, category_name, position, score_asis, score_tobe) VALUES
+    (snap1_id, premium_user_id, 'Health',               0, 6, 8),
+    (snap1_id, premium_user_id, 'Career',               1, 5, 9),
+    (snap1_id, premium_user_id, 'Relationships',        2, 8, 8),
+    (snap1_id, premium_user_id, 'Finance',              3, 4, 8),
+    (snap1_id, premium_user_id, 'Fun & Recreation',     4, 7, 7),
+    (snap1_id, premium_user_id, 'Personal Growth',      5, 5, 9),
+    (snap1_id, premium_user_id, 'Physical Environment', 6, 6, 7),
+    (snap1_id, premium_user_id, 'Family & Friends',     7, 7, 7),
+    (snap2_id, premium_user_id, 'Health',               0, 5, 8),
+    (snap2_id, premium_user_id, 'Career',               1, 6, 9),
+    (snap2_id, premium_user_id, 'Relationships',        2, 7, 8),
+    (snap2_id, premium_user_id, 'Finance',              3, 4, 8),
+    (snap2_id, premium_user_id, 'Fun & Recreation',     4, 6, 7),
+    (snap2_id, premium_user_id, 'Personal Growth',      5, 6, 9),
+    (snap2_id, premium_user_id, 'Physical Environment', 6, 6, 7),
+    (snap2_id, premium_user_id, 'Family & Friends',     7, 6, 7),
+    (snap3_id, premium_user_id, 'Health',               0, 6, 8),
+    (snap3_id, premium_user_id, 'Career',               1, 7, 9),
+    (snap3_id, premium_user_id, 'Relationships',        2, 6, 8),
+    (snap3_id, premium_user_id, 'Finance',              3, 5, 8),
+    (snap3_id, premium_user_id, 'Fun & Recreation',     4, 5, 7),
+    (snap3_id, premium_user_id, 'Personal Growth',      5, 7, 9),
+    (snap3_id, premium_user_id, 'Physical Environment', 6, 6, 7),
+    (snap3_id, premium_user_id, 'Family & Friends',     7, 5, 7),
+    (snap4_id, premium_user_id, 'Health',               0, 7, 8),
+    (snap4_id, premium_user_id, 'Career',               1, 8, 9),
+    (snap4_id, premium_user_id, 'Relationships',        2, 5, 7),
+    (snap4_id, premium_user_id, 'Finance',              3, 6, 8),
+    (snap4_id, premium_user_id, 'Fun & Recreation',     4, 4, 7),
+    (snap4_id, premium_user_id, 'Personal Growth',      5, 7, 9),
+    (snap4_id, premium_user_id, 'Physical Environment', 6, 7, 7),
+    (snap4_id, premium_user_id, 'Family & Friends',     7, 5, 7)
+  ON CONFLICT DO NOTHING;
+END $$;
