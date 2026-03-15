@@ -38,13 +38,13 @@
 
 ### Snapshots
 
-- [ ] **SNAP-01**: User can manually save a snapshot with a user-provided name; snapshot name is auto-appended with the current date (non-negotiable — always shown)
-- [ ] **SNAP-02**: User can view a chronological list of all saved snapshots
+- [x] **SNAP-01**: User can manually save a snapshot with a user-provided name; snapshot name is auto-appended with the current date (non-negotiable — always shown)
+- [x] **SNAP-02**: User can view a chronological list of all saved snapshots
 
 ### Snapshot Comparison
 
-- [ ] **COMP-01**: User can select any two snapshots and view an overlay comparison: both wheels drawn on the same radar chart canvas in different colors
-- [ ] **COMP-02**: User can select a category and view a score history table: as-is and to-be values for that category across all saved snapshots
+- [x] **COMP-01**: User can select any two snapshots and view an overlay comparison: both wheels drawn on the same radar chart canvas in different colors
+- [x] **COMP-02**: User can select a category and view a score history table: as-is and to-be values for that category across all saved snapshots
 
 ### Trend Chart
 
@@ -153,10 +153,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ACTION-02 | Phase 3 | Complete |
 | ACTION-03 | Phase 3 | Complete |
 | ACTION-04 | Phase 3 | Complete |
-| SNAP-01 | Phase 4 | Pending |
-| SNAP-02 | Phase 4 | Pending |
-| COMP-01 | Phase 4 | Pending |
-| COMP-02 | Phase 4 | Pending |
+| SNAP-01 | Phase 4 | Complete |
+| SNAP-02 | Phase 4 | Complete |
+| COMP-01 | Phase 4 | Complete |
+| COMP-02 | Phase 4 | Complete |
 | TREND-01 | Phase 5 | Pending |
 | LAND-01 | Phase 6 | Pending |
 | LAND-02 | Phase 6 | Pending |

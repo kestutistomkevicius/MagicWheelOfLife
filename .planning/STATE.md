@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-action-items-06-PLAN.md
-last_updated: "2026-03-15T10:46:50.193Z"
+stopped_at: Completed 04-snapshots-and-comparison-01-PLAN.md
+last_updated: "2026-03-15T11:12:39.452Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 23
+  completed_plans: 19
   percent: 0
 ---
 
@@ -68,6 +68,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-action-items P04 | 8 | 1 tasks | 2 files |
 | Phase 03-action-items P05 | 7 | 2 tasks | 4 files |
 | Phase 03-action-items P06 | checkpoint | 1 tasks | 0 files |
+| Phase 04-snapshots-and-comparison P01 | 3 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -124,6 +125,9 @@ Recent decisions affecting current work:
 - [Phase 03-action-items]: Lazy load on first expand: loadActionItems called once per category per session; cached in actionItemsByCategory Record
 - [Phase 03-action-items]: CategorySlider rename UX fix: onClick no longer calls onRename immediately; inline edit handles submit via handleRenameSubmit
 - [Phase 03-action-items]: Human verification passed — all ACTION-01..04 flows confirmed working in the browser against live Supabase RLS
+- [Phase 04-snapshots-and-comparison]: snapshot_scores has no UPDATE policy — scores are immutable once written; cascade delete via snapshot FK handles cleanup
+- [Phase 04-snapshots-and-comparison]: category_name stored as TEXT COPY in snapshot_scores, not FK to categories — preserves historical accuracy across category renames/deletes
+- [Phase 04-snapshots-and-comparison]: Wave 0 stub pattern: only import describe/it from vitest, use it.todo — no feature module imports so stubs survive until implementation plans run
 
 ### Pending Todos
 
@@ -137,6 +141,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T10:40:04.858Z
-Stopped at: Completed 03-action-items-06-PLAN.md
+Last session: 2026-03-15T11:12:39.449Z
+Stopped at: Completed 04-snapshots-and-comparison-01-PLAN.md
 Resume file: None

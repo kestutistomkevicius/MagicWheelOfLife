@@ -90,7 +90,14 @@ Plans:
   2. User can view a chronological list of all saved snapshots for their wheel
   3. User can select any two snapshots and see both wheels rendered on the same radar chart in distinct colors (overlay view)
   4. User can select a category and view a table showing that category's as-is and to-be scores across every saved snapshot
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Wave 0: DB migration (snapshots + snapshot_scores + RLS), seed data (4 quarterly snapshots for premium user), test stubs
+- [ ] 04-02-PLAN.md — Types (SnapshotRow, SnapshotScoreRow) + useSnapshots hook (saveSnapshot, listSnapshots, fetchSnapshotScores, checkSnapshotsExist)
+- [ ] 04-03-PLAN.md — SnapshotNameDialog component + ComparisonChart (four-series amber/blue radar overlay)
+- [ ] 04-04-PLAN.md — SnapshotsPage full implementation (list, comparison picker, score history table) + WheelPage hasSnapshots activation
+- [ ] 04-05-PLAN.md — Human verification checkpoint: end-to-end snapshot flows
 
 ### Phase 5: Trend Chart
 **Goal**: Users can see how a single category's scores have moved over time
@@ -135,7 +142,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. Foundation | 6/6 | Complete   | 2026-03-14 |
 | 2. Wheel & Scoring | 6/6 | Complete   | 2026-03-15 |
 | 3. Action Items | 5/6 | In Progress|  |
-| 4. Snapshots & Comparison | 0/TBD | Not started | - |
+| 4. Snapshots & Comparison | 1/5 | In Progress|  |
 | 5. Trend Chart | 0/TBD | Not started | - |
 | 6. Landing Page | 0/TBD | Not started | - |
 | 7. Launch | 0/TBD | Not started | - |
