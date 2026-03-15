@@ -39,6 +39,24 @@ export type ActionItemRow = {
   updated_at: string
 }
 
+export type SnapshotRow = {
+  id: string
+  wheel_id: string
+  user_id: string
+  name: string
+  saved_at: string  // ISO timestamptz
+}
+
+export type SnapshotScoreRow = {
+  id: string
+  snapshot_id: string
+  user_id: string
+  category_name: string
+  position: number
+  score_asis: number
+  score_tobe: number
+}
+
 export type Database = {
   __InternalSupabase: { PostgrestVersion: '12' }
   public: {
@@ -65,6 +83,18 @@ export type Database = {
         Row: ActionItemRow
         Insert: Omit<ActionItemRow, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Pick<ActionItemRow, 'text' | 'is_complete' | 'deadline' | 'position' | 'updated_at'>>
+        Relationships: []
+      }
+      snapshots: {
+        Row: SnapshotRow
+        Insert: Omit<SnapshotRow, 'id' | 'saved_at'>
+        Update: never
+        Relationships: []
+      }
+      snapshot_scores: {
+        Row: SnapshotScoreRow
+        Insert: Omit<SnapshotScoreRow, 'id'>
+        Update: never
         Relationships: []
       }
     }
