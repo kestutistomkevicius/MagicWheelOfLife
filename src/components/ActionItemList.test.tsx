@@ -120,9 +120,6 @@ describe('ActionItemList', () => {
 
     it('shows empty date input when deadline is null', () => {
       render(<ActionItemList {...defaultProps} items={[makeItem({ deadline: null })]} />)
-      const dateInput = screen.getByRole('textbox', { hidden: true }) || screen.getAllByDisplayValue('')[0]
-      // Find all date inputs — there should be one with value ''
-      const inputs = screen.getAllByRole('textbox', { hidden: true })
       const dateInputs = Array.from(document.querySelectorAll('input[type="date"]'))
       expect(dateInputs).toHaveLength(1)
       expect((dateInputs[0] as HTMLInputElement).value).toBe('')
