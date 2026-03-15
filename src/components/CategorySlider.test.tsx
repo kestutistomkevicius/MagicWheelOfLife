@@ -93,4 +93,53 @@ describe('CategorySlider', () => {
       expect(onTobeCommit).toHaveBeenCalled()
     })
   })
+
+  describe('expand toggle', () => {
+    it('does not render expand button when onExpandToggle is not provided', () => {
+      render(<CategorySlider {...defaultProps} />)
+      expect(screen.queryByLabelText(/expand action items/i)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText(/collapse action items/i)).not.toBeInTheDocument()
+    })
+
+    it('renders expand button with correct aria-label when onExpandToggle is provided', () => {
+      const onExpandToggle = vi.fn()
+      render(<CategorySlider {...defaultProps} onExpandToggle={onExpandToggle} isExpanded={false} />)
+      expect(screen.getByLabelText('Expand action items')).toBeInTheDocument()
+    })
+
+    it('renders collapse button with correct aria-label when isExpanded is true', () => {
+      const onExpandToggle = vi.fn()
+      render(<CategorySlider {...defaultProps} onExpandToggle={onExpandToggle} isExpanded={true} />)
+      expect(screen.getByLabelText('Collapse action items')).toBeInTheDocument()
+    })
+
+    it('calls onExpandToggle when expand button is clicked', () => {
+      const onExpandToggle = vi.fn()
+      render(<CategorySlider {...defaultProps} onExpandToggle={onExpandToggle} isExpanded={false} />)
+      fireEvent.click(screen.getByLabelText('Expand action items'))
+      expect(onExpandToggle).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('rename button UX (fix for UX debt)', () => {
+    it('clicking Rename button shows inline input without immediately calling onRename', () => {
+      const onRename = vi.fn()
+      render(<CategorySlider {...defaultProps} onRename={onRename} />)
+      fireEvent.click(screen.getByText('Rename'))
+      // Input should appear
+      expect(screen.getByDisplayValue('Health')).toBeInTheDocument()
+      // onRename should NOT have been called yet
+      expect(onRename).not.toHaveBeenCalled()
+    })
+
+    it('calls onRename with new name when user submits via Enter key', () => {
+      const onRename = vi.fn()
+      render(<CategorySlider {...defaultProps} onRename={onRename} />)
+      fireEvent.click(screen.getByText('Rename'))
+      const input = screen.getByDisplayValue('Health')
+      fireEvent.change(input, { target: { value: 'Wellness' } })
+      fireEvent.keyDown(input, { key: 'Enter' })
+      expect(onRename).toHaveBeenCalledWith('Wellness')
+    })
+  })
 })

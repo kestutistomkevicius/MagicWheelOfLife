@@ -12,6 +12,8 @@ interface CategorySliderProps {
   onRename?: (newName: string) => void
   onRemove?: () => void
   removeDisabled?: boolean
+  isExpanded?: boolean
+  onExpandToggle?: () => void
 }
 
 export function CategorySlider({
@@ -25,6 +27,8 @@ export function CategorySlider({
   onRename,
   onRemove,
   removeDisabled,
+  isExpanded,
+  onExpandToggle,
 }: CategorySliderProps) {
   const [editing, setEditing] = useState(false)
   const [editValue, setEditValue] = useState(categoryName)
@@ -61,14 +65,22 @@ export function CategorySlider({
           </span>
         )}
         <div className="flex gap-1">
+          {onExpandToggle && (
+            <button
+              className="text-xs text-stone-400 hover:text-stone-600"
+              onClick={onExpandToggle}
+              aria-label={isExpanded ? 'Collapse action items' : 'Expand action items'}
+              aria-expanded={isExpanded}
+            >
+              {isExpanded ? '▲' : '▼'}
+            </button>
+          )}
           {onRename && (
             <button
               className="text-xs text-stone-400 hover:text-stone-600"
               onClick={() => {
                 setEditValue(categoryName)
                 setEditing(true)
-                // Immediately trigger rename with default new name for test compatibility
-                onRename('Renamed')
               }}
             >
               Rename
