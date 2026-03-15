@@ -36,6 +36,7 @@ export interface UseWheelResult {
     value: number
   ) => Promise<void>
   renameWheel: (wheelId: string, newName: string) => Promise<void>
+  updateCategoryImportant: (categoryId: string, isImportant: boolean) => Promise<void>
 }
 
 export function useWheel(userId: string): UseWheelResult {
@@ -195,6 +196,37 @@ export function useWheel(userId: string): UseWheelResult {
     setWheels(prev => prev.map(w => w.id === wheelId ? { ...w, name: trimmed } : w))
   }
 
+  function reorderWithImportantFirst(cats: CategoryRow[]): CategoryRow[] {
+    const important = cats.filter(c => c.is_important).slice(0, 3)
+    const rest = cats.filter(c => !important.find(i => i.id === c.id))
+    const reordered = [...important, ...rest]
+    return reordered.map((c, i) => ({ ...c, position: i }))
+  }
+
+  async function updateCategoryImportant(categoryId: string, isImportant: boolean): Promise<void> {
+    // Optimistic local update first
+    setCategories(prev => {
+      const updated = prev.map(c => c.id === categoryId ? { ...c, is_important: isImportant } : c)
+      return reorderWithImportantFirst(updated)
+    })
+
+    // Persist is_important flag
+    await supabase
+      .from('categories')
+      .update({ is_important: isImportant, updated_at: new Date().toISOString() })
+      .eq('id', categoryId)
+
+    // Persist positions in batch — read current local state via setCategories callback
+    setCategories(prev => {
+      const reordered = reorderWithImportantFirst(prev)
+      // Fire-and-forget position upsert
+      void supabase
+        .from('categories')
+        .upsert(reordered.map(c => ({ id: c.id, position: c.position, updated_at: new Date().toISOString() })))
+      return reordered
+    })
+  }
+
   return {
     wheel,
     wheels,
@@ -208,5 +240,6 @@ export function useWheel(userId: string): UseWheelResult {
     createWheel,
     updateScore,
     renameWheel,
+    updateCategoryImportant,
   }
 }

@@ -404,6 +404,125 @@ describe('useWheel', () => {
       expect(mockFromForUpdate).not.toHaveBeenCalled()
     })
   })
+
+  describe('updateCategoryImportant (POLISH-04)', () => {
+    const mockCategoriesWithImportant: CategoryRow[] = [
+      {
+        id: 'cat-001',
+        wheel_id: 'wheel-001',
+        user_id: USER_ID,
+        name: 'Health',
+        position: 0,
+        score_asis: 5,
+        score_tobe: 7,
+        is_important: false,
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      },
+      {
+        id: 'cat-002',
+        wheel_id: 'wheel-001',
+        user_id: USER_ID,
+        name: 'Career',
+        position: 1,
+        score_asis: 6,
+        score_tobe: 8,
+        is_important: false,
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      },
+      {
+        id: 'cat-003',
+        wheel_id: 'wheel-001',
+        user_id: USER_ID,
+        name: 'Finance',
+        position: 2,
+        score_asis: 4,
+        score_tobe: 6,
+        is_important: false,
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      },
+    ]
+
+    it('reorders categories so important ones appear first (position 0)', async () => {
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null },
+        { data: [mockWheel], error: null },
+        { data: mockCategoriesWithImportant, error: null },
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      // Mock supabase for update + upsert calls
+      const buildUpdateChain = (terminalResult: unknown) => {
+        const chain: Record<string, unknown> = {}
+        chain.update = vi.fn().mockReturnValue(chain)
+        chain.upsert = vi.fn().mockReturnValue(chain)
+        chain.eq = vi.fn().mockReturnValue(chain)
+        chain.then = (resolve: (v: unknown) => void) => Promise.resolve(terminalResult).then(resolve)
+        return chain as ReturnType<typeof supabase.from>
+      }
+      vi.mocked(supabase.from).mockImplementation(() => buildUpdateChain({ data: null, error: null }))
+
+      await act(async () => {
+        await result.current.updateCategoryImportant('cat-002', true)
+      })
+
+      // cat-002 (Career) should now be at position 0
+      const cat002 = result.current.categories.find(c => c.id === 'cat-002')
+      expect(cat002?.position).toBe(0)
+    })
+
+    it('important categories occupy positions 0, 1, 2 when 3 are marked', async () => {
+      const allImportant = mockCategoriesWithImportant.map(c => ({ ...c, is_important: true }))
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null },
+        { data: [mockWheel], error: null },
+        { data: allImportant, error: null },
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      // All 3 are already important; just verify positions 0, 1, 2 are assigned
+      const positions = result.current.categories.map(c => c.position).sort((a, b) => a - b)
+      // positions should be [0, 1, 2] — initial load assigns them in order
+      expect(positions).toEqual([0, 1, 2])
+    })
+
+    it('calls supabase update on categories table with is_important value', async () => {
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null },
+        { data: [mockWheel], error: null },
+        { data: mockCategoriesWithImportant, error: null },
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      const mockUpdateFn = vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+      })
+      const mockUpsertFn = vi.fn().mockResolvedValue({ data: null, error: null })
+      const mockFromFn = vi.fn().mockReturnValue({
+        update: mockUpdateFn,
+        upsert: mockUpsertFn,
+        eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+      })
+      vi.mocked(supabase.from).mockImplementation(mockFromFn as unknown as typeof supabase.from)
+
+      await act(async () => {
+        await result.current.updateCategoryImportant('cat-001', true)
+      })
+
+      expect(mockFromFn).toHaveBeenCalledWith('categories')
+      expect(mockUpdateFn).toHaveBeenCalledWith(
+        expect.objectContaining({ is_important: true })
+      )
+    })
+  })
 })
 
 // Suppress unused import warnings
