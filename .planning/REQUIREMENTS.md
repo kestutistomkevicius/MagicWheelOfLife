@@ -52,10 +52,10 @@
 
 ### Landing Page
 
-- [ ] **LAND-01**: Public landing page with a hero section: value proposition and a single primary CTA ("Start your wheel" → signup)
-- [ ] **LAND-02**: Landing page includes a feature showcase section (screenshots or animated preview of the wheel in action)
-- [ ] **LAND-03**: Landing page includes a social proof section (placeholder copy / testimonials until real users exist)
-- [ ] **LAND-04**: Landing page includes a pricing section showing free vs premium tier differences
+- [x] **LAND-01**: Public landing page with a hero section: value proposition and a single primary CTA ("Start your wheel" → signup)
+- [x] **LAND-02**: Landing page includes a feature showcase section (screenshots or animated preview of the wheel in action)
+- [x] **LAND-03**: Landing page includes a social proof section (placeholder copy / testimonials until real users exist)
+- [x] **LAND-04**: Landing page includes a pricing section showing free vs premium tier differences
 
 ### Dev & Test Infrastructure
 
@@ -158,10 +158,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMP-01 | Phase 4 | Complete |
 | COMP-02 | Phase 4 | Complete |
 | TREND-01 | Phase 5 | Complete |
-| LAND-01 | Phase 6 | Pending |
-| LAND-02 | Phase 6 | Pending |
-| LAND-03 | Phase 6 | Pending |
-| LAND-04 | Phase 6 | Pending |
+| LAND-01 | Phase 6 | Complete |
+| LAND-02 | Phase 6 | Complete |
+| LAND-03 | Phase 6 | Complete |
+| LAND-04 | Phase 6 | Complete |
 | DEPLOY-01 | Phase 7 | Pending |
 | DEPLOY-02 | Phase 7 | Pending |
 
