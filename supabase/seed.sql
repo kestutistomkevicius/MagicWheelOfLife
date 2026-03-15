@@ -199,3 +199,82 @@ BEGIN
     ON CONFLICT DO NOTHING;
 
 END $$;
+
+-- ============================================================
+-- PHASE 3 SEED: Action Items
+-- Uses name-based category lookup because Phase 2 categories
+-- were inserted with gen_random_uuid() (no deterministic IDs).
+-- FRAGILITY NOTE: if category names in seed change, update here.
+-- ============================================================
+DO $$
+DECLARE
+  free_user_id     uuid := '00000000-0000-0000-0000-000000000001';
+  premium_user_id  uuid := '00000000-0000-0000-0000-000000000002';
+  free_wheel_id    uuid;
+  premium_wheel_id uuid;
+  health_cat_id    uuid;
+  career_cat_id    uuid;
+  finance_cat_id   uuid;
+  p_health_cat_id  uuid;
+  p_career_cat_id  uuid;
+BEGIN
+  -- Look up wheel IDs for each user
+  SELECT id INTO free_wheel_id    FROM public.wheels WHERE user_id = free_user_id    LIMIT 1;
+  SELECT id INTO premium_wheel_id FROM public.wheels WHERE user_id = premium_user_id LIMIT 1;
+
+  -- Look up category IDs for free user by name
+  SELECT id INTO health_cat_id  FROM public.categories WHERE wheel_id = free_wheel_id AND name = 'Health'  LIMIT 1;
+  SELECT id INTO career_cat_id  FROM public.categories WHERE wheel_id = free_wheel_id AND name = 'Career'  LIMIT 1;
+  SELECT id INTO finance_cat_id FROM public.categories WHERE wheel_id = free_wheel_id AND name = 'Finance' LIMIT 1;
+
+  -- Look up category IDs for premium user by name
+  SELECT id INTO p_health_cat_id FROM public.categories WHERE wheel_id = premium_wheel_id AND name = 'Health' LIMIT 1;
+  SELECT id INTO p_career_cat_id FROM public.categories WHERE wheel_id = premium_wheel_id AND name = 'Career' LIMIT 1;
+
+  -- Free user action items: Health (mix of open, completed, with deadlines)
+  IF health_cat_id IS NOT NULL THEN
+    INSERT INTO public.action_items (category_id, user_id, text, is_complete, deadline, position)
+    VALUES
+      (health_cat_id, free_user_id, 'Run 3x per week',         false, '2026-04-30', 0),
+      (health_cat_id, free_user_id, 'Sleep before midnight',   true,  null,         1),
+      (health_cat_id, free_user_id, 'Schedule annual checkup', false, '2026-05-15', 2)
+    ON CONFLICT DO NOTHING;
+  END IF;
+
+  -- Free user action items: Career
+  IF career_cat_id IS NOT NULL THEN
+    INSERT INTO public.action_items (category_id, user_id, text, is_complete, deadline, position)
+    VALUES
+      (career_cat_id, free_user_id, 'Finish online course', false, '2026-06-01', 0),
+      (career_cat_id, free_user_id, 'Update LinkedIn',       true,  null,         1)
+    ON CONFLICT DO NOTHING;
+  END IF;
+
+  -- Free user action items: Finance
+  IF finance_cat_id IS NOT NULL THEN
+    INSERT INTO public.action_items (category_id, user_id, text, is_complete, deadline, position)
+    VALUES
+      (finance_cat_id, free_user_id, 'Build 3-month emergency fund', false, '2026-12-31', 0)
+    ON CONFLICT DO NOTHING;
+  END IF;
+
+  -- Premium user action items: Health
+  IF p_health_cat_id IS NOT NULL THEN
+    INSERT INTO public.action_items (category_id, user_id, text, is_complete, deadline, position)
+    VALUES
+      (p_health_cat_id, premium_user_id, 'Train for 5k',       true,  null,         0),
+      (p_health_cat_id, premium_user_id, 'Reduce caffeine',     false, '2026-04-01', 1),
+      (p_health_cat_id, premium_user_id, 'Monthly physio appt', false, null,         2)
+    ON CONFLICT DO NOTHING;
+  END IF;
+
+  -- Premium user action items: Career
+  IF p_career_cat_id IS NOT NULL THEN
+    INSERT INTO public.action_items (category_id, user_id, text, is_complete, deadline, position)
+    VALUES
+      (p_career_cat_id, premium_user_id, 'Give talk at meetup',  false, '2026-09-01', 0),
+      (p_career_cat_id, premium_user_id, 'Write technical blog',  true,  null,         1)
+    ON CONFLICT DO NOTHING;
+  END IF;
+
+END $$;
