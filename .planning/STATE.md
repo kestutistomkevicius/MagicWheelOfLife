@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 06-landing-page-01-PLAN.md
-last_updated: "2026-03-15T20:54:21.645Z"
+stopped_at: Completed 06-landing-page-02-PLAN.md
+last_updated: "2026-03-15T20:58:11.008Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 30
-  completed_plans: 27
+  completed_plans: 28
   percent: 0
 ---
 
@@ -78,6 +78,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05-trend-chart P02 | 3 | 1 tasks | 4 files |
 | Phase 05-trend-chart P03 | checkpoint | 1 tasks | 0 files |
 | Phase 06-landing-page P01 | 77s | 2 tasks | 6 files |
+| Phase 06-landing-page P02 | 4m | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -150,6 +151,8 @@ Recent decisions affecting current work:
 - [Phase 06-landing-page]: Wave 0 stub pattern: import only describe/it from vitest, use it.todo — no LandingPage import until plan 02
 - [Phase 06-landing-page]: useInView disconnects observer after first intersection — one-shot animate-in pattern
 - [Phase 06-landing-page]: og-image.svg is SVG placeholder — to be replaced with designed PNG before Phase 7 launch
+- [Phase 06-landing-page]: C:/Program Files/Git/ route outside ProtectedRoute — public LandingPage with three-state auth guard (undefined=null, truthy=navigate+null, null=render)
+- [Phase 06-landing-page]: Secondary CTA uses plain <a href='#features'> not Link — React Router must not intercept hash anchors on landing page
 
 ### Pending Todos
 
@@ -163,6 +166,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T20:54:21.638Z
-Stopped at: Completed 06-landing-page-01-PLAN.md
+Last session: 2026-03-15T20:58:11.001Z
+Stopped at: Completed 06-landing-page-02-PLAN.md
 Resume file: None
