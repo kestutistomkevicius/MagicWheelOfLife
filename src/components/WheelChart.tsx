@@ -12,9 +12,11 @@ export type WheelChartPoint = {
 
 interface WheelChartProps {
   data: WheelChartPoint[]
+  highlightedCategory?: string    // stub — rendered in Plan 06
+  importantCategories?: string[]  // stub — rendered in Plan 06
 }
 
-export function WheelChart({ data }: WheelChartProps) {
+export function WheelChart({ data, highlightedCategory: _highlightedCategory, importantCategories: _importantCategories }: WheelChartProps) {
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[400px] text-stone-400 text-sm">

@@ -23,6 +23,7 @@ export type CategoryRow = {
   position: number
   score_asis: number
   score_tobe: number
+  is_important: boolean  // default false — premium feature
   created_at: string
   updated_at: string
 }
@@ -33,7 +34,9 @@ export type ActionItemRow = {
   user_id: string
   text: string
   is_complete: boolean
-  deadline: string | null  // 'YYYY-MM-DD' or null
+  deadline: string | null      // 'YYYY-MM-DD' or null
+  completed_at: string | null  // ISO timestamptz or null — set when item is completed
+  note: string | null          // up to 500 chars or null
   position: number
   created_at: string
   updated_at: string
@@ -75,14 +78,14 @@ export type Database = {
       }
       categories: {
         Row: CategoryRow
-        Insert: Omit<CategoryRow, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Pick<CategoryRow, 'name' | 'position' | 'score_asis' | 'score_tobe' | 'updated_at'>>
+        Insert: Omit<CategoryRow, 'id' | 'created_at' | 'updated_at' | 'is_important'> & { is_important?: boolean }
+        Update: Partial<Pick<CategoryRow, 'name' | 'position' | 'score_asis' | 'score_tobe' | 'is_important' | 'updated_at'>>
         Relationships: []
       }
       action_items: {
         Row: ActionItemRow
-        Insert: Omit<ActionItemRow, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Pick<ActionItemRow, 'text' | 'is_complete' | 'deadline' | 'position' | 'updated_at'>>
+        Insert: Omit<ActionItemRow, 'id' | 'created_at' | 'updated_at' | 'completed_at' | 'note'> & { completed_at?: string | null; note?: string | null }
+        Update: Partial<Pick<ActionItemRow, 'text' | 'is_complete' | 'deadline' | 'completed_at' | 'note' | 'position' | 'updated_at'>>
         Relationships: []
       }
       snapshots: {
