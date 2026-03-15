@@ -14,6 +14,7 @@ interface CategorySliderProps {
   removeDisabled?: boolean
   isExpanded?: boolean
   onExpandToggle?: () => void
+  actionItemCount?: number
 }
 
 export function CategorySlider({
@@ -29,6 +30,7 @@ export function CategorySlider({
   removeDisabled,
   isExpanded,
   onExpandToggle,
+  actionItemCount,
 }: CategorySliderProps) {
   const [editing, setEditing] = useState(false)
   const [editValue, setEditValue] = useState(categoryName)
@@ -42,7 +44,7 @@ export function CategorySlider({
   }
 
   return (
-    <div className="space-y-2 py-2 border-b border-stone-100 last:border-0">
+    <div className="space-y-2 py-2 pr-4 border-b border-stone-100 last:border-0">
       <div className="flex items-center justify-between gap-2">
         {editing ? (
           <input
@@ -59,7 +61,7 @@ export function CategorySlider({
         ) : (
           <span
             className="text-sm font-medium text-stone-700 cursor-pointer hover:underline"
-            onClick={() => onRename && setEditing(true)}
+            onClick={() => { if (onRename) { setEditValue(categoryName); setEditing(true) } }}
           >
             {categoryName}
           </span>
@@ -72,7 +74,7 @@ export function CategorySlider({
               aria-label={isExpanded ? 'Collapse action items' : 'Expand action items'}
               aria-expanded={isExpanded}
             >
-              {isExpanded ? '▲' : '▼'}
+              {actionItemCount ? `Actions (${actionItemCount})` : '+ Actions'} {isExpanded ? '▲' : '▼'}
             </button>
           )}
           {onRename && (
@@ -109,7 +111,7 @@ export function CategorySlider({
           aria-label={`As-Is score for ${categoryName}`}
           className="flex-1"
         />
-        <span className="w-5 text-sm font-medium text-stone-800 text-right">{asisValue}</span>
+        <span className="w-8 text-sm font-medium text-stone-800 text-right">{asisValue}</span>
       </div>
       <div className="flex items-center gap-3">
         <span className="w-14 text-xs text-stone-500 shrink-0">To-Be</span>
@@ -123,7 +125,7 @@ export function CategorySlider({
           aria-label={`To-Be score for ${categoryName}`}
           className="flex-1"
         />
-        <span className="w-5 text-sm font-medium text-stone-800 text-right">{tobeValue}</span>
+        <span className="w-8 text-sm font-medium text-stone-800 text-right">{tobeValue}</span>
       </div>
     </div>
   )
