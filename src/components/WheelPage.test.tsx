@@ -67,6 +67,8 @@ vi.mock('@/components/CategorySlider', () => ({
     onRename,
     onRemove,
     removeDisabled,
+    isExpanded,
+    onExpandToggle,
   }: {
     categoryName: string
     asisValue: number
@@ -78,6 +80,8 @@ vi.mock('@/components/CategorySlider', () => ({
     onRename?: (newName: string) => void
     onRemove?: () => void
     removeDisabled?: boolean
+    isExpanded?: boolean
+    onExpandToggle?: () => void
   }) => (
     <div data-testid={`slider-${categoryName}`}>
       <span>{categoryName}</span>
@@ -95,6 +99,14 @@ vi.mock('@/components/CategorySlider', () => ({
         onChange={(e) => onTobeChange(Number(e.target.value))}
         onMouseUp={(e) => onTobeCommit(Number((e.target as HTMLInputElement).value))}
       />
+      {onExpandToggle && (
+        <button
+          onClick={onExpandToggle}
+          aria-label={isExpanded ? 'Collapse action items' : 'Expand action items'}
+        >
+          {isExpanded ? '▲' : '▼'}
+        </button>
+      )}
       {onRename && (
         <button onClick={() => onRename('Renamed')}>Rename</button>
       )}
@@ -102,6 +114,22 @@ vi.mock('@/components/CategorySlider', () => ({
         <button onClick={onRemove} disabled={removeDisabled}>Remove</button>
       )}
     </div>
+  ),
+}))
+
+vi.mock('@/hooks/useActionItems', () => ({
+  useActionItems: () => ({
+    loadActionItems: vi.fn().mockResolvedValue([]),
+    addActionItem: vi.fn(),
+    toggleActionItem: vi.fn(),
+    setDeadline: vi.fn(),
+    deleteActionItem: vi.fn(),
+  }),
+}))
+
+vi.mock('@/components/ActionItemList', () => ({
+  ActionItemList: ({ categoryId }: { categoryId: string }) => (
+    <div data-testid={`action-items-${categoryId}`}>ActionItemList mock</div>
   ),
 }))
 
@@ -319,6 +347,44 @@ describe('WheelPage', () => {
       expect(addBtn).not.toBeDisabled()
       fireEvent.click(addBtn)
       expect(mockAddCategory).toHaveBeenCalled()
+    })
+  })
+
+  describe('action item expand/collapse', () => {
+    it('renders expand toggle button for each category', () => {
+      render(<WheelPage />)
+      // Each category should have an expand button (collapsed by default)
+      const expandBtns = screen.getAllByLabelText('Expand action items')
+      expect(expandBtns).toHaveLength(3)
+    })
+
+    it('clicking expand toggle shows ActionItemList for that category', async () => {
+      render(<WheelPage />)
+      // Initially ActionItemList should not be rendered
+      expect(screen.queryByTestId('action-items-cat-1')).not.toBeInTheDocument()
+      // Click the expand button for the first category (Health / cat-1)
+      const expandBtns = screen.getAllByLabelText('Expand action items')
+      fireEvent.click(expandBtns[0])
+      // ActionItemList should now render for cat-1
+      await waitFor(() => {
+        expect(screen.getByTestId('action-items-cat-1')).toBeInTheDocument()
+      })
+    })
+
+    it('clicking expand again collapses the panel', async () => {
+      render(<WheelPage />)
+      const expandBtns = screen.getAllByLabelText('Expand action items')
+      // Expand first category
+      fireEvent.click(expandBtns[0])
+      await waitFor(() => {
+        expect(screen.getByTestId('action-items-cat-1')).toBeInTheDocument()
+      })
+      // Collapse it by clicking again (now labeled "Collapse action items")
+      const collapseBtn = screen.getByLabelText('Collapse action items')
+      fireEvent.click(collapseBtn)
+      await waitFor(() => {
+        expect(screen.queryByTestId('action-items-cat-1')).not.toBeInTheDocument()
+      })
     })
   })
 })

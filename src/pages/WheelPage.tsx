@@ -4,9 +4,12 @@ import { useWheel } from '@/hooks/useWheel'
 import { useCategories } from '@/hooks/useCategories'
 import { WheelChart } from '@/components/WheelChart'
 import { CategorySlider } from '@/components/CategorySlider'
+import { ActionItemList } from '@/components/ActionItemList'
 import { CreateWheelModal } from '@/components/CreateWheelModal'
 import { SnapshotWarningDialog } from '@/components/SnapshotWarningDialog'
+import { useActionItems } from '@/hooks/useActionItems'
 import type { CategoryRow } from '@/hooks/useWheel'
+import type { ActionItemRow } from '@/types/database'
 
 interface ConfirmState {
   type: 'rename' | 'remove'
@@ -37,6 +40,9 @@ export function WheelPage() {
   const [localCategories, setLocalCategories] = useState<CategoryRow[]>(categories)
   const [modalOpen, setModalOpen] = useState(false)
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
+  const [actionItemsByCategory, setActionItemsByCategory] = useState<Record<string, ActionItemRow[]>>({})
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
+  const { loadActionItems } = useActionItems()
 
   // Sync local categories from hook whenever categories change (e.g., after createWheel or selectWheel)
   useEffect(() => {
@@ -159,6 +165,28 @@ export function WheelPage() {
     await createWheel(mode, name, userId)
   }
 
+  async function handleExpandCategory(categoryId: string) {
+    const isCurrentlyExpanded = expandedCategories.has(categoryId)
+    if (isCurrentlyExpanded) {
+      setExpandedCategories(prev => {
+        const s = new Set(prev)
+        s.delete(categoryId)
+        return s
+      })
+      return
+    }
+    // Lazy load: only fetch if not already loaded for this category
+    if (!actionItemsByCategory[categoryId]) {
+      const items = await loadActionItems(categoryId)
+      setActionItemsByCategory(prev => ({ ...prev, [categoryId]: items }))
+    }
+    setExpandedCategories(prev => new Set(prev).add(categoryId))
+  }
+
+  function handleActionItemsChange(categoryId: string, items: ActionItemRow[]) {
+    setActionItemsByCategory(prev => ({ ...prev, [categoryId]: items }))
+  }
+
   function handleConfirmAction() {
     if (!confirmState) return
     const { type, categoryId, categoryName, newName } = confirmState
@@ -234,19 +262,30 @@ export function WheelPage() {
         {/* Category sliders */}
         <div className="flex-1 min-w-0 overflow-y-auto max-h-[500px]">
           {localCategories.map(cat => (
-            <CategorySlider
-              key={cat.id}
-              categoryName={cat.name}
-              asisValue={cat.score_asis}
-              tobeValue={cat.score_tobe}
-              onAsisChange={(v) => handleAsisChange(cat.id, v)}
-              onAsisCommit={(v) => handleAsisCommit(cat.id, v)}
-              onTobeChange={(v) => handleTobeChange(cat.id, v)}
-              onTobeCommit={(v) => handleTobeCommit(cat.id, v)}
-              onRename={(newName) => handleRename(cat.id, cat.name, newName)}
-              onRemove={() => handleRemove(cat.id, cat.name)}
-              removeDisabled={localCategories.length <= 3}
-            />
+            <div key={cat.id}>
+              <CategorySlider
+                categoryName={cat.name}
+                asisValue={cat.score_asis}
+                tobeValue={cat.score_tobe}
+                onAsisChange={(v) => handleAsisChange(cat.id, v)}
+                onAsisCommit={(v) => handleAsisCommit(cat.id, v)}
+                onTobeChange={(v) => handleTobeChange(cat.id, v)}
+                onTobeCommit={(v) => handleTobeCommit(cat.id, v)}
+                onRename={(newName) => handleRename(cat.id, cat.name, newName)}
+                onRemove={() => handleRemove(cat.id, cat.name)}
+                removeDisabled={localCategories.length <= 3}
+                isExpanded={expandedCategories.has(cat.id)}
+                onExpandToggle={() => { void handleExpandCategory(cat.id) }}
+              />
+              {expandedCategories.has(cat.id) && (
+                <ActionItemList
+                  categoryId={cat.id}
+                  userId={wheel?.user_id ?? ''}
+                  items={actionItemsByCategory[cat.id] ?? []}
+                  onItemsChange={(items) => handleActionItemsChange(cat.id, items)}
+                />
+              )}
+            </div>
           ))}
         </div>
       </div>
