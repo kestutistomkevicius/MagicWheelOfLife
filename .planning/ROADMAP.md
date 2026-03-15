@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Wheel & Scoring** - Interactive wheel creation, category management, and live slider scoring (completed 2026-03-15)
 - [ ] **Phase 3: Action Items** - Per-category action tracking with deadlines and completion state
 - [x] **Phase 4: Snapshots & Comparison** - Manual snapshot saves and two-wheel overlay comparison (completed 2026-03-15)
-- [ ] **Phase 5: Trend Chart** - Single-category score trajectory over time
+- [x] **Phase 5: Trend Chart** - Single-category score trajectory over time (completed 2026-03-15)
 - [ ] **Phase 6: Landing Page** - Public acquisition page with value proposition and CTAs
 - [ ] **Phase 7: Launch** - Production deployment on Vercel and Supabase Cloud
 
@@ -148,6 +148,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. Wheel & Scoring | 6/6 | Complete   | 2026-03-15 |
 | 3. Action Items | 5/6 | In Progress|  |
 | 4. Snapshots & Comparison | 5/5 | Complete   | 2026-03-15 |
-| 5. Trend Chart | 2/3 | In Progress|  |
+| 5. Trend Chart | 3/3 | Complete   | 2026-03-15 |
 | 6. Landing Page | 0/TBD | Not started | - |
 | 7. Launch | 0/TBD | Not started | - |
