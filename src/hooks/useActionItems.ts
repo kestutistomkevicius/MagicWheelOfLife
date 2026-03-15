@@ -18,13 +18,15 @@ export interface UseActionItemsResult {
     deadline: string | null  // ISO date string 'YYYY-MM-DD' or null to clear
   }) => Promise<void>
   deleteActionItem: (id: string) => Promise<void>
+  saveCompletionNote: (params: { id: string; note: string }) => Promise<void>
+  reopenActionItem: (id: string) => Promise<void>
 }
 
 export function useActionItems(): UseActionItemsResult {
   async function loadActionItems(categoryId: string): Promise<ActionItemRow[]> {
     const res = await supabase
       .from('action_items')
-      .select('id, category_id, user_id, text, is_complete, deadline, position, created_at, updated_at')
+      .select('id, category_id, user_id, text, is_complete, deadline, completed_at, note, position, created_at, updated_at')
       .eq('category_id', categoryId)
       .order('position', { ascending: true })
     return Array.isArray(res.data) ? (res.data as ActionItemRow[]) : []
@@ -65,8 +67,31 @@ export function useActionItems(): UseActionItemsResult {
   }): Promise<void> {
     await supabase
       .from('action_items')
-      .update({ is_complete: params.isComplete, updated_at: new Date().toISOString() })
+      .update({
+        is_complete: params.isComplete,
+        completed_at: params.isComplete ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', params.id)
+  }
+
+  async function saveCompletionNote(params: { id: string; note: string }): Promise<void> {
+    await supabase
+      .from('action_items')
+      .update({ note: params.note, updated_at: new Date().toISOString() })
+      .eq('id', params.id)
+  }
+
+  async function reopenActionItem(id: string): Promise<void> {
+    await supabase
+      .from('action_items')
+      .update({
+        is_complete: false,
+        completed_at: null,
+        note: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
   }
 
   async function setDeadline(params: {
@@ -86,5 +111,5 @@ export function useActionItems(): UseActionItemsResult {
       .eq('id', id)
   }
 
-  return { loadActionItems, addActionItem, toggleActionItem, setDeadline, deleteActionItem }
+  return { loadActionItems, addActionItem, toggleActionItem, setDeadline, deleteActionItem, saveCompletionNote, reopenActionItem }
 }
