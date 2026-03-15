@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-action-items-04-PLAN.md
-last_updated: "2026-03-15T08:36:25.583Z"
+stopped_at: Completed 03-action-items-05-PLAN.md
+last_updated: "2026-03-15T08:45:36.308Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 18
-  completed_plans: 16
+  completed_plans: 17
   percent: 0
 ---
 
@@ -66,6 +66,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-action-items P02 | 7 | 2 tasks | 2 files |
 | Phase 03-action-items P03 | 8 | 1 tasks | 2 files |
 | Phase 03-action-items P04 | 8 | 1 tasks | 2 files |
+| Phase 03-action-items P05 | 7 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,9 @@ Recent decisions affecting current work:
 - [Phase 03-action-items]: ActionItemList is purely presentational with callbacks — WheelPage owns the actionItemsByCategory state map
 - [Phase 03-action-items]: Optimistic update pattern: onItemsChange fires synchronously before Supabase await for instant UI response in toggle/delete
 - [Phase 03-action-items]: Date input uses value={item.deadline ?? ''} — null renders as empty string, ISO string renders as-is
+- [Phase 03-action-items]: Expand/collapse state lives in WheelPage (Set<string>), not CategorySlider — consistent with ActionItemList-is-presentational decision
+- [Phase 03-action-items]: Lazy load on first expand: loadActionItems called once per category per session; cached in actionItemsByCategory Record
+- [Phase 03-action-items]: CategorySlider rename UX fix: onClick no longer calls onRename immediately; inline edit handles submit via handleRenameSubmit
 
 ### Pending Todos
 
@@ -131,6 +135,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T08:36:25.581Z
-Stopped at: Completed 03-action-items-04-PLAN.md
+Last session: 2026-03-15T08:45:36.305Z
+Stopped at: Completed 03-action-items-05-PLAN.md
 Resume file: None
