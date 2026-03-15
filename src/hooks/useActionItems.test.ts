@@ -131,6 +131,36 @@ describe('useActionItems', () => {
       )
       expect(chain.eq).toHaveBeenCalledWith('id', 'item-1')
     })
+
+    it('sets completed_at to an ISO string when completing (POLISH-01)', async () => {
+      const chain = buildChain({ data: null, error: null })
+      mockFrom.mockReturnValue(chain)
+
+      const { toggleActionItem } = useActionItems()
+      await toggleActionItem({ id: 'item-1', isComplete: true })
+
+      expect(chain.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          is_complete: true,
+          completed_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
+        })
+      )
+    })
+
+    it('sets completed_at to null when un-completing (POLISH-01)', async () => {
+      const chain = buildChain({ data: null, error: null })
+      mockFrom.mockReturnValue(chain)
+
+      const { toggleActionItem } = useActionItems()
+      await toggleActionItem({ id: 'item-1', isComplete: false })
+
+      expect(chain.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          is_complete: false,
+          completed_at: null,
+        })
+      )
+    })
   })
 
   describe('deleteActionItem', () => {
@@ -158,6 +188,54 @@ describe('useActionItems', () => {
       expect(mockFrom).toHaveBeenCalledWith('action_items')
       expect(chain.eq).toHaveBeenCalledWith('category_id', 'cat-id')
       expect(chain.order).toHaveBeenCalledWith('position', { ascending: true })
+    })
+
+    it('SELECT string includes completed_at and note columns (POLISH-01)', async () => {
+      const chain = buildChain({ data: [], error: null })
+      mockFrom.mockReturnValue(chain)
+
+      const { loadActionItems } = useActionItems()
+      await loadActionItems('cat-id')
+
+      const selectArg: string = (chain.select as ReturnType<typeof vi.fn>).mock.calls[0][0]
+      expect(selectArg).toContain('completed_at')
+      expect(selectArg).toContain('note')
+    })
+  })
+
+  describe('saveCompletionNote', () => {
+    it('updates note and updated_at for the given id (POLISH-01)', async () => {
+      const chain = buildChain({ data: null, error: null })
+      mockFrom.mockReturnValue(chain)
+
+      const { saveCompletionNote } = useActionItems()
+      await saveCompletionNote({ id: 'item-1', note: 'Great job!' })
+
+      expect(mockFrom).toHaveBeenCalledWith('action_items')
+      expect(chain.update).toHaveBeenCalledWith(
+        expect.objectContaining({ note: 'Great job!' })
+      )
+      expect(chain.eq).toHaveBeenCalledWith('id', 'item-1')
+    })
+  })
+
+  describe('reopenActionItem', () => {
+    it('resets is_complete, completed_at, and note to false/null/null (POLISH-01)', async () => {
+      const chain = buildChain({ data: null, error: null })
+      mockFrom.mockReturnValue(chain)
+
+      const { reopenActionItem } = useActionItems()
+      await reopenActionItem('item-1')
+
+      expect(mockFrom).toHaveBeenCalledWith('action_items')
+      expect(chain.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          is_complete: false,
+          completed_at: null,
+          note: null,
+        })
+      )
+      expect(chain.eq).toHaveBeenCalledWith('id', 'item-1')
     })
   })
 })
