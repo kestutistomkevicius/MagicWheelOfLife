@@ -31,10 +31,10 @@
 
 ### Action Items
 
-- [ ] **ACTION-01**: User can add up to 7 action items per category (free text)
-- [ ] **ACTION-02**: User can set an optional deadline date on an action item
-- [ ] **ACTION-03**: User can mark an action item as complete (checkbox)
-- [ ] **ACTION-04**: User can delete an action item
+- [x] **ACTION-01**: User can add up to 7 action items per category (free text)
+- [x] **ACTION-02**: User can set an optional deadline date on an action item
+- [x] **ACTION-03**: User can mark an action item as complete (checkbox)
+- [x] **ACTION-04**: User can delete an action item
 
 ### Snapshots
 
@@ -149,10 +149,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCORE-01 | Phase 2 | Complete |
 | SCORE-02 | Phase 2 | Complete |
 | SCORE-03 | Phase 2 | Complete |
-| ACTION-01 | Phase 3 | Pending |
-| ACTION-02 | Phase 3 | Pending |
-| ACTION-03 | Phase 3 | Pending |
-| ACTION-04 | Phase 3 | Pending |
+| ACTION-01 | Phase 3 | Complete |
+| ACTION-02 | Phase 3 | Complete |
+| ACTION-03 | Phase 3 | Complete |
+| ACTION-04 | Phase 3 | Complete |
 | SNAP-01 | Phase 4 | Pending |
 | SNAP-02 | Phase 4 | Pending |
 | COMP-01 | Phase 4 | Pending |

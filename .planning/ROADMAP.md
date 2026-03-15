@@ -71,7 +71,15 @@ Plans:
   2. User can set an optional deadline date on an action item and see the date displayed
   3. User can check an action item as complete and see the visual state change (checked, struck-through, or equivalent)
   4. User can delete an action item and it disappears immediately
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Wave 0: ActionItemRow type, shadcn Checkbox install, test stubs for useActionItems and ActionItemList
+- [ ] 03-02-PLAN.md — DB migration: action_items table + RLS + seed data for both dev users
+- [ ] 03-03-PLAN.md — useActionItems hook: load, add (7-item limit), toggle, setDeadline, delete
+- [ ] 03-04-PLAN.md — ActionItemList component: add/toggle/deadline/delete with optimistic UI
+- [ ] 03-05-PLAN.md — WheelPage + CategorySlider integration: expand/collapse per category, lazy load, rename UX fix
+- [ ] 03-06-PLAN.md — Human verification checkpoint: end-to-end action item flows
 
 ### Phase 4: Snapshots & Comparison
 **Goal**: Users can save named point-in-time captures of their wheel and compare any two captures side by side
@@ -126,7 +134,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Foundation | 6/6 | Complete   | 2026-03-14 |
 | 2. Wheel & Scoring | 6/6 | Complete   | 2026-03-15 |
-| 3. Action Items | 0/TBD | Not started | - |
+| 3. Action Items | 0/6 | Not started | - |
 | 4. Snapshots & Comparison | 0/TBD | Not started | - |
 | 5. Trend Chart | 0/TBD | Not started | - |
 | 6. Landing Page | 0/TBD | Not started | - |
