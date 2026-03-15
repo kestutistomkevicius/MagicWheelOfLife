@@ -106,7 +106,12 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can select a category and view a line chart showing its as-is and to-be scores at each snapshot date
   2. When fewer than 3 snapshots exist, the trend chart area shows a graceful empty state (message, not a broken chart)
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — TrendChart component (Recharts LineChart, amber/blue) + Wave 0 TrendPage test stubs
+- [ ] 05-02-PLAN.md — TrendPage full implementation: data loading, category select, empty state, test suite
+- [ ] 05-03-PLAN.md — Human verification checkpoint: end-to-end trend chart flows
 
 ### Phase 6: Landing Page
 **Goal**: A public landing page communicates the product value and drives visitor sign-ups
@@ -143,6 +148,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. Wheel & Scoring | 6/6 | Complete   | 2026-03-15 |
 | 3. Action Items | 5/6 | In Progress|  |
 | 4. Snapshots & Comparison | 5/5 | Complete   | 2026-03-15 |
-| 5. Trend Chart | 0/TBD | Not started | - |
+| 5. Trend Chart | 0/3 | Not started | - |
 | 6. Landing Page | 0/TBD | Not started | - |
 | 7. Launch | 0/TBD | Not started | - |
