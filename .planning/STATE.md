@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-action-items-02-PLAN.md
-last_updated: "2026-03-15T08:28:10.083Z"
+stopped_at: Completed 03-action-items-03-PLAN.md
+last_updated: "2026-03-15T08:32:52.633Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 18
-  completed_plans: 14
+  completed_plans: 15
   percent: 0
 ---
 
@@ -64,6 +64,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-wheel-scoring P06 | checkpoint | 1 tasks | 3 files |
 | Phase 03-action-items P01 | 7 | 2 tasks | 5 files |
 | Phase 03-action-items P02 | 7 | 2 tasks | 2 files |
+| Phase 03-action-items P03 | 8 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,8 @@ Recent decisions affecting current work:
 - [Phase 03-action-items]: action_items.user_id denormalized for RLS efficiency — no join through categories needed in USING clause
 - [Phase 03-action-items]: set_updated_at() uses CREATE OR REPLACE — idempotent trigger function definition across migrations
 - [Phase 03-action-items]: Phase 3 seed uses name-based category lookup with NULL guards — category UUIDs not deterministic from Phase 2
+- [Phase 03-action-items]: vi.hoisted() required for Vitest mock variables referenced inside vi.mock() factory — plain const declarations fail with 'Cannot access before initialization'
+- [Phase 03-action-items]: buildChain() test helper supports both fluent Supabase chaining and thenable await in tests — mirrors useCategories.test.ts pattern
 
 ### Pending Todos
 
@@ -124,6 +127,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T08:28:10.079Z
-Stopped at: Completed 03-action-items-02-PLAN.md
+Last session: 2026-03-15T08:32:52.631Z
+Stopped at: Completed 03-action-items-03-PLAN.md
 Resume file: None
