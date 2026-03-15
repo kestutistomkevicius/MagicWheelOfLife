@@ -27,6 +27,18 @@ export type CategoryRow = {
   updated_at: string
 }
 
+export type ActionItemRow = {
+  id: string
+  category_id: string
+  user_id: string
+  text: string
+  is_complete: boolean
+  deadline: string | null  // 'YYYY-MM-DD' or null
+  position: number
+  created_at: string
+  updated_at: string
+}
+
 export type Database = {
   __InternalSupabase: { PostgrestVersion: '12' }
   public: {
@@ -47,6 +59,12 @@ export type Database = {
         Row: CategoryRow
         Insert: Omit<CategoryRow, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Pick<CategoryRow, 'name' | 'position' | 'score_asis' | 'score_tobe' | 'updated_at'>>
+        Relationships: []
+      }
+      action_items: {
+        Row: ActionItemRow
+        Insert: Omit<ActionItemRow, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Pick<ActionItemRow, 'text' | 'is_complete' | 'deadline' | 'position' | 'updated_at'>>
         Relationships: []
       }
     }
