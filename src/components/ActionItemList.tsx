@@ -60,7 +60,7 @@ export function ActionItemList({
   }
 
   return (
-    <div className="mt-2 space-y-1 pl-1">
+    <div className="mt-2 space-y-1 pl-1 pr-4">
       {items.map((item) => (
         <div key={item.id} className="flex items-start gap-2 py-1">
           <Checkbox
@@ -91,7 +91,7 @@ export function ActionItemList({
             type="button"
             onClick={() => void handleDelete(item.id)}
             aria-label={`Delete "${item.text}"`}
-            className="text-xs text-stone-300 hover:text-red-400 shrink-0"
+            className="text-sm text-stone-400 hover:text-red-400 shrink-0 leading-none"
           >
             &times;
           </button>
