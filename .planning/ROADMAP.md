@@ -155,5 +155,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Action Items | 5/6 | In Progress|  |
 | 4. Snapshots & Comparison | 5/5 | Complete   | 2026-03-15 |
 | 5. Trend Chart | 3/3 | Complete   | 2026-03-15 |
-| 6. Landing Page | 2/4 | In Progress|  |
+| 6. Landing Page | 3/4 | In Progress|  |
 | 7. Launch | 0/TBD | Not started | - |
