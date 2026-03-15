@@ -145,7 +145,17 @@ Plans:
   6. Free users are blocked from adding a 9th category with an upgrade prompt; premium capped at 12
   7. Users can rename a wheel inline from the WheelPage heading
   8. Completed action items appear in a separate "Completed" table (task | completion date | note to future self) below the active list; completion date is recorded automatically
-**Plans**: TBD
+**Plans**: 8 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Wave 0: DB migration (completed_at, note, is_important columns), TypeScript type updates, DueSoonWidget stub + test stubs
+- [ ] 07-02-PLAN.md — useActionItems extension: toggleActionItem writes completed_at, saveCompletionNote, reopenActionItem
+- [ ] 07-03-PLAN.md — useWheel extension: expose tier, renameWheel, updateCategoryImportant + reorderWithImportantFirst
+- [ ] 07-04-PLAN.md — ActionItemList: celebration animation (CSS keyframes), completion modal (note-to-self), completed items table with reopen
+- [ ] 07-05-PLAN.md — WheelPage + DueSoonWidget: inline wheel rename, free-tier category gate, auto-naming, Due Soon widget with hover highlight
+- [ ] 07-06-PLAN.md — CategorySlider star icon + WheelChart important category layer + hover highlight layer
+- [ ] 07-07-PLAN.md — TrendChart ReferenceLine markers + TrendPage marker computation from action items
+- [ ] 07-08-PLAN.md — Human verification checkpoint: end-to-end all POLISH-01 through POLISH-08 flows
 
 ### Phase 8: Profile, Settings & Content
 **Goal**: Users have a complete profile, the app is legally ready, and premium wheel/snapshot UX is complete
@@ -197,7 +207,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Snapshots & Comparison | 5/5 | Complete | 2026-03-15 |
 | 5. Trend Chart | 3/3 | Complete | 2026-03-15 |
 | 6. Landing Page | 4/4 | Complete | 2026-03-15 |
-| 7. Action Items & Wheel Polish | 0/TBD | Not started | - |
+| 7. Action Items & Wheel Polish | 0/8 | Not started | - |
 | 8. Profile, Settings & Content | 0/TBD | Not started | - |
 | 9. AI & Premium | 0/TBD | Not started | - |
 | 10. Launch | 0/TBD | Not started | - |
