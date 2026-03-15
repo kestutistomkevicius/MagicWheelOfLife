@@ -64,7 +64,34 @@
 - [x] **DEV-03**: Seeded action items include a mix: some completed, some with deadlines, some open
 - [x] **DEV-04**: Seeded snapshots have scores that tell a visible story (e.g., Health improved, Career declined) so overlay and table are immediately testable
 
-### Deployment
+### Action Items & Wheel Polish (Phase 7)
+
+- [ ] **POLISH-01**: Completing an action item triggers a visible celebratory feedback (animation, sound, or micro-interaction)
+- [ ] **POLISH-02**: A "due soon" widget on WheelPage surfaces action items with deadlines within 7 days without requiring the user to expand each category
+- [ ] **POLISH-03**: Trend chart displays ◆ markers at action item due/completion dates; green = completed, amber = due soon, red = overdue; tooltip shows item text
+- [ ] **POLISH-04**: Premium users can mark up to 3 categories as most important; marked categories are visually distinct in the wheel chart; free users see the feature disabled with an upgrade prompt
+- [ ] **POLISH-05**: Adding a category without renaming it receives an auto-incremented name ("New category 2", "New category 3", etc.) instead of a duplicate "New category"
+- [ ] **POLISH-06**: Free users are blocked from adding a 9th category with an upgrade prompt; premium users are capped at 12; both minimums remain at 3
+- [ ] **POLISH-07**: Users can rename a wheel inline from the WheelPage heading
+- [ ] **POLISH-08**: Completed action items move to a separate "Completed" list below the active items, displayed as a table with three columns: task text, completion date (auto-recorded when checked off), and an optional short note the user can write to their future self; the completion date is stored in the database when the item is toggled complete
+
+### Profile, Settings & Content (Phase 8)
+
+- [ ] **PROFILE-01**: User can upload or select an avatar/photo that appears near the sign-out button in the app shell
+- [ ] **PROFILE-02**: Settings page is complete: color scheme selector, avatar management, current tier display, and a dev-only tier toggle for testing
+- [ ] **CONTENT-01**: Terms of Service page has full legal content replacing the "coming soon" stub
+- [ ] **CONTENT-02**: Privacy Policy page has full legal content replacing the "coming soon" stub
+- [ ] **CONTENT-03**: In-app feature request form is accessible from the nav; submissions are persisted or forwarded to the founder
+- [ ] **CONTENT-04**: A new user encounters a clear explanation of what a snapshot is and why to use it before or during their first snapshot save
+- [ ] **CONTENT-05**: Premium users can select which wheel to view trends for via a dropdown on TrendPage; seed data includes snapshots for multiple wheels
+
+### AI & Premium (Phase 9)
+
+- [ ] **AI-01**: User can open a per-category AI chat; the AI asks guided questions and suggests an as-is or to-be score; user confirms before any score is saved
+- [ ] **PREMIUM-01**: User can switch their tier between free and premium from Settings (dev/staging environment only); all tier-gated features respond immediately without a page reload
+- [ ] **PREMIUM-02**: User can select a color scheme for their wheel from a set of predefined palettes; the wheel chart and UI accent color update immediately and persist across sessions
+
+### Deployment (Phase 10)
 
 - [ ] **DEPLOY-01**: Production frontend deployed and publicly accessible via Vercel
 - [ ] **DEPLOY-02**: Production database and auth running on Supabase Cloud with all migrations applied and RLS enabled on all tables

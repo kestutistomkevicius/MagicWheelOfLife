@@ -2,7 +2,7 @@
 
 ## Overview
 
-Starting from zero, this roadmap builds JustAWheelOfLife in seven phases. The first phase establishes the project scaffold and secure user authentication — nothing else works without it. Phases 2 through 5 build the core product sequentially: the interactive wheel, action items, snapshot captures, and historical trend analysis. Phase 6 adds the public landing page that converts visitors into users. Phase 7 ships to production. Each phase delivers a complete, independently verifiable capability.
+Starting from zero, this roadmap builds JustAWheelOfLife in ten phases. The first phase establishes the project scaffold and secure user authentication. Phases 2 through 5 build the core product sequentially: the interactive wheel, action items, snapshot captures, and historical trend analysis. Phase 6 adds the public landing page. Phases 7 through 9 add the killer features: action item gamification, user profile and settings, AI-assisted scoring, and premium tier gating. Phase 10 ships to production. Each phase delivers a complete, independently verifiable capability.
 
 ## Phases
 
@@ -18,7 +18,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Snapshots & Comparison** - Manual snapshot saves and two-wheel overlay comparison (completed 2026-03-15)
 - [x] **Phase 5: Trend Chart** - Single-category score trajectory over time (completed 2026-03-15)
 - [x] **Phase 6: Landing Page** - Public acquisition page with value proposition and CTAs (completed 2026-03-15)
-- [ ] **Phase 7: Launch** - Production deployment on Vercel and Supabase Cloud
+- [ ] **Phase 7: Action Items & Wheel Polish** - Gamification, expiry widget, trend markers, important categories, tier limits, wheel rename
+- [ ] **Phase 8: Profile, Settings & Content** - Settings page, avatar, terms/privacy, feature requests, snapshot UX, wheel selector on trends
+- [ ] **Phase 9: AI & Premium** - AI-assisted category scoring chat, tier switching, color scheme personalization
+- [ ] **Phase 10: Launch** - Production deployment on Vercel and Supabase Cloud
 
 ## Phase Details
 
@@ -129,9 +132,47 @@ Plans:
 - [ ] 06-03-PLAN.md — LandingPage content sections: Feature showcase, Testimonials, Pricing, Final CTA, Footer
 - [ ] 06-04-PLAN.md — Human verification checkpoint: end-to-end landing page flows
 
-### Phase 7: Launch
-**Goal**: The application is publicly accessible in production with all data secured and RLS enforced
+### Phase 7: Action Items & Wheel Polish
+**Goal**: Action items feel alive and motivating; categories have hierarchy; the wheel adapts to user tier
 **Depends on**: Phase 6
+**Requirements**: POLISH-01, POLISH-02, POLISH-03, POLISH-04, POLISH-05, POLISH-06, POLISH-07, POLISH-08
+**Success Criteria** (what must be TRUE):
+  1. Completing an action item triggers a celebratory animation/feedback (gamification)
+  2. A "due soon" widget surfaces action items expiring within 7 days, visible without expanding each category
+  3. Trend chart shows ◆ markers at action item due/completion dates, color-coded by status
+  4. Premium users can mark up to 3 categories as most important; marked categories are visually distinct in the wheel
+  5. Adding a category without renaming it gets auto-named "New category 2", "New category 3", etc.
+  6. Free users are blocked from adding a 9th category with an upgrade prompt; premium capped at 12
+  7. Users can rename a wheel inline from the WheelPage heading
+  8. Completed action items appear in a separate "Completed" table (task | completion date | note to future self) below the active list; completion date is recorded automatically
+**Plans**: TBD
+
+### Phase 8: Profile, Settings & Content
+**Goal**: Users have a complete profile, the app is legally ready, and premium wheel/snapshot UX is complete
+**Depends on**: Phase 7
+**Requirements**: PROFILE-01, PROFILE-02, CONTENT-01, CONTENT-02, CONTENT-03, CONTENT-04, CONTENT-05
+**Success Criteria** (what must be TRUE):
+  1. User can set an avatar/photo that appears near the sign-out button in the app shell
+  2. Settings page is complete: color scheme, avatar, tier display, and dev tier toggle (dev env only)
+  3. Terms & Privacy pages have full legal content (not "coming soon" stubs)
+  4. In-app feature request form is accessible from the nav; submissions are stored or forwarded
+  5. A new user sees a clear explanation of what a snapshot is and why to use it before their first save
+  6. Premium users can select which wheel to view trends for on the TrendPage
+**Plans**: TBD
+
+### Phase 9: AI & Premium
+**Goal**: AI lowers the friction of scoring; premium tier is fully testable end-to-end
+**Depends on**: Phase 8
+**Requirements**: AI-01, PREMIUM-01, PREMIUM-02
+**Success Criteria** (what must be TRUE):
+  1. User can open an AI chat per category; the AI asks guided questions and suggests an as-is or to-be score; user confirms before any score is saved
+  2. User can switch their tier between free and premium from Settings (dev/staging only); tier-gated features respond immediately
+  3. User can select a color scheme for their wheel from a set of predefined palettes; the wheel and UI accent update immediately
+**Plans**: TBD
+
+### Phase 10: Launch
+**Goal**: The application is publicly accessible in production with all data secured and RLS enforced
+**Depends on**: Phase 9
 **Requirements**: DEPLOY-01, DEPLOY-02
 **Success Criteria** (what must be TRUE):
   1. The frontend is live at a public Vercel URL and loads the landing page without errors
@@ -146,14 +187,17 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 6/6 | Complete   | 2026-03-14 |
-| 2. Wheel & Scoring | 6/6 | Complete   | 2026-03-15 |
-| 3. Action Items | 5/6 | In Progress|  |
-| 4. Snapshots & Comparison | 5/5 | Complete   | 2026-03-15 |
-| 5. Trend Chart | 3/3 | Complete   | 2026-03-15 |
-| 6. Landing Page | 4/4 | Complete   | 2026-03-15 |
-| 7. Launch | 0/TBD | Not started | - |
+| 1. Foundation | 6/6 | Complete | 2026-03-14 |
+| 2. Wheel & Scoring | 6/6 | Complete | 2026-03-15 |
+| 3. Action Items | 5/6 | In Progress | |
+| 4. Snapshots & Comparison | 5/5 | Complete | 2026-03-15 |
+| 5. Trend Chart | 3/3 | Complete | 2026-03-15 |
+| 6. Landing Page | 4/4 | Complete | 2026-03-15 |
+| 7. Action Items & Wheel Polish | 0/TBD | Not started | - |
+| 8. Profile, Settings & Content | 0/TBD | Not started | - |
+| 9. AI & Premium | 0/TBD | Not started | - |
+| 10. Launch | 0/TBD | Not started | - |
