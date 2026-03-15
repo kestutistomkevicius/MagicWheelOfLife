@@ -66,7 +66,6 @@ const TESTIMONIALS = [
 ]
 
 const SHARED_FEATURES = [
-  'Unlimited categories per wheel',
   'As-is and to-be scoring',
   'Snapshot history',
   'Snapshot comparison overlay',
@@ -267,6 +266,10 @@ function PricingSection() {
                 <Check className="w-4 h-4 text-brand-500 flex-shrink-0" />
                 <span>1 wheel</span>
               </li>
+              <li className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-brand-500 flex-shrink-0" />
+                <span>Up to 8 categories per wheel</span>
+              </li>
             </ul>
             <Button className="w-full mt-8" asChild>
               <a href="/auth">Start free &rarr;</a>
@@ -287,6 +290,14 @@ function PricingSection() {
               <li className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-brand-500 flex-shrink-0" />
                 <span>Unlimited wheels</span>
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-brand-500 flex-shrink-0" />
+                <span>Up to 12 categories per wheel</span>
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-brand-500 flex-shrink-0" />
+                <span>Mark 3 categories as most important</span>
               </li>
             </ul>
             <p className="text-xs text-muted-foreground mt-3">More coming soon</p>
