@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: Action Items** - Per-category action tracking with deadlines and completion state
 - [x] **Phase 4: Snapshots & Comparison** - Manual snapshot saves and two-wheel overlay comparison (completed 2026-03-15)
 - [x] **Phase 5: Trend Chart** - Single-category score trajectory over time (completed 2026-03-15)
-- [ ] **Phase 6: Landing Page** - Public acquisition page with value proposition and CTAs
+- [x] **Phase 6: Landing Page** - Public acquisition page with value proposition and CTAs (completed 2026-03-15)
 - [ ] **Phase 7: Launch** - Production deployment on Vercel and Supabase Cloud
 
 ## Phase Details
@@ -155,5 +155,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Action Items | 5/6 | In Progress|  |
 | 4. Snapshots & Comparison | 5/5 | Complete   | 2026-03-15 |
 | 5. Trend Chart | 3/3 | Complete   | 2026-03-15 |
-| 6. Landing Page | 3/4 | In Progress|  |
+| 6. Landing Page | 4/4 | Complete   | 2026-03-15 |
 | 7. Launch | 0/TBD | Not started | - |
