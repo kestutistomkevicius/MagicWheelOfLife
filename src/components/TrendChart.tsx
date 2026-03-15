@@ -34,8 +34,8 @@ export function TrendChart({ data, categoryName: _categoryName }: TrendChartProp
         />
         <Tooltip
           contentStyle={{ fontSize: 13 }}
-          formatter={(value: number, name: string) =>
-            [value, name === 'asis' ? 'As-Is' : 'To-Be']
+          formatter={(value, name) =>
+            [value, name === 'asis' ? 'As-Is' : 'To-Be'] as [typeof value, string]
           }
         />
         <Legend

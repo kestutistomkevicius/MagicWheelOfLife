@@ -66,7 +66,7 @@ export function ActionItemList({
           <Checkbox
             id={`check-${item.id}`}
             checked={item.is_complete}
-            onCheckedChange={(checked) => {
+            onCheckedChange={(_checked) => {
               void handleToggle(item.id, item.is_complete)
             }}
             aria-label={`Mark "${item.text}" as complete`}
