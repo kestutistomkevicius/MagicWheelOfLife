@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 04-snapshots-and-comparison-01-PLAN.md
-last_updated: "2026-03-15T11:12:39.452Z"
+stopped_at: Completed 04-snapshots-and-comparison-02-PLAN.md
+last_updated: "2026-03-15T11:16:34.852Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 23
-  completed_plans: 19
+  completed_plans: 20
   percent: 0
 ---
 
@@ -69,6 +69,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-action-items P05 | 7 | 2 tasks | 4 files |
 | Phase 03-action-items P06 | checkpoint | 1 tasks | 0 files |
 | Phase 04-snapshots-and-comparison P01 | 3 | 2 tasks | 6 files |
+| Phase 04-snapshots-and-comparison P02 | 8 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -128,6 +129,8 @@ Recent decisions affecting current work:
 - [Phase 04-snapshots-and-comparison]: snapshot_scores has no UPDATE policy — scores are immutable once written; cascade delete via snapshot FK handles cleanup
 - [Phase 04-snapshots-and-comparison]: category_name stored as TEXT COPY in snapshot_scores, not FK to categories — preserves historical accuracy across category renames/deletes
 - [Phase 04-snapshots-and-comparison]: Wave 0 stub pattern: only import describe/it from vitest, use it.todo — no feature module imports so stubs survive until implementation plans run
+- [Phase 04-snapshots-and-comparison]: useSnapshots is stateless — all state managed by calling components, consistent with hook-first pattern
+- [Phase 04-snapshots-and-comparison]: checkSnapshotsExist uses count:exact + head:true — no data transfer, minimal query cost for boolean check
 
 ### Pending Todos
 
@@ -141,6 +144,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T11:12:39.449Z
-Stopped at: Completed 04-snapshots-and-comparison-01-PLAN.md
+Last session: 2026-03-15T11:16:34.847Z
+Stopped at: Completed 04-snapshots-and-comparison-02-PLAN.md
 Resume file: None
