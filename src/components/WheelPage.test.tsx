@@ -8,6 +8,7 @@ const mockCreateWheel = vi.fn()
 const mockAddCategory = vi.fn()
 const mockRenameCategory = vi.fn()
 const mockRemoveCategory = vi.fn()
+const mockCheckSnapshotsExist = vi.hoisted(() => vi.fn())
 
 const mockSelectWheel = vi.fn()
 
@@ -127,6 +128,15 @@ vi.mock('@/hooks/useActionItems', () => ({
   }),
 }))
 
+vi.mock('@/hooks/useSnapshots', () => ({
+  useSnapshots: vi.fn(() => ({
+    checkSnapshotsExist: mockCheckSnapshotsExist,
+    saveSnapshot: vi.fn(),
+    listSnapshots: vi.fn(),
+    fetchSnapshotScores: vi.fn(),
+  })),
+}))
+
 vi.mock('@/components/ActionItemList', () => ({
   ActionItemList: ({ categoryId }: { categoryId: string }) => (
     <div data-testid={`action-items-${categoryId}`}>ActionItemList mock</div>
@@ -172,6 +182,8 @@ describe('WheelPage', () => {
     mockUpdateScore.mockResolvedValue(undefined)
     mockCreateWheel.mockResolvedValue(null)
     mockAddCategory.mockResolvedValue({ id: 'cat-new', wheel_id: 'wheel-1', user_id: 'user-1', name: 'New', position: 3, score_asis: 5, score_tobe: 5, created_at: '', updated_at: '' })
+    // Default: no snapshots exist
+    mockCheckSnapshotsExist.mockResolvedValue(false)
   })
 
   describe('loading and empty states', () => {
@@ -245,42 +257,50 @@ describe('WheelPage', () => {
     }
 
     it('shows AlertDialog before rename when wheel has existing snapshots', async () => {
-      // Note: hasSnapshots is always false in Phase 2, so SnapshotWarningDialog won't appear
-      // This test verifies the rename flow triggers the dialog callback when hasSnapshots is true
-      // For now, since hasSnapshots=false always in Phase 2, we test that rename proceeds directly
+      // checkSnapshotsExist resolves false in beforeEach (default), hasSnapshots becomes false
+      // rename proceeds directly — no dialog
       render(<WheelPage />)
+      // Wait for checkSnapshotsExist to resolve so hasSnapshots=false takes effect
+      await waitFor(() => expect(mockCheckSnapshotsExist).toHaveBeenCalled())
       const renameBtn = screen.getAllByText('Rename')[0]
       fireEvent.click(renameBtn)
-      // With hasSnapshots=false, renameCategory is called directly (no dialog)
       expect(mockRenameCategory).toHaveBeenCalled()
     })
 
     it('skips AlertDialog and renames immediately when wheel has no snapshots', async () => {
       render(<WheelPage />)
+      // Wait for checkSnapshotsExist(false) to resolve — hasSnapshots becomes false
+      await waitFor(() => expect(mockCheckSnapshotsExist).toHaveBeenCalled())
       const renameBtn = screen.getAllByText('Rename')[0]
       fireEvent.click(renameBtn)
-      expect(mockRenameCategory).toHaveBeenCalledWith(
-        expect.objectContaining({ hasSnapshots: false })
-      )
+      await waitFor(() => {
+        expect(mockRenameCategory).toHaveBeenCalledWith(
+          expect.objectContaining({ hasSnapshots: false })
+        )
+      })
     })
 
-    it('shows AlertDialog before remove when wheel has existing snapshots', () => {
+    it('shows AlertDialog before remove when wheel has existing snapshots', async () => {
       // With hasSnapshots=false, removeCategory is called directly (4 categories so remove is enabled)
       vi.mocked(useWheel).mockReturnValue(fourCatsResult)
       render(<WheelPage />)
+      await waitFor(() => expect(mockCheckSnapshotsExist).toHaveBeenCalled())
       const removeBtn = screen.getAllByText('Remove')[0]
       fireEvent.click(removeBtn)
       expect(mockRemoveCategory).toHaveBeenCalled()
     })
 
-    it('skips AlertDialog and removes immediately when wheel has no snapshots', () => {
+    it('skips AlertDialog and removes immediately when wheel has no snapshots', async () => {
       vi.mocked(useWheel).mockReturnValue(fourCatsResult)
       render(<WheelPage />)
+      await waitFor(() => expect(mockCheckSnapshotsExist).toHaveBeenCalled())
       const removeBtn = screen.getAllByText('Remove')[0]
       fireEvent.click(removeBtn)
-      expect(mockRemoveCategory).toHaveBeenCalledWith(
-        expect.objectContaining({ hasSnapshots: false })
-      )
+      await waitFor(() => {
+        expect(mockRemoveCategory).toHaveBeenCalledWith(
+          expect.objectContaining({ hasSnapshots: false })
+        )
+      })
     })
   })
 
@@ -385,6 +405,58 @@ describe('WheelPage', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('action-items-cat-1')).not.toBeInTheDocument()
       })
+    })
+  })
+
+  describe('hasSnapshots activation via checkSnapshotsExist (Phase 4)', () => {
+    it('shows SnapshotWarningDialog when renaming a category on a wheel that has snapshots', async () => {
+      // checkSnapshotsExist returns true → hasSnapshots becomes true → dialog shown on rename
+      mockCheckSnapshotsExist.mockResolvedValue(true)
+      mockRenameCategory.mockImplementation(({ onSnapshotWarning }: { onSnapshotWarning: () => void }) => {
+        onSnapshotWarning()
+        return Promise.resolve(undefined)
+      })
+
+      render(<WheelPage />)
+
+      // Wait for hasSnapshots to resolve (checkSnapshotsExist called after wheel loads)
+      await waitFor(() => {
+        expect(mockCheckSnapshotsExist).toHaveBeenCalledWith('wheel-1')
+      })
+
+      // Trigger rename
+      const renameBtn = screen.getAllByText('Rename')[0]
+      fireEvent.click(renameBtn)
+
+      // SnapshotWarningDialog should be open (alert-dialog rendered)
+      await waitFor(() => {
+        expect(screen.getByTestId('alert-dialog')).toBeInTheDocument()
+      })
+    })
+
+    it('does not show SnapshotWarningDialog when wheel has no snapshots', async () => {
+      // checkSnapshotsExist returns false → hasSnapshots becomes false → no dialog
+      mockCheckSnapshotsExist.mockResolvedValue(false)
+      mockRenameCategory.mockResolvedValue(undefined)
+
+      render(<WheelPage />)
+
+      await waitFor(() => {
+        expect(mockCheckSnapshotsExist).toHaveBeenCalledWith('wheel-1')
+      })
+
+      const renameBtn = screen.getAllByText('Rename')[0]
+      fireEvent.click(renameBtn)
+
+      // renameCategory called with hasSnapshots: false
+      await waitFor(() => {
+        expect(mockRenameCategory).toHaveBeenCalledWith(
+          expect.objectContaining({ hasSnapshots: false })
+        )
+      })
+
+      // No dialog
+      expect(screen.queryByTestId('alert-dialog')).not.toBeInTheDocument()
     })
   })
 })

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useWheel } from '@/hooks/useWheel'
 import { useCategories } from '@/hooks/useCategories'
+import { useSnapshots } from '@/hooks/useSnapshots'
 import { WheelChart } from '@/components/WheelChart'
 import { CategorySlider } from '@/components/CategorySlider'
 import { ActionItemList } from '@/components/ActionItemList'
@@ -36,6 +37,7 @@ export function WheelPage() {
   } = useWheel(userId)
 
   const { addCategory, renameCategory, removeCategory } = useCategories()
+  const { checkSnapshotsExist } = useSnapshots()
 
   const [localCategories, setLocalCategories] = useState<CategoryRow[]>(categories)
   const [modalOpen, setModalOpen] = useState(false)
@@ -47,6 +49,17 @@ export function WheelPage() {
   // Sync local categories from hook whenever categories change (e.g., after createWheel or selectWheel)
   useEffect(() => {
     setLocalCategories(categories)
+  }, [categories])
+
+  // Pre-fetch action item counts for all categories so the badge shows on load
+  useEffect(() => {
+    if (categories.length === 0) return
+    void Promise.all(
+      categories.map(async (cat) => {
+        const items = await loadActionItems(cat.id)
+        setActionItemsByCategory(prev => ({ ...prev, [cat.id]: items }))
+      })
+    )
   }, [categories])
 
   const chartData = useMemo(
@@ -99,7 +112,11 @@ export function WheelPage() {
     )
   }
 
-  const hasSnapshots = false // Phase 2: snapshots table does not exist yet
+  const [hasSnapshots, setHasSnapshots] = useState(true) // pessimistic default — warning always shows until resolved
+  useEffect(() => {
+    if (!wheel?.id) return
+    checkSnapshotsExist(wheel.id).then(exists => setHasSnapshots(exists))
+  }, [wheel?.id])
 
   function handleAsisChange(categoryId: string, value: number) {
     setLocalCategories(prev =>
@@ -276,6 +293,7 @@ export function WheelPage() {
                 removeDisabled={localCategories.length <= 3}
                 isExpanded={expandedCategories.has(cat.id)}
                 onExpandToggle={() => { void handleExpandCategory(cat.id) }}
+                actionItemCount={actionItemsByCategory[cat.id]?.length}
               />
               {expandedCategories.has(cat.id) && (
                 <ActionItemList
