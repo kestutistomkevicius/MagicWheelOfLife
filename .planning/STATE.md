@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-03-15T23:10:42.136Z"
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-03-15T23:14:05.002Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 38
-  completed_plans: 31
+  completed_plans: 32
   percent: 0
 ---
 
@@ -82,6 +82,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 06-landing-page P03 | 210s | 2 tasks | 2 files |
 | Phase 06-landing-page P04 | checkpoint | 1 tasks | 0 files |
 | Phase 07-action-items-and-wheel-polish P01 | 166s | 2 tasks | 6 files |
+| Phase 07-action-items-and-wheel-polish P02 | 4min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -159,6 +160,8 @@ Recent decisions affecting current work:
 - [Phase 06-landing-page]: useInView mocked in LandingPage.test.tsx — jsdom lacks IntersectionObserver; mock returns inView: true so rendered content is visible to assertions
 - [Phase 06-landing-page]: Human verification passed — all LAND-01 through LAND-04 flows confirmed working in the browser
 - [Phase 07-action-items-and-wheel-polish]: Insert types use Omit + optional intersection for new nullable/defaulted columns — preserves call-site compatibility without requiring callers to pass is_important, completed_at, or note
+- [Phase 07-action-items-and-wheel-polish]: toggleActionItem does NOT clear note on un-complete — reopenActionItem handles full reset including note=null
+- [Phase 07-action-items-and-wheel-polish]: saveCompletionNote is a separate function from toggleActionItem — allows note to be saved asynchronously after the celebration modal closes
 
 ### Pending Todos
 
@@ -172,6 +175,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T23:10:42.133Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-03-15T23:14:04.999Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
