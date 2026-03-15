@@ -2,31 +2,37 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useActionItems } from './useActionItems'
 
-const mockEq = vi.fn().mockReturnThis()
-const mockOrder = vi.fn().mockResolvedValue({ data: [], error: null })
-const mockSelect = vi.fn().mockResolvedValue({ data: [], error: null })
-const mockInsert = vi.fn().mockReturnThis()
-const mockUpdate = vi.fn().mockReturnThis()
-const mockDelete = vi.fn().mockReturnThis()
-const mockFrom = vi.fn().mockReturnValue({
-  select: mockSelect,
-  insert: mockInsert,
-  update: mockUpdate,
-  delete: mockDelete,
-  eq: mockEq,
-  order: mockOrder,
+// Use vi.hoisted so mocks are available when vi.mock factory runs
+const { mockFrom } = vi.hoisted(() => {
+  const mockFrom = vi.fn()
+  return { mockFrom }
 })
 
 vi.mock('@/lib/supabase', () => ({
   supabase: { from: mockFrom },
 }))
 
+/**
+ * Build a fluent Supabase chain that:
+ * - supports any call order of select/insert/update/delete/eq/order
+ * - resolves to `result` when awaited (via .then)
+ * - exposes each step as a vi.fn() for assertions
+ */
+function buildChain(result: { data: unknown; error: unknown | null }) {
+  const chain: Record<string, unknown> = {}
+  chain.select = vi.fn().mockReturnValue(chain)
+  chain.insert = vi.fn().mockReturnValue(chain)
+  chain.update = vi.fn().mockReturnValue(chain)
+  chain.delete = vi.fn().mockReturnValue(chain)
+  chain.eq = vi.fn().mockReturnValue(chain)
+  chain.order = vi.fn().mockReturnValue(chain)
+  chain.then = (resolve: (v: unknown) => void, reject?: (e: unknown) => void) =>
+    Promise.resolve(result).then(resolve, reject)
+  return chain
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
-  // Reset eq to support chaining in both select and delete paths
-  mockEq.mockReturnThis()
-  mockOrder.mockResolvedValue({ data: [], error: null })
-  mockSelect.mockResolvedValue({ data: [], error: null })
 })
 
 describe('useActionItems', () => {
@@ -55,8 +61,7 @@ describe('useActionItems', () => {
         created_at: '2026-03-15T00:00:00Z',
         updated_at: '2026-03-15T00:00:00Z',
       }
-      mockInsert.mockReturnThis()
-      mockSelect.mockResolvedValue({ data: [newItem], error: null })
+      mockFrom.mockReturnValue(buildChain({ data: [newItem], error: null }))
 
       const { addActionItem } = useActionItems()
       const result = await addActionItem({
@@ -69,8 +74,7 @@ describe('useActionItems', () => {
     })
 
     it('returns error object when Supabase insert fails (ACTION-01)', async () => {
-      mockInsert.mockReturnThis()
-      mockSelect.mockResolvedValue({ data: null, error: { message: 'DB error' } })
+      mockFrom.mockReturnValue(buildChain({ data: null, error: { message: 'DB error' } }))
 
       const { addActionItem } = useActionItems()
       const result = await addActionItem({
@@ -84,73 +88,76 @@ describe('useActionItems', () => {
   })
 
   describe('setDeadline', () => {
-    it('sends null to Supabase when value is null (ACTION-02 pitfall)', async () => {
-      mockUpdate.mockReturnThis()
-      mockEq.mockResolvedValue({ data: null, error: null })
+    it('sends null to Supabase when deadline is null (ACTION-02 pitfall)', async () => {
+      const chain = buildChain({ data: null, error: null })
+      mockFrom.mockReturnValue(chain)
 
       const { setDeadline } = useActionItems()
       await setDeadline({ id: 'item-1', deadline: null })
 
       expect(mockFrom).toHaveBeenCalledWith('action_items')
-      expect(mockUpdate).toHaveBeenCalledWith(
+      expect(chain.update).toHaveBeenCalledWith(
         expect.objectContaining({ deadline: null })
       )
-      expect(mockEq).toHaveBeenCalledWith('id', 'item-1')
+      expect(chain.eq).toHaveBeenCalledWith('id', 'item-1')
     })
 
-    it('sends ISO date string when value is set (ACTION-02)', async () => {
-      mockUpdate.mockReturnThis()
-      mockEq.mockResolvedValue({ data: null, error: null })
+    it('sends ISO date string when deadline is set (ACTION-02)', async () => {
+      const chain = buildChain({ data: null, error: null })
+      mockFrom.mockReturnValue(chain)
 
       const { setDeadline } = useActionItems()
       await setDeadline({ id: 'item-1', deadline: '2026-04-30' })
 
       expect(mockFrom).toHaveBeenCalledWith('action_items')
-      expect(mockUpdate).toHaveBeenCalledWith(
+      expect(chain.update).toHaveBeenCalledWith(
         expect.objectContaining({ deadline: '2026-04-30' })
       )
-      expect(mockEq).toHaveBeenCalledWith('id', 'item-1')
+      expect(chain.eq).toHaveBeenCalledWith('id', 'item-1')
     })
   })
 
   describe('toggleActionItem', () => {
     it('calls Supabase update with is_complete value (ACTION-03)', async () => {
-      mockUpdate.mockReturnThis()
-      mockEq.mockResolvedValue({ data: null, error: null })
+      const chain = buildChain({ data: null, error: null })
+      mockFrom.mockReturnValue(chain)
 
       const { toggleActionItem } = useActionItems()
       await toggleActionItem({ id: 'item-1', isComplete: false })
 
       expect(mockFrom).toHaveBeenCalledWith('action_items')
-      expect(mockUpdate).toHaveBeenCalledWith(
+      expect(chain.update).toHaveBeenCalledWith(
         expect.objectContaining({ is_complete: false })
       )
-      expect(mockEq).toHaveBeenCalledWith('id', 'item-1')
+      expect(chain.eq).toHaveBeenCalledWith('id', 'item-1')
     })
   })
 
   describe('deleteActionItem', () => {
     it('calls Supabase DELETE with the correct item id (ACTION-04)', async () => {
-      mockDelete.mockReturnThis()
-      mockEq.mockResolvedValue({ data: null, error: null })
+      const chain = buildChain({ data: null, error: null })
+      mockFrom.mockReturnValue(chain)
 
       const { deleteActionItem } = useActionItems()
       await deleteActionItem('some-id')
 
       expect(mockFrom).toHaveBeenCalledWith('action_items')
-      expect(mockDelete).toHaveBeenCalled()
-      expect(mockEq).toHaveBeenCalledWith('id', 'some-id')
+      expect(chain.delete).toHaveBeenCalled()
+      expect(chain.eq).toHaveBeenCalledWith('id', 'some-id')
     })
   })
 
   describe('loadActionItems', () => {
     it('calls .eq category_id and .order position ascending', async () => {
+      const chain = buildChain({ data: [], error: null })
+      mockFrom.mockReturnValue(chain)
+
       const { loadActionItems } = useActionItems()
       await loadActionItems('cat-id')
 
       expect(mockFrom).toHaveBeenCalledWith('action_items')
-      expect(mockEq).toHaveBeenCalledWith('category_id', 'cat-id')
-      expect(mockOrder).toHaveBeenCalledWith('position', { ascending: true })
+      expect(chain.eq).toHaveBeenCalledWith('category_id', 'cat-id')
+      expect(chain.order).toHaveBeenCalledWith('position', { ascending: true })
     })
   })
 })
