@@ -62,7 +62,7 @@ export function WheelPage() {
     )
   }, [categories])
 
-  const [hasSnapshots, setHasSnapshots] = useState(true) // pessimistic default — warning always shows until resolved
+  const [hasSnapshots, setHasSnapshots] = useState(false) // optimistic default — warning only shows once confirmed
   useEffect(() => {
     if (!wheel?.id) return
     checkSnapshotsExist(wheel.id).then(exists => setHasSnapshots(exists))
