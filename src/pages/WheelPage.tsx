@@ -62,6 +62,12 @@ export function WheelPage() {
     )
   }, [categories])
 
+  const [hasSnapshots, setHasSnapshots] = useState(true) // pessimistic default — warning always shows until resolved
+  useEffect(() => {
+    if (!wheel?.id) return
+    checkSnapshotsExist(wheel.id).then(exists => setHasSnapshots(exists))
+  }, [wheel?.id])
+
   const chartData = useMemo(
     () => localCategories.map(c => ({ category: c.name, asis: c.score_asis, tobe: c.score_tobe })),
     [localCategories]
@@ -111,12 +117,6 @@ export function WheelPage() {
       </div>
     )
   }
-
-  const [hasSnapshots, setHasSnapshots] = useState(true) // pessimistic default — warning always shows until resolved
-  useEffect(() => {
-    if (!wheel?.id) return
-    checkSnapshotsExist(wheel.id).then(exists => setHasSnapshots(exists))
-  }, [wheel?.id])
 
   function handleAsisChange(categoryId: string, value: number) {
     setLocalCategories(prev =>
