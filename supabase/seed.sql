@@ -277,6 +277,12 @@ BEGIN
     ON CONFLICT DO NOTHING;
   END IF;
 
+  -- Backfill completed_at for completed items (consistent with Phase 7 migration backfill)
+  UPDATE public.action_items
+  SET completed_at = updated_at
+  WHERE is_complete = true AND completed_at IS NULL
+    AND user_id IN (free_user_id, premium_user_id);
+
 END $$;
 
 -- =============================================================
