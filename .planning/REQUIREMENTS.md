@@ -48,7 +48,7 @@
 
 ### Trend Chart
 
-- [ ] **TREND-01**: User can view a single-category trend chart (as-is and to-be scores over time for a selected category); requires 3+ snapshots; graceful empty state shown below that threshold
+- [x] **TREND-01**: User can view a single-category trend chart (as-is and to-be scores over time for a selected category); requires 3+ snapshots; graceful empty state shown below that threshold
 
 ### Landing Page
 
@@ -157,7 +157,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SNAP-02 | Phase 4 | Complete |
 | COMP-01 | Phase 4 | Complete |
 | COMP-02 | Phase 4 | Complete |
-| TREND-01 | Phase 5 | Pending |
+| TREND-01 | Phase 5 | Complete |
 | LAND-01 | Phase 6 | Pending |
 | LAND-02 | Phase 6 | Pending |
 | LAND-03 | Phase 6 | Pending |
