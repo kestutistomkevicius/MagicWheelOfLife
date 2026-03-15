@@ -13,7 +13,7 @@ Starting from zero, this roadmap builds JustAWheelOfLife in seven phases. The fi
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Project scaffold, authentication, and dev seed data (completed 2026-03-14)
-- [ ] **Phase 2: Wheel & Scoring** - Interactive wheel creation, category management, and live slider scoring
+- [x] **Phase 2: Wheel & Scoring** - Interactive wheel creation, category management, and live slider scoring (completed 2026-03-15)
 - [ ] **Phase 3: Action Items** - Per-category action tracking with deadlines and completion state
 - [ ] **Phase 4: Snapshots & Comparison** - Manual snapshot saves and two-wheel overlay comparison
 - [ ] **Phase 5: Trend Chart** - Single-category score trajectory over time
@@ -125,7 +125,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 6/6 | Complete   | 2026-03-14 |
-| 2. Wheel & Scoring | 5/6 | In Progress|  |
+| 2. Wheel & Scoring | 6/6 | Complete   | 2026-03-15 |
 | 3. Action Items | 0/TBD | Not started | - |
 | 4. Snapshots & Comparison | 0/TBD | Not started | - |
 | 5. Trend Chart | 0/TBD | Not started | - |

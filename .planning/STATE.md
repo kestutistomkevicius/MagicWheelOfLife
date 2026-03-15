@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-wheel-scoring-05-PLAN.md
-last_updated: "2026-03-14T23:46:33.709Z"
+stopped_at: Completed 02-wheel-scoring-06-PLAN.md
+last_updated: "2026-03-15T00:17:11.229Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 7
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 12
-  completed_plans: 11
+  completed_plans: 12
   percent: 0
 ---
 
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-wheel-scoring P03 | 182 | 2 tasks | 5 files |
 | Phase 02-wheel-scoring P04 | continuation | 2 tasks | 8 files |
 | Phase 02-wheel-scoring P05 | 498 | 2 tasks | 5 files |
+| Phase 02-wheel-scoring P06 | checkpoint | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,9 @@ Recent decisions affecting current work:
 - [Phase 02-wheel-scoring]: WheelPage initializes localCategories from hook data (not empty array) — avoids async useEffect sync delay in tests and first render
 - [Phase 02-wheel-scoring]: CategorySlider extended with optional onRename/onRemove/removeDisabled props — rename/remove UI co-located with slider row
 - [Phase 02-wheel-scoring]: hasSnapshots hardcoded to false in Phase 2 — snapshots table and real check introduced in Phase 4
+- [Phase 02-wheel-scoring]: DEC-006: profiles.tier column writable by row-owner via RLS — must enforce tier server-side or move to service-role-only table before Phase 7 launch
+- [Phase 02-wheel-scoring]: Seed idempotency: use ON CONFLICT DO UPDATE (not DO NOTHING) for seed rows with mutable state to prevent drift across db resets
+- [Phase 02-wheel-scoring]: Wheel name required at creation time to prevent duplicate unnamed wheels and give user ownership
 
 ### Pending Todos
 
@@ -113,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-14T23:46:33.706Z
-Stopped at: Completed 02-wheel-scoring-05-PLAN.md
+Last session: 2026-03-15T00:17:11.226Z
+Stopped at: Completed 02-wheel-scoring-06-PLAN.md
 Resume file: None
