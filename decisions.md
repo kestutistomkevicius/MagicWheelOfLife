@@ -102,6 +102,25 @@ Start building immediately with local-only setup. Create Supabase Cloud project 
 
 ---
 
+## DEC-006: `tier` column must only be writable server-side
+
+**Date**: 2026-03-15
+**Status**: Deferred — must fix before monetization goes live
+**Context**: The current `profiles: update own` RLS policy allows any authenticated user to update their entire profile row, including the `tier` column. A user could call `supabase.from('profiles').update({ tier: 'premium' })` from the browser and self-upgrade for free.
+
+### Decision
+Before any payment flow is live, restrict tier changes to server-side only:
+- Drop or narrow the `profiles: update own` RLS policy so `tier` cannot be updated by the user directly.
+- Manage tier upgrades exclusively via a Supabase Edge Function or service-role key, triggered by a verified payment event (e.g., Stripe webhook).
+
+### Rationale
+Tier controls access to paid features. If a user can set their own tier, the entire monetization model is bypassed. This is a critical security boundary.
+
+### Trigger to revisit
+Before implementing any payment integration (Phase 7 / Launch).
+
+---
+
 ## DEC-005: Trend chart — both views with potential revert to single-category
 
 **Date**: 2026-03-14

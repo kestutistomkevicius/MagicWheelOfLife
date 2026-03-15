@@ -157,7 +157,7 @@ BEGIN
 
   INSERT INTO public.profiles (id, tier)
     VALUES (premium_user_id, 'premium')
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT (id) DO UPDATE SET tier = EXCLUDED.tier;
 
   -- wheels
   INSERT INTO public.wheels (id, user_id, name)

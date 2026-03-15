@@ -177,7 +177,7 @@ describe('useWheel', () => {
 
       let createdWheel: WheelRow | null = null
       await act(async () => {
-        createdWheel = await result.current.createWheel('template', USER_ID)
+        createdWheel = await result.current.createWheel('template', 'My Wheel', USER_ID)
       })
 
       expect(createdWheel).toEqual(newWheel)
@@ -215,7 +215,7 @@ describe('useWheel', () => {
 
       let createdWheel: WheelRow | null = null
       await act(async () => {
-        createdWheel = await result.current.createWheel('template', USER_ID)
+        createdWheel = await result.current.createWheel('template', 'My Wheel', USER_ID)
       })
 
       expect(createdWheel?.id).toBe('wheel-xyz')
@@ -223,7 +223,7 @@ describe('useWheel', () => {
   })
 
   describe('createWheel - blank (WHEEL-02)', () => {
-    it('inserts a wheel row with 0 categories when mode is blank', async () => {
+    it('inserts a wheel row with 3 placeholder categories when mode is blank', async () => {
       // Initial load
       mockFromSequence([
         { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null },
@@ -237,7 +237,7 @@ describe('useWheel', () => {
       let callCount = 0
       vi.mocked(supabase.from).mockImplementation(() => {
         callCount++
-        const terminalData = callCount === 1 ? [newWheel] : null
+        const terminalData = callCount === 1 ? [newWheel] : []
         const chain: Record<string, unknown> = {}
         chain.select = vi.fn().mockReturnValue(chain)
         chain.insert = vi.fn().mockReturnValue(chain)
@@ -253,12 +253,12 @@ describe('useWheel', () => {
 
       let createdWheel: WheelRow | null = null
       await act(async () => {
-        createdWheel = await result.current.createWheel('blank', USER_ID)
+        createdWheel = await result.current.createWheel('blank', 'My Wheel', USER_ID)
       })
 
       expect(createdWheel?.id).toBe('wheel-blank')
-      // Only 1 call to supabase.from — wheel insert only, no category batch
-      expect(callCount).toBe(1)
+      // 2 calls to supabase.from — wheel insert + 3 placeholder category insert
+      expect(callCount).toBe(2)
     })
   })
 

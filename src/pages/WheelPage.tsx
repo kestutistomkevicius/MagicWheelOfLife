@@ -21,11 +21,13 @@ export function WheelPage() {
 
   const {
     wheel,
+    wheels,
     categories,
     setCategories,
     loading,
     error,
     canCreateWheel,
+    selectWheel,
     createWheel,
     updateScore,
   } = useWheel(userId)
@@ -36,7 +38,7 @@ export function WheelPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
 
-  // Sync local categories from hook whenever categories change (e.g., after createWheel)
+  // Sync local categories from hook whenever categories change (e.g., after createWheel or selectWheel)
   useEffect(() => {
     setLocalCategories(categories)
   }, [categories])
@@ -46,7 +48,7 @@ export function WheelPage() {
     [localCategories]
   )
 
-  // Loading state: wheel is undefined (still resolving) OR loading flag is true
+  // Loading state
   if (loading || wheel === undefined) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -83,15 +85,14 @@ export function WheelPage() {
           open={modalOpen}
           showUpgradePrompt={false}
           onOpenChange={setModalOpen}
-          onCreate={async (mode) => {
-            await createWheel(mode, userId)
+          onCreate={async (mode, name) => {
+            await createWheel(mode, name, userId)
           }}
         />
       </div>
     )
   }
 
-  // Category management helpers
   const hasSnapshots = false // Phase 2: snapshots table does not exist yet
 
   function handleAsisChange(categoryId: string, value: number) {
@@ -154,8 +155,8 @@ export function WheelPage() {
     setCategories(prev => [...prev, result])
   }
 
-  async function handleCreateWheel(mode: 'template' | 'blank') {
-    await createWheel(mode, userId)
+  async function handleCreateWheel(mode: 'template' | 'blank', name: string) {
+    await createWheel(mode, name, userId)
   }
 
   function handleConfirmAction() {
@@ -183,7 +184,6 @@ export function WheelPage() {
     }
 
     setConfirmState(null)
-    // suppress unused variable warning
     void categoryName
   }
 
@@ -191,7 +191,22 @@ export function WheelPage() {
     <div className="p-6">
       {/* Header row */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-stone-800">{wheel.name}</h2>
+        <div className="flex items-center gap-3">
+          {/* Wheel switcher */}
+          {wheels.length > 1 ? (
+            <select
+              value={wheel.id}
+              onChange={e => selectWheel(e.target.value)}
+              className="text-xl font-semibold text-stone-800 bg-transparent border-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-stone-300 rounded px-1"
+            >
+              {wheels.map(w => (
+                <option key={w.id} value={w.id}>{w.name}</option>
+              ))}
+            </select>
+          ) : (
+            <h2 className="text-xl font-semibold text-stone-800">{wheel.name}</h2>
+          )}
+        </div>
         <div className="flex gap-2">
           <button
             className="px-3 py-1.5 text-sm border border-stone-300 rounded hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed"
@@ -204,7 +219,7 @@ export function WheelPage() {
             className="px-3 py-1.5 text-sm bg-stone-800 text-white rounded hover:bg-stone-700"
             onClick={() => setModalOpen(true)}
           >
-            Create new wheel
+            + New wheel
           </button>
         </div>
       </div>

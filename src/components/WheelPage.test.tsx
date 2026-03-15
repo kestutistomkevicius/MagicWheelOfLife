@@ -9,8 +9,11 @@ const mockAddCategory = vi.fn()
 const mockRenameCategory = vi.fn()
 const mockRemoveCategory = vi.fn()
 
+const mockSelectWheel = vi.fn()
+
 const defaultWheelResult = {
   wheel: { id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '' },
+  wheels: [{ id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '' }],
   categories: [
     { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 7, created_at: '', updated_at: '' },
     { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 8, created_at: '', updated_at: '' },
@@ -20,6 +23,7 @@ const defaultWheelResult = {
   loading: false,
   error: null,
   canCreateWheel: true,
+  selectWheel: mockSelectWheel,
   createWheel: mockCreateWheel,
   updateScore: mockUpdateScore,
 }
@@ -260,7 +264,7 @@ describe('WheelPage', () => {
         canCreateWheel: false,
       })
       render(<WheelPage />)
-      const createBtn = screen.getByRole('button', { name: /Create new wheel/i })
+      const createBtn = screen.getByRole('button', { name: /New wheel/i })
       fireEvent.click(createBtn)
       expect(screen.getByText('Upgrade to Premium')).toBeInTheDocument()
     })
@@ -272,7 +276,7 @@ describe('WheelPage', () => {
         canCreateWheel: true,
       })
       render(<WheelPage />)
-      const createBtn = screen.getByRole('button', { name: /Create new wheel/i })
+      const createBtn = screen.getByRole('button', { name: /New wheel/i })
       fireEvent.click(createBtn)
       expect(screen.getByText('Create your wheel')).toBeInTheDocument()
     })

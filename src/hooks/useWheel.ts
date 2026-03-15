@@ -4,7 +4,7 @@ import type { WheelRow, CategoryRow } from '@/types/database'
 
 export type { CategoryRow }
 
-const DEFAULT_CATEGORIES = [
+const TEMPLATE_CATEGORIES = [
   'Health',
   'Career',
   'Relationships',
@@ -15,16 +15,20 @@ const DEFAULT_CATEGORIES = [
   'Family & Friends',
 ]
 
+const BLANK_CATEGORIES = ['Category 1', 'Category 2', 'Category 3']
+
 export type CreateWheelMode = 'template' | 'blank'
 
 export interface UseWheelResult {
   wheel: WheelRow | null | undefined // undefined = loading
+  wheels: WheelRow[]
   categories: CategoryRow[]
   setCategories: Dispatch<SetStateAction<CategoryRow[]>>
   loading: boolean
   error: string | null
   canCreateWheel: boolean
-  createWheel: (mode: CreateWheelMode, userId: string) => Promise<WheelRow | null>
+  selectWheel: (wheelId: string) => Promise<void>
+  createWheel: (mode: CreateWheelMode, name: string, userId: string) => Promise<WheelRow | null>
   updateScore: (
     categoryId: string,
     field: 'score_asis' | 'score_tobe',
@@ -34,10 +38,12 @@ export interface UseWheelResult {
 
 export function useWheel(userId: string): UseWheelResult {
   const [wheel, setWheel] = useState<WheelRow | null | undefined>(undefined)
+  const [wheels, setWheels] = useState<WheelRow[]>([])
   const [categories, setCategories] = useState<CategoryRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [canCreateWheel, setCanCreateWheel] = useState(false)
+  const [tier, setTier] = useState<string>('free')
 
   useEffect(() => {
     if (!userId) {
@@ -63,15 +69,15 @@ export function useWheel(userId: string): UseWheelResult {
         ? (profileRes.data[0] ?? null)
         : (profileRes.data ?? null)
 
-      const tier = (profile as { tier?: string } | null)?.tier ?? 'free'
+      const userTier = (profile as { tier?: string } | null)?.tier ?? 'free'
+      setTier(userTier)
 
-      // Fetch the user's first wheel
+      // Fetch all user wheels
       const wheelsRes = await supabase
         .from('wheels')
         .select('id, user_id, name, created_at, updated_at')
         .eq('user_id', userId)
         .order('created_at')
-        .limit(1)
 
       if (cancelled) return
 
@@ -81,19 +87,17 @@ export function useWheel(userId: string): UseWheelResult {
         return
       }
 
-      const wheelsData = Array.isArray(wheelsRes.data) ? wheelsRes.data : []
-      const foundWheel = (wheelsData[0] as WheelRow | undefined) ?? null
+      const allWheels = Array.isArray(wheelsRes.data) ? (wheelsRes.data as WheelRow[]) : []
+      setWheels(allWheels)
+      setCanCreateWheel(userTier === 'premium' || allWheels.length === 0)
 
-      // Compute canCreateWheel: premium can always create; free only if no wheel exists
-      const wheelCount = wheelsData.length
-      setCanCreateWheel(tier === 'premium' || wheelCount === 0)
+      const firstWheel = allWheels[0] ?? null
 
-      if (foundWheel) {
-        // Fetch categories for this wheel
+      if (firstWheel) {
         const catsRes = await supabase
           .from('categories')
           .select('id, wheel_id, user_id, name, position, score_asis, score_tobe, created_at, updated_at')
-          .eq('wheel_id', foundWheel.id)
+          .eq('wheel_id', firstWheel.id)
           .order('position')
 
         if (cancelled) return
@@ -102,7 +106,7 @@ export function useWheel(userId: string): UseWheelResult {
         setCategories(cats)
       }
 
-      setWheel(foundWheel)
+      setWheel(firstWheel)
       setLoading(false)
     }
 
@@ -118,11 +122,25 @@ export function useWheel(userId: string): UseWheelResult {
     }
   }, [userId])
 
-  async function createWheel(mode: CreateWheelMode, userId: string): Promise<WheelRow | null> {
-    // Insert wheel
+  async function selectWheel(wheelId: string): Promise<void> {
+    const found = wheels.find(w => w.id === wheelId) ?? null
+    if (!found) return
+
+    const catsRes = await supabase
+      .from('categories')
+      .select('id, wheel_id, user_id, name, position, score_asis, score_tobe, created_at, updated_at')
+      .eq('wheel_id', wheelId)
+      .order('position')
+
+    const cats = Array.isArray(catsRes.data) ? (catsRes.data as CategoryRow[]) : []
+    setCategories(cats)
+    setWheel(found)
+  }
+
+  async function createWheel(mode: CreateWheelMode, name: string, userId: string): Promise<WheelRow | null> {
     const wheelRes = await supabase
       .from('wheels')
-      .insert({ user_id: userId, name: 'My Wheel' })
+      .insert({ user_id: userId, name: name.trim() || 'My Wheel' })
       .select()
 
     const wheelsInserted = Array.isArray(wheelRes.data) ? (wheelRes.data as WheelRow[]) : []
@@ -133,26 +151,23 @@ export function useWheel(userId: string): UseWheelResult {
       return null
     }
 
-    if (mode === 'template') {
-      const categoryRows = DEFAULT_CATEGORIES.map((name, index) => ({
-        wheel_id: newWheel.id,
-        user_id: userId,
-        name,
-        position: index,
-        score_asis: 5,
-        score_tobe: 5,
-      }))
+    const categoryNames = mode === 'template' ? TEMPLATE_CATEGORIES : BLANK_CATEGORIES
+    const categoryRows = categoryNames.map((catName, index) => ({
+      wheel_id: newWheel.id,
+      user_id: userId,
+      name: catName,
+      position: index,
+      score_asis: 5,
+      score_tobe: 5,
+    }))
 
-      const catsRes = await supabase.from('categories').insert(categoryRows).select()
-      const newCats = Array.isArray(catsRes.data) ? (catsRes.data as CategoryRow[]) : []
+    const catsRes = await supabase.from('categories').insert(categoryRows).select()
+    const newCats = Array.isArray(catsRes.data) ? (catsRes.data as CategoryRow[]) : []
 
-      setCategories(newCats)
-    } else {
-      setCategories([])
-    }
-
+    setCategories(newCats)
     setWheel(newWheel)
-    setCanCreateWheel(false) // free tier: just created one
+    setWheels(prev => [...prev, newWheel])
+    setCanCreateWheel(tier === 'premium')
     return newWheel
   }
 
@@ -169,11 +184,13 @@ export function useWheel(userId: string): UseWheelResult {
 
   return {
     wheel,
+    wheels,
     categories,
     setCategories,
     loading,
     error,
     canCreateWheel,
+    selectWheel,
     createWheel,
     updateScore,
   }
