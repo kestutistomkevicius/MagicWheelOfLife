@@ -1,7 +1,7 @@
 import {
   RadarChart, Radar, PolarGrid,
   PolarAngleAxis, PolarRadiusAxis,
-  ResponsiveContainer, Legend
+  ResponsiveContainer, Legend, Tooltip
 } from 'recharts'
 
 export type WheelChartPoint = {
@@ -31,6 +31,10 @@ export function WheelChart({ data }: WheelChartProps) {
         <Radar name="As-Is" dataKey="asis" stroke="#e8a23a" fill="#e8a23a" fillOpacity={0.4} dot={false} />
         <Radar name="To-Be" dataKey="tobe" stroke="#60a5fa" fill="#60a5fa" fillOpacity={0.15} dot={false} />
         <Legend />
+        <Tooltip
+          wrapperStyle={{ outline: 'none' }}
+          contentStyle={{ border: 'none', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
+        />
       </RadarChart>
     </ResponsiveContainer>
   )
