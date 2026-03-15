@@ -121,7 +121,13 @@ Plans:
   1. An unauthenticated visitor can load the landing page and see a hero section with a value proposition and a "Start your wheel" CTA that leads to signup
   2. Visitor can scroll to a feature showcase section displaying screenshots or an animated preview of the wheel
   3. Visitor can scroll to a social proof section (placeholder testimonials are acceptable) and a pricing section showing free vs. premium tier differences
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Wave 0: LandingPage test stubs, useInView hook, stub pages (Privacy/Terms), SEO meta in index.html, OG image placeholder
+- [ ] 06-02-PLAN.md — App.tsx routing restructure (/ as public route) + LandingPage Nav + Hero with WheelChart preview
+- [ ] 06-03-PLAN.md — LandingPage content sections: Feature showcase, Testimonials, Pricing, Final CTA, Footer
+- [ ] 06-04-PLAN.md — Human verification checkpoint: end-to-end landing page flows
 
 ### Phase 7: Launch
 **Goal**: The application is publicly accessible in production with all data secured and RLS enforced
@@ -149,5 +155,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Action Items | 5/6 | In Progress|  |
 | 4. Snapshots & Comparison | 5/5 | Complete   | 2026-03-15 |
 | 5. Trend Chart | 3/3 | Complete   | 2026-03-15 |
-| 6. Landing Page | 0/TBD | Not started | - |
+| 6. Landing Page | 0/4 | Not started | - |
 | 7. Launch | 0/TBD | Not started | - |
