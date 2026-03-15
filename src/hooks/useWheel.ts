@@ -27,6 +27,7 @@ export interface UseWheelResult {
   loading: boolean
   error: string | null
   canCreateWheel: boolean
+  tier: 'free' | 'premium'
   selectWheel: (wheelId: string) => Promise<void>
   createWheel: (mode: CreateWheelMode, name: string, userId: string) => Promise<WheelRow | null>
   updateScore: (
@@ -34,6 +35,7 @@ export interface UseWheelResult {
     field: 'score_asis' | 'score_tobe',
     value: number
   ) => Promise<void>
+  renameWheel: (wheelId: string, newName: string) => Promise<void>
 }
 
 export function useWheel(userId: string): UseWheelResult {
@@ -43,7 +45,7 @@ export function useWheel(userId: string): UseWheelResult {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [canCreateWheel, setCanCreateWheel] = useState(false)
-  const [tier, setTier] = useState<string>('free')
+  const [tier, setTier] = useState<'free' | 'premium'>('free')
 
   useEffect(() => {
     if (!userId) {
@@ -65,11 +67,11 @@ export function useWheel(userId: string): UseWheelResult {
 
       if (cancelled) return
 
-      const profile = Array.isArray(profileRes.data)
+      const profile = (Array.isArray(profileRes.data)
         ? (profileRes.data[0] ?? null)
-        : (profileRes.data ?? null)
+        : (profileRes.data ?? null)) as { tier?: string } | null
 
-      const userTier = (profile as { tier?: string } | null)?.tier ?? 'free'
+      const userTier: 'free' | 'premium' = profile?.tier === 'premium' ? 'premium' : 'free'
       setTier(userTier)
 
       // Fetch all user wheels
@@ -182,6 +184,17 @@ export function useWheel(userId: string): UseWheelResult {
       .eq('id', categoryId)
   }
 
+  async function renameWheel(wheelId: string, newName: string): Promise<void> {
+    const trimmed = newName.trim()
+    if (!trimmed) return
+    await supabase
+      .from('wheels')
+      .update({ name: trimmed, updated_at: new Date().toISOString() })
+      .eq('id', wheelId)
+    setWheel(prev => prev ? { ...prev, name: trimmed } : prev)
+    setWheels(prev => prev.map(w => w.id === wheelId ? { ...w, name: trimmed } : w))
+  }
+
   return {
     wheel,
     wheels,
@@ -190,8 +203,10 @@ export function useWheel(userId: string): UseWheelResult {
     loading,
     error,
     canCreateWheel,
+    tier,
     selectWheel,
     createWheel,
     updateScore,
+    renameWheel,
   }
 }

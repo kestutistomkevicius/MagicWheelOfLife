@@ -327,6 +327,83 @@ describe('useWheel', () => {
       )
     })
   })
+
+  describe('tier (POLISH-05)', () => {
+    it('returns tier="free" when profile fetch returns free tier', async () => {
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+        { data: [], error: null }, // wheels
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      expect(result.current.tier).toBe('free')
+    })
+
+    it('returns tier="premium" when profile fetch returns premium tier', async () => {
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'premium', created_at: '' }, error: null }, // profiles
+        { data: [mockWheel], error: null }, // wheels
+        { data: mockCategories, error: null }, // categories
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      expect(result.current.tier).toBe('premium')
+    })
+  })
+
+  describe('renameWheel (POLISH-07)', () => {
+    it('calls supabase update on wheels table with trimmed name', async () => {
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null },
+        { data: [mockWheel], error: null },
+        { data: mockCategories, error: null },
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      const mockUpdateFn = vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+      })
+      const mockFromForUpdate = vi.fn().mockReturnValue({
+        update: mockUpdateFn,
+      })
+      vi.mocked(supabase.from).mockImplementation(mockFromForUpdate as unknown as typeof supabase.from)
+
+      await act(async () => {
+        await result.current.renameWheel('wheel-001', '  New Name  ')
+      })
+
+      expect(mockFromForUpdate).toHaveBeenCalledWith('wheels')
+      expect(mockUpdateFn).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'New Name' })
+      )
+    })
+
+    it('does NOT call supabase when newName is empty or whitespace', async () => {
+      mockFromSequence([
+        { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null },
+        { data: [mockWheel], error: null },
+        { data: mockCategories, error: null },
+      ])
+
+      const { result } = renderHook(() => useWheel(USER_ID))
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      const mockFromForUpdate = vi.fn()
+      vi.mocked(supabase.from).mockImplementation(mockFromForUpdate as unknown as typeof supabase.from)
+
+      await act(async () => {
+        await result.current.renameWheel('wheel-001', '   ')
+      })
+
+      expect(mockFromForUpdate).not.toHaveBeenCalled()
+    })
+  })
 })
 
 // Suppress unused import warnings
