@@ -121,6 +121,132 @@ describe('CategorySlider', () => {
     })
   })
 
+  describe('star icon for important toggle (POLISH-04)', () => {
+    it('does not render star when onToggleImportant is undefined', () => {
+      render(<CategorySlider {...defaultProps} />)
+      expect(screen.queryByRole('button', { name: /important/i })).not.toBeInTheDocument()
+    })
+
+    it('renders star button when onToggleImportant is provided', () => {
+      const onToggleImportant = vi.fn()
+      render(
+        <CategorySlider
+          {...defaultProps}
+          onToggleImportant={onToggleImportant}
+          userTier="premium"
+          isImportant={false}
+          importantCount={0}
+        />
+      )
+      expect(screen.getByRole('button', { name: /mark Health as important/i })).toBeInTheDocument()
+    })
+
+    it('clicking star (premium, not at limit) calls onToggleImportant', () => {
+      const onToggleImportant = vi.fn()
+      render(
+        <CategorySlider
+          {...defaultProps}
+          onToggleImportant={onToggleImportant}
+          userTier="premium"
+          isImportant={false}
+          importantCount={0}
+        />
+      )
+      fireEvent.click(screen.getByRole('button', { name: /mark Health as important/i }))
+      expect(onToggleImportant).toHaveBeenCalledTimes(1)
+    })
+
+    it('clicking star (free tier) does NOT call onToggleImportant', () => {
+      const onToggleImportant = vi.fn()
+      render(
+        <CategorySlider
+          {...defaultProps}
+          onToggleImportant={onToggleImportant}
+          userTier="free"
+          isImportant={false}
+          importantCount={0}
+        />
+      )
+      fireEvent.click(screen.getByRole('button', { name: /mark Health as important/i }))
+      expect(onToggleImportant).not.toHaveBeenCalled()
+    })
+
+    it('free user star has title "Premium feature — upgrade to mark priorities"', () => {
+      const onToggleImportant = vi.fn()
+      render(
+        <CategorySlider
+          {...defaultProps}
+          onToggleImportant={onToggleImportant}
+          userTier="free"
+          isImportant={false}
+          importantCount={0}
+        />
+      )
+      const starBtn = screen.getByRole('button', { name: /mark Health as important/i })
+      expect(starBtn).toHaveAttribute('title', 'Premium feature — upgrade to mark priorities')
+    })
+
+    it('premium user at limit (importantCount=3) star has title "3 priority categories already set"', () => {
+      const onToggleImportant = vi.fn()
+      render(
+        <CategorySlider
+          {...defaultProps}
+          onToggleImportant={onToggleImportant}
+          userTier="premium"
+          isImportant={false}
+          importantCount={3}
+        />
+      )
+      const starBtn = screen.getByRole('button', { name: /mark Health as important/i })
+      expect(starBtn).toHaveAttribute('title', '3 priority categories already set')
+    })
+
+    it('premium user at limit does NOT call onToggleImportant when clicked', () => {
+      const onToggleImportant = vi.fn()
+      render(
+        <CategorySlider
+          {...defaultProps}
+          onToggleImportant={onToggleImportant}
+          userTier="premium"
+          isImportant={false}
+          importantCount={3}
+        />
+      )
+      fireEvent.click(screen.getByRole('button', { name: /mark Health as important/i }))
+      expect(onToggleImportant).not.toHaveBeenCalled()
+    })
+
+    it('star aria-pressed=true when isImportant=true', () => {
+      const onToggleImportant = vi.fn()
+      render(
+        <CategorySlider
+          {...defaultProps}
+          onToggleImportant={onToggleImportant}
+          userTier="premium"
+          isImportant={true}
+          importantCount={1}
+        />
+      )
+      const starBtn = screen.getByRole('button', { name: /unmark Health as important/i })
+      expect(starBtn).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    it('star aria-pressed=false when isImportant=false', () => {
+      const onToggleImportant = vi.fn()
+      render(
+        <CategorySlider
+          {...defaultProps}
+          onToggleImportant={onToggleImportant}
+          userTier="premium"
+          isImportant={false}
+          importantCount={0}
+        />
+      )
+      const starBtn = screen.getByRole('button', { name: /mark Health as important/i })
+      expect(starBtn).toHaveAttribute('aria-pressed', 'false')
+    })
+  })
+
   describe('rename button UX (fix for UX debt)', () => {
     it('clicking Rename button shows inline input without immediately calling onRename', () => {
       const onRename = vi.fn()

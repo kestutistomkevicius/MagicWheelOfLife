@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Star } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
 
 interface CategorySliderProps {
@@ -15,6 +16,10 @@ interface CategorySliderProps {
   isExpanded?: boolean
   onExpandToggle?: () => void
   actionItemCount?: number
+  isImportant?: boolean
+  onToggleImportant?: () => void
+  userTier?: 'free' | 'premium'
+  importantCount?: number
 }
 
 export function CategorySlider({
@@ -31,6 +36,10 @@ export function CategorySlider({
   isExpanded,
   onExpandToggle,
   actionItemCount,
+  isImportant,
+  onToggleImportant,
+  userTier,
+  importantCount,
 }: CategorySliderProps) {
   const [editing, setEditing] = useState(false)
   const [editValue, setEditValue] = useState(categoryName)
@@ -65,6 +74,32 @@ export function CategorySlider({
           >
             {categoryName}
           </span>
+        )}
+        {onToggleImportant !== undefined && (
+          (() => {
+            const isFree = userTier === 'free'
+            const atLimit = !isImportant && (importantCount ?? 0) >= 3
+            const disabled = isFree || atLimit
+            const tooltipTitle = isFree
+              ? 'Premium feature — upgrade to mark priorities'
+              : atLimit ? '3 priority categories already set' : undefined
+            return (
+              <button
+                type="button"
+                onClick={disabled ? undefined : onToggleImportant}
+                aria-label={isImportant ? `Unmark ${categoryName} as important` : `Mark ${categoryName} as important`}
+                aria-pressed={isImportant}
+                title={tooltipTitle}
+                className={disabled ? 'text-stone-300 cursor-default' : isImportant ? 'text-amber-500 cursor-pointer' : 'text-stone-400 cursor-pointer hover:text-amber-500'}
+              >
+                <Star
+                  size={14}
+                  fill={isImportant && !disabled ? 'currentColor' : 'none'}
+                  strokeWidth={1.5}
+                />
+              </button>
+            )
+          })()
         )}
         <div className="flex gap-1">
           {onExpandToggle && (
