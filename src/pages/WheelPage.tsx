@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useWheel } from '@/hooks/useWheel'
 import { useCategories } from '@/hooks/useCategories'
@@ -8,7 +8,15 @@ import { CategorySlider } from '@/components/CategorySlider'
 import { ActionItemList } from '@/components/ActionItemList'
 import { CreateWheelModal } from '@/components/CreateWheelModal'
 import { SnapshotWarningDialog } from '@/components/SnapshotWarningDialog'
+import { DueSoonWidget, getDueSoonItems } from '@/components/DueSoonWidget'
 import { useActionItems } from '@/hooks/useActionItems'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import type { CategoryRow } from '@/hooks/useWheel'
 import type { ActionItemRow } from '@/types/database'
 
@@ -17,6 +25,15 @@ interface ConfirmState {
   categoryId: string
   categoryName: string
   newName?: string
+}
+
+function getNextCategoryName(existing: CategoryRow[]): string {
+  const names = existing.map(c => c.name)
+  if (!names.some(n => /^new category/i.test(n))) return 'New category'
+  const nums = names
+    .map(n => { const m = n.match(/^new category\s*(\d+)$/i); return m ? parseInt(m[1], 10) : 1 })
+    .filter(n => !isNaN(n))
+  return `New category ${Math.max(...nums) + 1}`
 }
 
 export function WheelPage() {
@@ -31,9 +48,12 @@ export function WheelPage() {
     loading,
     error,
     canCreateWheel,
+    tier,
     selectWheel,
     createWheel,
     updateScore,
+    renameWheel,
+    updateCategoryImportant,
   } = useWheel(userId)
 
   const { addCategory, renameCategory, removeCategory } = useCategories()
@@ -44,7 +64,14 @@ export function WheelPage() {
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [actionItemsByCategory, setActionItemsByCategory] = useState<Record<string, ActionItemRow[]>>({})
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
-  const { loadActionItems } = useActionItems()
+  const [editingWheelName, setEditingWheelName] = useState(false)
+  const [wheelNameEdit, setWheelNameEdit] = useState('')
+  const skipSaveOnBlurRef = useRef(false)
+  const [showCategoryUpgradePrompt, setShowCategoryUpgradePrompt] = useState(false)
+  const [highlightedCategory, setHighlightedCategory] = useState<string | null>(null)
+  const [nudgeCategoryId, setNudgeCategoryId] = useState<string | null>(null)
+  const [nudgeDismissed, setNudgeDismissed] = useState<Set<string>>(new Set())
+  const { loadActionItems, toggleActionItem } = useActionItems()
 
   // Sync local categories from hook whenever categories change (e.g., after createWheel or selectWheel)
   useEffect(() => {
@@ -124,8 +151,22 @@ export function WheelPage() {
     )
   }
 
+  function checkGapNudge(categoryId: string, cats: CategoryRow[]) {
+    if (tier !== 'premium') return
+    const cat = cats.find(c => c.id === categoryId)
+    if (!cat) return
+    if (cat.is_important) return
+    if (nudgeDismissed.has(categoryId)) return
+    if (Math.abs(cat.score_tobe - cat.score_asis) >= 3) {
+      setNudgeCategoryId(categoryId)
+    }
+  }
+
   function handleAsisCommit(categoryId: string, value: number) {
+    const updatedCats = localCategories.map(c => c.id === categoryId ? { ...c, score_asis: value } : c)
+    setLocalCategories(updatedCats)
     updateScore(categoryId, 'score_asis', value)
+    checkGapNudge(categoryId, updatedCats)
   }
 
   function handleTobeChange(categoryId: string, value: number) {
@@ -135,7 +176,10 @@ export function WheelPage() {
   }
 
   function handleTobeCommit(categoryId: string, value: number) {
+    const updatedCats = localCategories.map(c => c.id === categoryId ? { ...c, score_tobe: value } : c)
+    setLocalCategories(updatedCats)
     updateScore(categoryId, 'score_tobe', value)
+    checkGapNudge(categoryId, updatedCats)
   }
 
   async function handleRename(categoryId: string, categoryName: string, newName: string) {
@@ -165,17 +209,37 @@ export function WheelPage() {
   }
 
   async function handleAddCategory() {
-    if (!wheel || localCategories.length >= 12) return
+    if (!wheel) return
+    const maxCategories = tier === 'premium' ? 12 : 8
+    if (localCategories.length >= maxCategories) {
+      setShowCategoryUpgradePrompt(true)
+      return
+    }
     const maxPosition = localCategories.reduce((max, c) => Math.max(max, c.position), -1)
     const result = await addCategory({
       wheelId: wheel.id,
       userId,
-      name: 'New Category',
+      name: getNextCategoryName(localCategories),
       currentCount: localCategories.length,
       currentMaxPosition: maxPosition,
     })
     if ('error' in result) return
     setCategories(prev => [...prev, result])
+  }
+
+  function handleDueSoonMarkComplete(itemId: string) {
+    // Find item in actionItemsByCategory, mark complete optimistically
+    for (const [catId, items] of Object.entries(actionItemsByCategory)) {
+      const item = items.find(i => i.id === itemId)
+      if (item) {
+        setActionItemsByCategory(prev => ({
+          ...prev,
+          [catId]: items.map(i => i.id === itemId ? { ...i, is_complete: true } : i),
+        }))
+        void toggleActionItem({ id: itemId, isComplete: true })
+        return
+      }
+    }
   }
 
   async function handleCreateWheel(mode: 'template' | 'blank', name: string) {
@@ -248,8 +312,40 @@ export function WheelPage() {
                 <option key={w.id} value={w.id}>{w.name}</option>
               ))}
             </select>
+          ) : editingWheelName ? (
+            <input
+              className="text-xl font-semibold text-stone-800 border border-stone-300 rounded px-1 focus:outline-none"
+              value={wheelNameEdit}
+              autoFocus
+              onChange={e => setWheelNameEdit(e.target.value)}
+              onBlur={() => {
+                if (skipSaveOnBlurRef.current) {
+                  skipSaveOnBlurRef.current = false
+                  setEditingWheelName(false)
+                  return
+                }
+                if (wheelNameEdit.trim()) void renameWheel(wheel.id, wheelNameEdit)
+                setEditingWheelName(false)
+              }}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  if (wheelNameEdit.trim()) void renameWheel(wheel.id, wheelNameEdit)
+                  setEditingWheelName(false)
+                }
+                if (e.key === 'Escape') {
+                  skipSaveOnBlurRef.current = true
+                  setEditingWheelName(false)
+                }
+              }}
+              aria-label="Rename wheel"
+            />
           ) : (
-            <h2 className="text-xl font-semibold text-stone-800">{wheel.name}</h2>
+            <h2
+              className="text-xl font-semibold text-stone-800 cursor-pointer hover:underline"
+              onClick={() => { setWheelNameEdit(wheel.name); setEditingWheelName(true) }}
+            >
+              {wheel.name}
+            </h2>
           )}
         </div>
         <div className="flex gap-2">
@@ -273,11 +369,26 @@ export function WheelPage() {
       <div className="flex flex-col md:flex-row gap-6">
         {/* Chart */}
         <div className="flex-1 min-w-0">
-          <WheelChart data={chartData} />
+          <WheelChart
+            data={chartData}
+            highlightedCategory={highlightedCategory ?? undefined}
+            importantCategories={localCategories.filter(c => c.is_important).map(c => c.name)}
+          />
+          <DueSoonWidget
+            items={getDueSoonItems(actionItemsByCategory, localCategories)}
+            highlightedCategory={highlightedCategory}
+            onHighlight={setHighlightedCategory}
+            onMarkComplete={handleDueSoonMarkComplete}
+          />
         </div>
 
         {/* Category sliders */}
         <div className="flex-1 min-w-0 overflow-y-auto max-h-[500px]">
+          {tier === 'premium' && (
+            <p className="text-xs text-stone-500 mb-2">
+              Priority categories: {localCategories.filter(c => c.is_important).length} of 3 set
+            </p>
+          )}
           {localCategories.map(cat => (
             <div key={cat.id}>
               <CategorySlider
@@ -324,6 +435,63 @@ export function WheelPage() {
         onConfirm={handleConfirmAction}
         onCancel={() => setConfirmState(null)}
       />
+
+      {/* Category upgrade prompt */}
+      <Dialog open={showCategoryUpgradePrompt} onOpenChange={setShowCategoryUpgradePrompt}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upgrade to add more categories</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-stone-600">Free accounts support up to 8 categories. Upgrade to premium for up to 12.</p>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setShowCategoryUpgradePrompt(false)}
+              className="px-4 py-2 text-sm border border-stone-300 rounded hover:bg-stone-50"
+            >
+              Close
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Auto-prompt nudge for big score gaps */}
+      <Dialog open={nudgeCategoryId !== null} onOpenChange={(open) => { if (!open) setNudgeCategoryId(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Big gap detected</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-stone-600">
+            This area has a big gap between where you are and where you want to be. Mark it as a priority category?
+          </p>
+          <DialogFooter className="gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (nudgeCategoryId) {
+                  void updateCategoryImportant(nudgeCategoryId, true)
+                }
+                setNudgeCategoryId(null)
+              }}
+              className="px-4 py-2 text-sm bg-stone-800 text-white rounded hover:bg-stone-700"
+            >
+              Mark as important
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (nudgeCategoryId) {
+                  setNudgeDismissed(prev => new Set([...prev, nudgeCategoryId]))
+                }
+                setNudgeCategoryId(null)
+              }}
+              className="px-4 py-2 text-sm border border-stone-300 rounded hover:bg-stone-50"
+            >
+              Dismiss
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

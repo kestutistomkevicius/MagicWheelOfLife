@@ -9,6 +9,8 @@ const mockAddCategory = vi.fn()
 const mockRenameCategory = vi.fn()
 const mockRemoveCategory = vi.fn()
 const mockCheckSnapshotsExist = vi.hoisted(() => vi.fn())
+const mockRenameWheel = vi.fn()
+const mockUpdateCategoryImportant = vi.fn()
 
 const mockSelectWheel = vi.fn()
 
@@ -16,17 +18,20 @@ const defaultWheelResult = {
   wheel: { id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '' },
   wheels: [{ id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '' }],
   categories: [
-    { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 7, created_at: '', updated_at: '' },
-    { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 8, created_at: '', updated_at: '' },
-    { id: 'cat-3', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Finance', position: 2, score_asis: 4, score_tobe: 7, created_at: '', updated_at: '' },
+    { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 7, is_important: false, created_at: '', updated_at: '' },
+    { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 8, is_important: false, created_at: '', updated_at: '' },
+    { id: 'cat-3', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Finance', position: 2, score_asis: 4, score_tobe: 7, is_important: false, created_at: '', updated_at: '' },
   ],
   setCategories: vi.fn(),
   loading: false,
   error: null,
   canCreateWheel: true,
+  tier: 'free' as const,
   selectWheel: mockSelectWheel,
   createWheel: mockCreateWheel,
   updateScore: mockUpdateScore,
+  renameWheel: mockRenameWheel,
+  updateCategoryImportant: mockUpdateCategoryImportant,
 }
 
 vi.mock('@/hooks/useWheel', () => ({
@@ -143,6 +148,11 @@ vi.mock('@/components/ActionItemList', () => ({
   ),
 }))
 
+vi.mock('@/components/DueSoonWidget', () => ({
+  DueSoonWidget: () => null,
+  getDueSoonItems: () => [],
+}))
+
 // Mock Dialog and AlertDialog to render children directly in jsdom
 vi.mock('@/components/ui/dialog', () => ({
   Dialog: ({ children, open }: { children: React.ReactNode; open: boolean }) =>
@@ -176,12 +186,15 @@ import React from 'react'
 
 describe('WheelPage', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
     vi.mocked(useWheel).mockReturnValue({ ...defaultWheelResult, setCategories: vi.fn() })
     mockRenameCategory.mockResolvedValue(undefined)
     mockRemoveCategory.mockResolvedValue(undefined)
     mockUpdateScore.mockResolvedValue(undefined)
     mockCreateWheel.mockResolvedValue(null)
-    mockAddCategory.mockResolvedValue({ id: 'cat-new', wheel_id: 'wheel-1', user_id: 'user-1', name: 'New', position: 3, score_asis: 5, score_tobe: 5, created_at: '', updated_at: '' })
+    mockRenameWheel.mockResolvedValue(undefined)
+    mockUpdateCategoryImportant.mockResolvedValue(undefined)
+    mockAddCategory.mockResolvedValue({ id: 'cat-new', wheel_id: 'wheel-1', user_id: 'user-1', name: 'New', position: 3, score_asis: 5, score_tobe: 5, is_important: false, created_at: '', updated_at: '' })
     // Default: no snapshots exist
     mockCheckSnapshotsExist.mockResolvedValue(false)
   })
@@ -405,6 +418,165 @@ describe('WheelPage', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('action-items-cat-1')).not.toBeInTheDocument()
       })
+    })
+  })
+
+  describe('inline wheel rename (POLISH-05)', () => {
+    it('renders wheel name as h2 text when not editing', () => {
+      render(<WheelPage />)
+      expect(screen.getByRole('heading', { name: 'My Wheel' })).toBeInTheDocument()
+    })
+
+    it('clicking wheel name shows an input with current name', () => {
+      render(<WheelPage />)
+      const heading = screen.getByRole('heading', { name: 'My Wheel' })
+      fireEvent.click(heading)
+      const input = screen.getByRole('textbox', { name: /rename wheel/i })
+      expect(input).toBeInTheDocument()
+      expect((input as HTMLInputElement).value).toBe('My Wheel')
+    })
+
+    it('pressing Enter saves via renameWheel with new name', async () => {
+      render(<WheelPage />)
+      const heading = screen.getByRole('heading', { name: 'My Wheel' })
+      fireEvent.click(heading)
+      const input = screen.getByRole('textbox', { name: /rename wheel/i })
+      fireEvent.change(input, { target: { value: 'New Name' } })
+      fireEvent.keyDown(input, { key: 'Enter' })
+      await waitFor(() => {
+        expect(mockRenameWheel).toHaveBeenCalledWith('wheel-1', 'New Name')
+      })
+    })
+
+    it('pressing Escape cancels without calling renameWheel', () => {
+      render(<WheelPage />)
+      const heading = screen.getByRole('heading', { name: 'My Wheel' })
+      fireEvent.click(heading)
+      const input = screen.getByRole('textbox', { name: /rename wheel/i })
+      fireEvent.change(input, { target: { value: 'Changed' } })
+      fireEvent.keyDown(input, { key: 'Escape' })
+      expect(mockRenameWheel).not.toHaveBeenCalled()
+      // heading should be back
+      expect(screen.getByRole('heading', { name: 'My Wheel' })).toBeInTheDocument()
+    })
+
+    it('blur with non-empty name saves via renameWheel', async () => {
+      render(<WheelPage />)
+      const heading = screen.getByRole('heading', { name: 'My Wheel' })
+      fireEvent.click(heading)
+      const input = screen.getByRole('textbox', { name: /rename wheel/i })
+      fireEvent.change(input, { target: { value: 'Blurred Name' } })
+      fireEvent.blur(input)
+      await waitFor(() => {
+        expect(mockRenameWheel).toHaveBeenCalledWith('wheel-1', 'Blurred Name')
+      })
+    })
+
+    it('blur with empty name does not call renameWheel', () => {
+      render(<WheelPage />)
+      const heading = screen.getByRole('heading', { name: 'My Wheel' })
+      fireEvent.click(heading)
+      const input = screen.getByRole('textbox', { name: /rename wheel/i })
+      fireEvent.change(input, { target: { value: '' } })
+      fireEvent.blur(input)
+      expect(mockRenameWheel).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('category gate and auto-naming (POLISH-06)', () => {
+    it('free-tier user clicking Add category when count is 8 sees upgrade prompt', async () => {
+      const eightCats = Array.from({ length: 8 }, (_, i) => ({
+        id: `cat-${i}`,
+        wheel_id: 'wheel-1',
+        user_id: 'user-1',
+        name: `Category ${i}`,
+        position: i,
+        score_asis: 5,
+        score_tobe: 5,
+        is_important: false,
+        created_at: '',
+        updated_at: '',
+      }))
+      vi.mocked(useWheel).mockReturnValue({
+        ...defaultWheelResult,
+        tier: 'free',
+        categories: eightCats,
+        setCategories: vi.fn(),
+      })
+      render(<WheelPage />)
+      const addBtn = screen.getByRole('button', { name: /Add category/i })
+      fireEvent.click(addBtn)
+      await waitFor(() => {
+        expect(screen.getByText(/upgrade to premium/i)).toBeInTheDocument()
+      })
+      expect(mockAddCategory).not.toHaveBeenCalled()
+    })
+
+    it('premium user can add up to 12 categories without upgrade prompt', () => {
+      const elevenCats = Array.from({ length: 11 }, (_, i) => ({
+        id: `cat-${i}`,
+        wheel_id: 'wheel-1',
+        user_id: 'user-1',
+        name: `Category ${i}`,
+        position: i,
+        score_asis: 5,
+        score_tobe: 5,
+        is_important: false,
+        created_at: '',
+        updated_at: '',
+      }))
+      vi.mocked(useWheel).mockReturnValue({
+        ...defaultWheelResult,
+        tier: 'premium',
+        categories: elevenCats,
+        setCategories: vi.fn(),
+      })
+      render(<WheelPage />)
+      const addBtn = screen.getByRole('button', { name: /Add category/i })
+      fireEvent.click(addBtn)
+      expect(mockAddCategory).toHaveBeenCalled()
+    })
+
+    it('second added category is named New category 2 when first was New category', () => {
+      const catsWithNewCategory = [
+        { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 5, is_important: false, created_at: '', updated_at: '' },
+        { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'New category', position: 1, score_asis: 5, score_tobe: 5, is_important: false, created_at: '', updated_at: '' },
+        { id: 'cat-3', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Finance', position: 2, score_asis: 5, score_tobe: 5, is_important: false, created_at: '', updated_at: '' },
+      ]
+      vi.mocked(useWheel).mockReturnValue({
+        ...defaultWheelResult,
+        tier: 'free',
+        categories: catsWithNewCategory,
+        setCategories: vi.fn(),
+      })
+      render(<WheelPage />)
+      const addBtn = screen.getByRole('button', { name: /Add category/i })
+      fireEvent.click(addBtn)
+      expect(mockAddCategory).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'New category 2' })
+      )
+    })
+  })
+
+  describe('priority counter (POLISH-07)', () => {
+    it('renders priority counter when tier is premium', () => {
+      vi.mocked(useWheel).mockReturnValue({
+        ...defaultWheelResult,
+        tier: 'premium',
+        categories: [
+          { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 7, is_important: true, created_at: '', updated_at: '' },
+          { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 8, is_important: false, created_at: '', updated_at: '' },
+          { id: 'cat-3', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Finance', position: 2, score_asis: 4, score_tobe: 7, is_important: false, created_at: '', updated_at: '' },
+        ],
+        setCategories: vi.fn(),
+      })
+      render(<WheelPage />)
+      expect(screen.getByText(/Priority categories: 1 of 3 set/i)).toBeInTheDocument()
+    })
+
+    it('does not render priority counter when tier is free', () => {
+      render(<WheelPage />)
+      expect(screen.queryByText(/Priority categories/i)).not.toBeInTheDocument()
     })
   })
 
