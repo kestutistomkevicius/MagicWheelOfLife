@@ -1,6 +1,7 @@
+import React from 'react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer,
+  Tooltip, Legend, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 
 export type TrendChartPoint = {
@@ -9,12 +10,67 @@ export type TrendChartPoint = {
   tobe: number
 }
 
+export type TrendChartMarker = {
+  date: string    // formatted date string matching XAxis dataKey value exactly
+  label: string   // action item text for tooltip
+  color: string   // hex color
+}
+
 interface TrendChartProps {
   data: TrendChartPoint[]
   categoryName: string
+  markers?: TrendChartMarker[]
 }
 
-export function TrendChart({ data, categoryName: _categoryName }: TrendChartProps) {
+function DiamondLabel({ viewBox, label, color, ...rest }: {
+  viewBox?: { x?: number; y?: number }
+  label: string
+  color: string
+  [key: string]: unknown
+}) {
+  const [hovered, setHovered] = React.useState(false)
+  const x = viewBox?.x ?? 0
+  const y = viewBox?.y ?? 0
+  // Suppress unused rest variable warning
+  void rest
+  return (
+    <g>
+      <text
+        x={x}
+        y={y + 16}
+        textAnchor="middle"
+        fill={color}
+        fontSize={12}
+        style={{ cursor: 'default' }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        ◆
+      </text>
+      {hovered && (
+        <foreignObject x={x - 60} y={y + 20} width={120} height={40}>
+          <div
+            style={{
+              background: 'white',
+              border: '1px solid #e7e5e4',
+              borderRadius: 6,
+              padding: '2px 6px',
+              fontSize: 11,
+              color: '#44403c',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {label}
+          </div>
+        </foreignObject>
+      )}
+    </g>
+  )
+}
+
+export function TrendChart({ data, categoryName: _categoryName, markers }: TrendChartProps) {
   return (
     <ResponsiveContainer width="100%" height={360}>
       <LineChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
@@ -59,6 +115,15 @@ export function TrendChart({ data, categoryName: _categoryName }: TrendChartProp
           dot={{ r: 4, fill: '#60a5fa' }}
           activeDot={{ r: 5 }}
         />
+        {(markers ?? []).map((m, i) => (
+          <ReferenceLine
+            key={i}
+            x={m.date}
+            stroke={m.color}
+            strokeDasharray="3 3"
+            label={<DiamondLabel label={m.label} color={m.color} />}
+          />
+        ))}
       </LineChart>
     </ResponsiveContainer>
   )
