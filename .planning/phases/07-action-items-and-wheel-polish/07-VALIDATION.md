@@ -38,17 +38,23 @@ created: 2026-03-15
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 7-01-01 | 01 | 0 | POLISH-02 | unit | `npm test -- --run DueSoonWidget` | ❌ W0 | ⬜ pending |
-| 7-02-01 | 02 | 1 | POLISH-08 | unit | `npm test -- --run ActionItemList` | ✅ | ⬜ pending |
-| 7-02-02 | 02 | 1 | POLISH-01 | unit | `npm test -- --run ActionItemList` | ✅ | ⬜ pending |
-| 7-02-03 | 02 | 1 | POLISH-08 | unit | `npm test -- --run ActionItemList` | ✅ | ⬜ pending |
-| 7-03-01 | 03 | 1 | POLISH-07 | unit | `npm test -- --run WheelPage` | ✅ | ⬜ pending |
-| 7-03-02 | 03 | 1 | POLISH-05 | unit | `npm test -- --run WheelPage` | ✅ | ⬜ pending |
-| 7-03-03 | 03 | 1 | POLISH-06 | unit | `npm test -- --run WheelPage` | ✅ | ⬜ pending |
-| 7-04-01 | 04 | 2 | POLISH-04 | unit | `npm test -- --run CategorySlider` | ✅ | ⬜ pending |
-| 7-04-02 | 04 | 2 | POLISH-04 | unit | `npm test -- --run WheelChart` | ✅ | ⬜ pending |
-| 7-04-03 | 04 | 2 | POLISH-02 | unit | `npm test -- --run DueSoonWidget` | ❌ W0 | ⬜ pending |
-| 7-05-01 | 05 | 2 | POLISH-03 | unit | `npm test -- --run TrendChart` | ✅ | ⬜ pending |
+| 7-01-T1 | 01 | 0 | POLISH-04, POLISH-08 | migration | `npx supabase db reset --local` | ❌ W0 creates | ⬜ pending |
+| 7-01-T2 | 01 | 0 | POLISH-02, POLISH-04 | unit | `npm test -- --run` | ❌ W0 creates | ⬜ pending |
+| 7-02-T1 | 02 | 1 | POLISH-01, POLISH-08 | unit | `npm test -- --run useActionItems` | ✅ | ⬜ pending |
+| 7-03-T1 | 03 | 1 | POLISH-04, POLISH-07 | unit | `npm test -- --run useWheel` | ✅ | ⬜ pending |
+| 7-03-T2 | 03 | 1 | POLISH-04 | unit | `npm test -- --run useWheel` | ✅ | ⬜ pending |
+| 7-04-T1 | 04 | 2 | POLISH-01, POLISH-08 | unit | `npm test -- --run ActionItemList` | ✅ | ⬜ pending |
+| 7-04-T2 | 04 | 2 | POLISH-08 | unit | `npm test -- --run ActionItemList` | ✅ | ⬜ pending |
+| 7-05-T1 | 05 | 2 | POLISH-05, POLISH-06, POLISH-07 | unit | `npm test -- --run WheelPage` | ✅ | ⬜ pending |
+| 7-05-T2 | 05 | 2 | POLISH-02, POLISH-04 | unit | `npm test -- --run DueSoonWidget` | ❌ W0 creates | ⬜ pending |
+| 7-05-T3 | 05 | 2 | POLISH-04 | unit | `npm test -- --run WheelPage` | ✅ | ⬜ pending |
+| 7-06-T1 | 06 | 2 | POLISH-04 | unit | `npm test -- --run CategorySlider` | ✅ | ⬜ pending |
+| 7-06-T2 | 06 | 2 | POLISH-04 | unit | `npm test -- --run WheelPage` | ✅ | ⬜ pending |
+| 7-06-T3 | 06 | 2 | POLISH-04 | unit | `npm test -- --run WheelChart` | ✅ | ⬜ pending |
+| 7-07-T1 | 07 | 3 | POLISH-03 | unit | `npm test -- --run TrendChart` | ✅ | ⬜ pending |
+| 7-07-T2 | 07 | 3 | POLISH-03 | unit | `npm test -- --run TrendPage` | ✅ | ⬜ pending |
+| 7-08-T1 | 08 | 4 | ALL | build | `npm test -- --run && npm run build` | ✅ | ⬜ pending |
+| 7-08-T2 | 08 | 4 | ALL | human | human verification in browser | N/A | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -58,6 +64,7 @@ created: 2026-03-15
 
 - [ ] `src/components/DueSoonWidget.tsx` — component stub for POLISH-02
 - [ ] `src/components/DueSoonWidget.test.tsx` — test stubs for POLISH-02 (getDueSoonItems logic, hidden-when-empty)
+- [ ] `src/components/WheelChart.tsx` — stub optional props `highlightedCategory?` and `importantCategories?` added to interface (no rendering yet)
 
 *All other test files already exist and need extension only.*
 
@@ -71,6 +78,7 @@ created: 2026-03-15
 | Due Soon widget hover highlights WheelChart segment | POLISH-02 | Recharts canvas interaction not testable in jsdom | Hover over a due-soon item; confirm matching category axis brightens |
 | Trend chart ◆ markers visible at correct dates | POLISH-03 | ReferenceLine rendering requires canvas | Open TrendPage for category with action items; verify ◆ markers appear on snapshot dates matching deadline/completion dates |
 | Important category visually distinct in WheelChart | POLISH-04 | Recharts SVG fill-opacity changes require visual inspection | Mark a category as important (★); confirm polygon fill darkens/changes color in wheel |
+| Auto-prompt nudge dialog appears after big gap | POLISH-04 | Requires live slider interaction | As premium user, commit a score where |tobe - asis| >= 3 for non-important category; confirm nudge dialog appears |
 | Upgrade prompt appears for free tier (9th category) | POLISH-06 | Free-tier simulation requires auth state manipulation | Sign in as free-tier user; try to add 9th category; confirm upgrade modal appears |
 
 ---
