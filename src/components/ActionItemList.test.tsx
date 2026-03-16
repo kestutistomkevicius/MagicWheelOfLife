@@ -1,6 +1,6 @@
 // src/components/ActionItemList.test.tsx
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { ActionItemList } from './ActionItemList'
 import type { ActionItemRow } from '@/types/database'
 
@@ -27,12 +27,32 @@ vi.mock('@/components/ui/checkbox', () => ({
   ),
 }))
 
+// Mock shadcn Dialog using the Radix mock pattern from SnapshotNameDialog.test.tsx
+vi.mock('@/components/ui/dialog', () => ({
+  Dialog: ({ open, children, onOpenChange }: { open: boolean; children: React.ReactNode; onOpenChange?: (open: boolean) => void }) =>
+    open ? <div data-testid="dialog" onClick={(e) => { if ((e.target as HTMLElement).dataset.closeDialog) onOpenChange?.(false) }}>{children}</div> : null,
+  DialogContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-content">{children}</div>
+  ),
+  DialogHeader: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-header">{children}</div>
+  ),
+  DialogTitle: ({ children }: { children: React.ReactNode }) => (
+    <h2 data-testid="dialog-title">{children}</h2>
+  ),
+  DialogFooter: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-footer">{children}</div>
+  ),
+}))
+
 // Mock useActionItems hook
 const mockAddActionItem = vi.fn()
 const mockToggleActionItem = vi.fn().mockResolvedValue(undefined)
 const mockSetDeadline = vi.fn().mockResolvedValue(undefined)
 const mockDeleteActionItem = vi.fn().mockResolvedValue(undefined)
 const mockLoadActionItems = vi.fn().mockResolvedValue([])
+const mockSaveCompletionNote = vi.fn().mockResolvedValue(undefined)
+const mockReopenActionItem = vi.fn().mockResolvedValue(undefined)
 
 vi.mock('@/hooks/useActionItems', () => ({
   useActionItems: () => ({
@@ -41,6 +61,8 @@ vi.mock('@/hooks/useActionItems', () => ({
     toggleActionItem: mockToggleActionItem,
     setDeadline: mockSetDeadline,
     deleteActionItem: mockDeleteActionItem,
+    saveCompletionNote: mockSaveCompletionNote,
+    reopenActionItem: mockReopenActionItem,
   }),
 }))
 
@@ -52,6 +74,8 @@ function makeItem(overrides: Partial<ActionItemRow> = {}): ActionItemRow {
     text: 'Test item',
     is_complete: false,
     deadline: null,
+    completed_at: null,
+    note: null,
     position: 0,
     created_at: '2026-03-15T00:00:00Z',
     updated_at: '2026-03-15T00:00:00Z',
@@ -74,6 +98,7 @@ const defaultProps = {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.useRealTimers()
 })
 
 describe('ActionItemList', () => {
@@ -134,19 +159,24 @@ describe('ActionItemList', () => {
   })
 
   describe('ACTION-03: complete toggle', () => {
-    it('renders Checkbox checked when item.is_complete is true', () => {
-      render(<ActionItemList {...defaultProps} items={[makeItem({ is_complete: true })]} />)
-      const checkbox = screen.getByRole('checkbox')
-      expect(checkbox).toBeChecked()
+    it('completed item appears in completed table (not active list)', () => {
+      const completedItem = makeItem({ is_complete: true, completed_at: '2026-03-15T00:00:00Z' })
+      render(<ActionItemList {...defaultProps} items={[completedItem]} />)
+      // No checkbox in active list (completed items go to the table section)
+      expect(screen.queryByRole('checkbox')).toBeNull()
+      // "1 completed" toggle button should appear
+      expect(screen.getByRole('button', { name: /1 completed/i })).toBeInTheDocument()
     })
 
-    it('item text has line-through class when is_complete is true', () => {
-      render(<ActionItemList {...defaultProps} items={[makeItem({ is_complete: true })]} />)
-      const label = screen.getByText('Test item')
-      expect(label.className).toContain('line-through')
+    it('completed item text has line-through when table is expanded', () => {
+      const completedItem = makeItem({ is_complete: true, completed_at: '2026-03-15T00:00:00Z' })
+      render(<ActionItemList {...defaultProps} items={[completedItem]} />)
+      fireEvent.click(screen.getByRole('button', { name: /1 completed/i }))
+      const cell = screen.getByText('Test item')
+      expect(cell.className).toContain('line-through')
     })
 
-    it('calls toggleActionItem when Checkbox is clicked', async () => {
+    it('calls toggleActionItem when Checkbox is clicked on active item', async () => {
       const onItemsChange = vi.fn()
       render(
         <ActionItemList
@@ -185,6 +215,189 @@ describe('ActionItemList', () => {
       await waitFor(() => {
         expect(mockDeleteActionItem).toHaveBeenCalledWith('item-99')
       })
+    })
+  })
+
+  describe('POLISH-01: celebration animation', () => {
+    it('applies animate-celebrate-row class when item is being celebrated', async () => {
+      vi.useFakeTimers()
+      const item = makeItem({ is_complete: false })
+      const onItemsChange = vi.fn()
+      render(
+        <ActionItemList
+          {...defaultProps}
+          items={[item]}
+          onItemsChange={onItemsChange}
+        />
+      )
+      const checkbox = screen.getByRole('checkbox')
+      fireEvent.click(checkbox)
+      // After click, celebrating state is set — row should have the animation class
+      const row = checkbox.closest('[class*="animate-celebrate-row"]') ??
+                  screen.getByText('Test item').closest('[class*="animate-celebrate-row"]')
+      expect(row).toBeTruthy()
+
+      // After 800ms, celebrating state is cleared
+      act(() => {
+        vi.advanceTimersByTime(800)
+      })
+      const rowAfter = screen.getByText('Test item').closest('[class*="animate-celebrate-row"]')
+      expect(rowAfter).toBeNull()
+      vi.useRealTimers()
+    })
+  })
+
+  describe('POLISH-08: completion modal', () => {
+    it('opens completion modal after checking an incomplete item', async () => {
+      const item = makeItem({ is_complete: false })
+      const onItemsChange = vi.fn()
+      render(
+        <ActionItemList
+          {...defaultProps}
+          items={[item]}
+          onItemsChange={onItemsChange}
+        />
+      )
+      fireEvent.click(screen.getByRole('checkbox'))
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('dialog-title')).toHaveTextContent('Great work!')
+    })
+
+    it('does NOT open completion modal when reopening a completed item', async () => {
+      const item = makeItem({ is_complete: true, completed_at: '2026-03-15T00:00:00Z' })
+      const onItemsChange = vi.fn()
+      render(
+        <ActionItemList
+          {...defaultProps}
+          items={[item]}
+          onItemsChange={onItemsChange}
+        />
+      )
+      // Expand completed section to see Reopen button
+      fireEvent.click(screen.getByRole('button', { name: /1 completed/i }))
+      fireEvent.click(screen.getByRole('button', { name: /reopen/i }))
+      await waitFor(() => {
+        expect(mockReopenActionItem).toHaveBeenCalledWith('item-1')
+      })
+      expect(screen.queryByTestId('dialog')).toBeNull()
+    })
+
+    it('calls saveCompletionNote with correct args when Save note is clicked', async () => {
+      const item = makeItem({ is_complete: false })
+      const onItemsChange = vi.fn()
+      render(
+        <ActionItemList
+          {...defaultProps}
+          items={[item]}
+          onItemsChange={onItemsChange}
+        />
+      )
+      fireEvent.click(screen.getByRole('checkbox'))
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog')).toBeInTheDocument()
+      })
+      const textarea = screen.getByRole('textbox', { name: /note/i })
+      fireEvent.change(textarea, { target: { value: 'Great progress!' } })
+      fireEvent.click(screen.getByRole('button', { name: /save note/i }))
+      await waitFor(() => {
+        expect(mockSaveCompletionNote).toHaveBeenCalledWith({
+          id: 'item-1',
+          note: 'Great progress!',
+        })
+      })
+      // Modal should close
+      expect(screen.queryByTestId('dialog')).toBeNull()
+    })
+
+    it('closes modal without calling saveCompletionNote when Skip is clicked', async () => {
+      const item = makeItem({ is_complete: false })
+      const onItemsChange = vi.fn()
+      render(
+        <ActionItemList
+          {...defaultProps}
+          items={[item]}
+          onItemsChange={onItemsChange}
+        />
+      )
+      fireEvent.click(screen.getByRole('checkbox'))
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog')).toBeInTheDocument()
+      })
+      fireEvent.click(screen.getByRole('button', { name: /skip/i }))
+      expect(mockSaveCompletionNote).not.toHaveBeenCalled()
+      expect(screen.queryByTestId('dialog')).toBeNull()
+    })
+
+  })
+
+  describe('POLISH-08: completed items table', () => {
+    it('shows "X completed ▼" toggle button when completed items exist', () => {
+      const items = [
+        makeItem({ id: 'item-1', is_complete: false }),
+        makeItem({ id: 'item-2', text: 'Done', is_complete: true, completed_at: '2026-03-10T00:00:00Z' }),
+      ]
+      render(<ActionItemList {...defaultProps} items={items} />)
+      expect(screen.getByRole('button', { name: /1 completed ▼/i })).toBeInTheDocument()
+    })
+
+    it('table is NOT visible by default (collapsed)', () => {
+      const items = [
+        makeItem({ id: 'item-2', text: 'Done', is_complete: true, completed_at: '2026-03-10T00:00:00Z' }),
+      ]
+      render(<ActionItemList {...defaultProps} items={items} />)
+      expect(screen.queryByRole('table')).toBeNull()
+    })
+
+    it('table becomes visible after clicking the toggle button', () => {
+      const items = [
+        makeItem({ id: 'item-2', text: 'Done item', is_complete: true, completed_at: '2026-03-10T00:00:00Z', note: 'My note' }),
+      ]
+      render(<ActionItemList {...defaultProps} items={items} />)
+      fireEvent.click(screen.getByRole('button', { name: /1 completed/i }))
+      expect(screen.getByRole('table')).toBeInTheDocument()
+      expect(screen.getByText('Done item')).toBeInTheDocument()
+      expect(screen.getByText('My note')).toBeInTheDocument()
+    })
+
+    it('Reopen button calls reopenActionItem with correct id', async () => {
+      const items = [
+        makeItem({ id: 'item-99', text: 'Done', is_complete: true, completed_at: '2026-03-10T00:00:00Z' }),
+      ]
+      render(<ActionItemList {...defaultProps} items={items} />)
+      fireEvent.click(screen.getByRole('button', { name: /1 completed/i }))
+      fireEvent.click(screen.getByRole('button', { name: /reopen/i }))
+      await waitFor(() => {
+        expect(mockReopenActionItem).toHaveBeenCalledWith('item-99')
+      })
+    })
+
+    it('reopened item disappears from completed section (optimistic update)', () => {
+      const items = [
+        makeItem({ id: 'item-2', text: 'Done', is_complete: true, completed_at: '2026-03-10T00:00:00Z' }),
+      ]
+      const onItemsChange = vi.fn()
+      render(<ActionItemList {...defaultProps} items={items} onItemsChange={onItemsChange} />)
+      fireEvent.click(screen.getByRole('button', { name: /1 completed/i }))
+      fireEvent.click(screen.getByRole('button', { name: /reopen/i }))
+      expect(onItemsChange).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 'item-2', is_complete: false, completed_at: null, note: null }),
+        ])
+      )
+    })
+  })
+
+  describe('POLISH-01: active-items cap', () => {
+    it('active-items cap: shows "+ Add action item" when activeItems < 7 even if total items >= 7 (some completed)', () => {
+      // 6 active + 1 completed = 7 total, but activeItems is only 6 so button should show
+      const items = [
+        ...makeItems(6),
+        makeItem({ id: 'item-completed', text: 'Done item', is_complete: true, completed_at: '2026-03-15T00:00:00Z', position: 6 }),
+      ]
+      render(<ActionItemList {...defaultProps} items={items} />)
+      expect(screen.getByRole('button', { name: /add action item/i })).toBeInTheDocument()
     })
   })
 })

@@ -64,6 +64,21 @@ const config: Config = {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      keyframes: {
+        'celebrate-row': {
+          '0%':   { transform: 'scale(1)', backgroundColor: 'transparent' },
+          '40%':  { transform: 'scale(1.03)', backgroundColor: '#fef3c7' },
+          '100%': { transform: 'scale(1)', backgroundColor: 'transparent' },
+        },
+        'category-glow': {
+          '0%, 100%': { boxShadow: 'none' },
+          '40%':      { boxShadow: '0 0 0 2px #fbbf24' },
+        },
+      },
+      animation: {
+        'celebrate-row': 'celebrate-row 0.8s ease-out',
+        'category-glow': 'category-glow 0.8s ease-out',
+      },
     },
   },
   plugins: [],

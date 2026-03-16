@@ -1,7 +1,9 @@
 // src/components/ActionItemList.tsx
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { useActionItems } from '@/hooks/useActionItems'
+import { cn } from '@/lib/utils'
 import type { ActionItemRow } from '@/types/database'
 
 interface ActionItemListProps {
@@ -19,8 +21,17 @@ export function ActionItemList({
 }: ActionItemListProps) {
   const [newText, setNewText] = useState('')
   const [adding, setAdding] = useState(false)
-  const { addActionItem, toggleActionItem, setDeadline, deleteActionItem } =
+  const [celebrating, setCelebrating] = useState<string | null>(null)
+  const celebrateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [completionPending, setCompletionPending] = useState<string | null>(null)
+  const [noteText, setNoteText] = useState('')
+  const [completedExpanded, setCompletedExpanded] = useState(false)
+
+  const { addActionItem, toggleActionItem, setDeadline, deleteActionItem, saveCompletionNote, reopenActionItem } =
     useActionItems()
+
+  const activeItems = items.filter((i) => !i.is_complete)
+  const completedItems = items.filter((i) => i.is_complete)
 
   async function handleAdd() {
     if (!newText.trim()) return
@@ -28,7 +39,7 @@ export function ActionItemList({
       categoryId,
       userId,
       text: newText.trim(),
-      currentCount: items.length,
+      currentCount: activeItems.length,
     })
     if (!('error' in result)) {
       onItemsChange([...items, result])
@@ -38,11 +49,27 @@ export function ActionItemList({
   }
 
   async function handleToggle(id: string, currentValue: boolean) {
-    const toggled = items.map((item) =>
-      item.id === id ? { ...item, is_complete: !currentValue } : item
-    )
-    onItemsChange(toggled)
-    await toggleActionItem({ id, isComplete: !currentValue })
+    if (!currentValue) {
+      // Completing an item: trigger celebration + open completion modal
+      if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current)
+      setCelebrating(id)
+      celebrateTimeoutRef.current = setTimeout(() => setCelebrating(null), 800)
+      setCompletionPending(id)
+      // Optimistic update: mark as complete with current timestamp
+      onItemsChange(
+        items.map((i) =>
+          i.id === id ? { ...i, is_complete: true, completed_at: new Date().toISOString() } : i
+        )
+      )
+      await toggleActionItem({ id, isComplete: true })
+    } else {
+      // Un-completing: no modal, just toggle
+      const toggled = items.map((item) =>
+        item.id === id ? { ...item, is_complete: false } : item
+      )
+      onItemsChange(toggled)
+      await toggleActionItem({ id, isComplete: false })
+    }
   }
 
   async function handleDelete(id: string) {
@@ -59,10 +86,33 @@ export function ActionItemList({
     await setDeadline({ id, deadline })
   }
 
+  async function handleSaveNote() {
+    if (!completionPending) return
+    await saveCompletionNote({ id: completionPending, note: noteText })
+    setCompletionPending(null)
+    setNoteText('')
+  }
+
+  function handleSkip() {
+    setCompletionPending(null)
+    setNoteText('')
+  }
+
+  async function handleReopen(id: string) {
+    onItemsChange(items.map((i) => i.id === id ? { ...i, is_complete: false, completed_at: null, note: null } : i))
+    await reopenActionItem(id)
+  }
+
   return (
     <div className="mt-2 space-y-1 pl-1 pr-4">
-      {items.map((item) => (
-        <div key={item.id} className="flex items-start gap-2 py-1">
+      {activeItems.map((item) => (
+        <div
+          key={item.id}
+          className={cn(
+            'flex items-start gap-2 py-1 rounded transition-colors',
+            celebrating === item.id && 'animate-celebrate-row'
+          )}
+        >
           <Checkbox
             id={`check-${item.id}`}
             checked={item.is_complete}
@@ -73,11 +123,7 @@ export function ActionItemList({
           />
           <label
             htmlFor={`check-${item.id}`}
-            className={
-              item.is_complete
-                ? 'flex-1 text-sm cursor-pointer line-through text-stone-400'
-                : 'flex-1 text-sm cursor-pointer text-stone-700'
-            }
+            className="flex-1 text-sm cursor-pointer text-stone-700"
           >
             {item.text}
           </label>
@@ -118,7 +164,7 @@ export function ActionItemList({
         </div>
       )}
 
-      {items.length < 7 && (
+      {activeItems.length < 7 && (
         <button
           type="button"
           onClick={() => setAdding(true)}
@@ -127,6 +173,105 @@ export function ActionItemList({
           + Add action item
         </button>
       )}
+
+      {completedItems.length > 0 && (
+        <div className="mt-3">
+          <button
+            type="button"
+            className="text-xs text-stone-400 hover:text-stone-600 flex items-center gap-1"
+            onClick={() => setCompletedExpanded((prev) => !prev)}
+            aria-expanded={completedExpanded}
+          >
+            {completedItems.length} completed {completedExpanded ? '▲' : '▼'}
+          </button>
+          {completedExpanded && (
+            <table className="mt-2 w-full text-xs text-stone-600">
+              <thead>
+                <tr className="text-left text-stone-400">
+                  <th className="pb-1 font-normal">Task</th>
+                  <th className="pb-1 font-normal">Completed</th>
+                  <th className="pb-1 font-normal">Note</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {completedItems.map((item) => (
+                  <tr key={item.id} className="border-t border-stone-100">
+                    <td className="py-1 pr-2 text-stone-400 line-through">{item.text}</td>
+                    <td className="py-1 pr-2 whitespace-nowrap">
+                      {item.completed_at
+                        ? new Date(item.completed_at).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                          })
+                        : '—'}
+                    </td>
+                    <td className="py-1 pr-2">{item.note ?? '—'}</td>
+                    <td className="py-1">
+                      <button
+                        type="button"
+                        onClick={() => void handleReopen(item.id)}
+                        className="text-stone-400 hover:text-stone-600"
+                        aria-label={`Reopen "${item.text}"`}
+                      >
+                        Reopen
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      <Dialog
+        open={completionPending !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCompletionPending(null)
+            setNoteText('')
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Great work!</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label htmlFor="completion-note" className="text-sm text-stone-600">
+              Note (optional)
+            </label>
+            <textarea
+              id="completion-note"
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              maxLength={500}
+              placeholder="Add a note to yourself…"
+              className="w-full text-sm border border-stone-200 rounded p-2 focus:outline-none focus:border-stone-400 resize-none"
+              rows={3}
+              aria-label="Note"
+            />
+          </div>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={handleSkip}
+              className="px-4 py-2 text-sm text-stone-500 hover:text-stone-700"
+            >
+              Skip
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleSaveNote()}
+              className="px-4 py-2 text-sm bg-brand-400 text-white rounded hover:bg-brand-500"
+            >
+              Save note
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

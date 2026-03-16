@@ -60,3 +60,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes celebrate-row {
+  0%   { transform: scale(1); background-color: transparent; }
+  40%  { transform: scale(1.03); background-color: #fef3c7; }
+  100% { transform: scale(1); background-color: transparent; }
+}
+@keyframes category-glow {
+  0%, 100% { box-shadow: none; }
+  40%       { box-shadow: 0 0 0 2px #fbbf24; }
+}
