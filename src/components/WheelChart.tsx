@@ -55,17 +55,15 @@ export function WheelChart({ data, highlightedCategory, importantCategories }: W
             legendType="none"
           />
         )}
-        {highlightedCategory && (
-          <Radar
-            name="Highlighted"
-            dataKey="asisHighlight"
-            stroke="none"
-            fill="#fbbf24"
-            fillOpacity={0.5}
-            dot={false}
-            legendType="none"
-          />
-        )}
+        <Radar
+          name="Highlighted"
+          dataKey="asisHighlight"
+          stroke="none"
+          fill="#fbbf24"
+          fillOpacity={0.5}
+          dot={false}
+          legendType="none"
+        />
         <Legend />
         <Tooltip
           wrapperStyle={{ outline: 'none' }}

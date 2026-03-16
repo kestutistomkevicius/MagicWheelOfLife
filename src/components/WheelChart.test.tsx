@@ -89,10 +89,10 @@ describe('WheelChart', () => {
     expect(highlightRadar?.getAttribute('data-fill')).toBe('#fbbf24')
   })
 
-  it('does NOT render Highlighted Radar layer when highlightedCategory is undefined', () => {
+  it('always renders Highlighted Radar layer (zero values when highlightedCategory is undefined)', () => {
     render(<WheelChart data={SAMPLE_DATA} />)
     const radars = screen.getAllByTestId('radar')
     const highlightRadar = radars.find(r => r.getAttribute('data-name') === 'Highlighted')
-    expect(highlightRadar).toBeFalsy()
+    expect(highlightRadar).toBeTruthy()
   })
 })
