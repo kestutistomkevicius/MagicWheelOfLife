@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 07-04-PLAN.md
-last_updated: "2026-03-16T05:42:54.270Z"
+stopped_at: Completed 07-05-PLAN.md
+last_updated: "2026-03-16T09:11:46.940Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 38
-  completed_plans: 34
+  completed_plans: 35
   percent: 0
 ---
 
@@ -84,6 +84,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 07-action-items-and-wheel-polish P01 | 166s | 2 tasks | 6 files |
 | Phase 07-action-items-and-wheel-polish P02 | 4min | 1 tasks | 2 files |
 | Phase 07-action-items-and-wheel-polish P04 | 28min | 2 tasks | 4 files |
+| Phase 07-action-items-and-wheel-polish P05 | 55min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -164,6 +165,9 @@ Recent decisions affecting current work:
 - [Phase 07-action-items-and-wheel-polish]: toggleActionItem does NOT clear note on un-complete — reopenActionItem handles full reset including note=null
 - [Phase 07-action-items-and-wheel-polish]: saveCompletionNote is a separate function from toggleActionItem — allows note to be saved asynchronously after the celebration modal closes
 - [Phase 07-action-items-and-wheel-polish]: Completed items rendered in table (not active list) — activeItems/completedItems split requires ACTION-03 tests to reflect new structure
+- [Phase 07-action-items-and-wheel-polish]: skipSaveOnBlurRef pattern: set ref=true in Escape keyDown so onBlur does not call renameWheel after cancel — avoids jsdom Escape/blur race
+- [Phase 07-action-items-and-wheel-polish]: Add category button disabled only at hard ceiling 12; handler gates at 8 (free)/12 (premium) so upgrade prompt fires when free user at 8 categories
+- [Phase 07-action-items-and-wheel-polish]: vi.clearAllMocks() in beforeEach required — mockResolvedValue resets implementation but not call history, causing cross-test bleed
 
 ### Pending Todos
 
@@ -177,6 +181,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T05:42:54.265Z
-Stopped at: Completed 07-04-PLAN.md
+Last session: 2026-03-16T09:11:46.937Z
+Stopped at: Completed 07-05-PLAN.md
 Resume file: None

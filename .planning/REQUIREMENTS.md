@@ -66,13 +66,13 @@
 
 ### Action Items & Wheel Polish (Phase 7)
 
-- [ ] **POLISH-01**: Completing an action item triggers a visible celebratory feedback (animation, sound, or micro-interaction)
+- [x] **POLISH-01**: Completing an action item triggers a visible celebratory feedback (animation, sound, or micro-interaction)
 - [x] **POLISH-02**: A "due soon" widget on WheelPage surfaces action items with deadlines within 7 days without requiring the user to expand each category
 - [ ] **POLISH-03**: Trend chart displays ◆ markers at action item due/completion dates; green = completed, amber = due soon, red = overdue; tooltip shows item text
 - [x] **POLISH-04**: Premium users can mark up to 3 categories as most important; marked categories are visually distinct in the wheel chart; free users see the feature disabled with an upgrade prompt
-- [ ] **POLISH-05**: Adding a category without renaming it receives an auto-incremented name ("New category 2", "New category 3", etc.) instead of a duplicate "New category"
-- [ ] **POLISH-06**: Free users are blocked from adding a 9th category with an upgrade prompt; premium users are capped at 12; both minimums remain at 3
-- [ ] **POLISH-07**: Users can rename a wheel inline from the WheelPage heading
+- [x] **POLISH-05**: Adding a category without renaming it receives an auto-incremented name ("New category 2", "New category 3", etc.) instead of a duplicate "New category"
+- [x] **POLISH-06**: Free users are blocked from adding a 9th category with an upgrade prompt; premium users are capped at 12; both minimums remain at 3
+- [x] **POLISH-07**: Users can rename a wheel inline from the WheelPage heading
 - [x] **POLISH-08**: Completed action items move to a separate "Completed" list below the active items, displayed as a table with three columns: task text, completion date (auto-recorded when checked off), and an optional short note the user can write to their future self; the completion date is stored in the database when the item is toggled complete
 
 ### Profile, Settings & Content (Phase 8)
