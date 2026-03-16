@@ -405,6 +405,10 @@ export function WheelPage() {
                 isExpanded={expandedCategories.has(cat.id)}
                 onExpandToggle={() => { void handleExpandCategory(cat.id) }}
                 actionItemCount={actionItemsByCategory[cat.id]?.length}
+                isImportant={cat.is_important}
+                onToggleImportant={() => void updateCategoryImportant(cat.id, !cat.is_important)}
+                userTier={tier}
+                importantCount={localCategories.filter(c => c.is_important).length}
               />
               {expandedCategories.has(cat.id) && (
                 <ActionItemList

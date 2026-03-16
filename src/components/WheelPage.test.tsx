@@ -75,6 +75,10 @@ vi.mock('@/components/CategorySlider', () => ({
     removeDisabled,
     isExpanded,
     onExpandToggle,
+    isImportant,
+    onToggleImportant,
+    userTier,
+    importantCount,
   }: {
     categoryName: string
     asisValue: number
@@ -88,8 +92,17 @@ vi.mock('@/components/CategorySlider', () => ({
     removeDisabled?: boolean
     isExpanded?: boolean
     onExpandToggle?: () => void
+    isImportant?: boolean
+    onToggleImportant?: () => void
+    userTier?: 'free' | 'premium'
+    importantCount?: number
   }) => (
-    <div data-testid={`slider-${categoryName}`}>
+    <div
+      data-testid={`slider-${categoryName}`}
+      data-is-important={String(isImportant ?? false)}
+      data-user-tier={userTier ?? ''}
+      data-important-count={String(importantCount ?? 0)}
+    >
       <span>{categoryName}</span>
       <input
         type="range"
@@ -118,6 +131,11 @@ vi.mock('@/components/CategorySlider', () => ({
       )}
       {onRemove && (
         <button onClick={onRemove} disabled={removeDisabled}>Remove</button>
+      )}
+      {onToggleImportant && (
+        <button onClick={onToggleImportant} aria-label={`Toggle important ${categoryName}`}>
+          Toggle important
+        </button>
       )}
     </div>
   ),
@@ -629,6 +647,76 @@ describe('WheelPage', () => {
 
       // No dialog
       expect(screen.queryByTestId('alert-dialog')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('CategorySlider important prop wiring (POLISH-04)', () => {
+    it('passes isImportant=true to CategorySlider for important category', () => {
+      vi.mocked(useWheel).mockReturnValue({
+        ...defaultWheelResult,
+        tier: 'premium',
+        categories: [
+          { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 7, is_important: true, created_at: '', updated_at: '' },
+          { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 8, is_important: false, created_at: '', updated_at: '' },
+          { id: 'cat-3', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Finance', position: 2, score_asis: 4, score_tobe: 7, is_important: false, created_at: '', updated_at: '' },
+        ],
+        setCategories: vi.fn(),
+      })
+      render(<WheelPage />)
+      const healthSlider = screen.getByTestId('slider-Health')
+      expect(healthSlider.getAttribute('data-is-important')).toBe('true')
+    })
+
+    it('passes isImportant=false to CategorySlider for non-important category', () => {
+      render(<WheelPage />)
+      const careerSlider = screen.getByTestId('slider-Career')
+      expect(careerSlider.getAttribute('data-is-important')).toBe('false')
+    })
+
+    it('passes userTier to each CategorySlider', () => {
+      vi.mocked(useWheel).mockReturnValue({
+        ...defaultWheelResult,
+        tier: 'premium',
+        setCategories: vi.fn(),
+      })
+      render(<WheelPage />)
+      const healthSlider = screen.getByTestId('slider-Health')
+      expect(healthSlider.getAttribute('data-user-tier')).toBe('premium')
+    })
+
+    it('passes importantCount equal to number of important categories', () => {
+      vi.mocked(useWheel).mockReturnValue({
+        ...defaultWheelResult,
+        tier: 'premium',
+        categories: [
+          { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 7, is_important: true, created_at: '', updated_at: '' },
+          { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 8, is_important: true, created_at: '', updated_at: '' },
+          { id: 'cat-3', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Finance', position: 2, score_asis: 4, score_tobe: 7, is_important: false, created_at: '', updated_at: '' },
+        ],
+        setCategories: vi.fn(),
+      })
+      render(<WheelPage />)
+      const healthSlider = screen.getByTestId('slider-Health')
+      expect(healthSlider.getAttribute('data-important-count')).toBe('2')
+    })
+
+    it('clicking star toggle calls updateCategoryImportant with correct id and toggled value', async () => {
+      vi.mocked(useWheel).mockReturnValue({
+        ...defaultWheelResult,
+        tier: 'premium',
+        categories: [
+          { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 7, is_important: false, created_at: '', updated_at: '' },
+          { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 8, is_important: false, created_at: '', updated_at: '' },
+          { id: 'cat-3', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Finance', position: 2, score_asis: 4, score_tobe: 7, is_important: false, created_at: '', updated_at: '' },
+        ],
+        setCategories: vi.fn(),
+      })
+      render(<WheelPage />)
+      const toggleBtn = screen.getByLabelText('Toggle important Health')
+      fireEvent.click(toggleBtn)
+      await waitFor(() => {
+        expect(mockUpdateCategoryImportant).toHaveBeenCalledWith('cat-1', true)
+      })
     })
   })
 
