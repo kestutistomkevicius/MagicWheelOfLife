@@ -631,4 +631,93 @@ describe('WheelPage', () => {
       expect(screen.queryByTestId('alert-dialog')).not.toBeInTheDocument()
     })
   })
+
+  describe('auto-prompt nudge for big score gaps (POLISH-04)', () => {
+    // Premium categories where asis=5 and tobe=5 (gap=0 initially)
+    const premiumResult = {
+      ...defaultWheelResult,
+      tier: 'premium' as const,
+      categories: [
+        { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 5, is_important: false, created_at: '', updated_at: '' },
+        { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 6, is_important: false, created_at: '', updated_at: '' },
+        { id: 'cat-3', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Finance', position: 2, score_asis: 4, score_tobe: 4, is_important: false, created_at: '', updated_at: '' },
+      ],
+      setCategories: vi.fn(),
+    }
+
+    it('nudge dialog does NOT appear for free-tier user even when gap >= 3', () => {
+      // free tier — default result has tier='free', score_asis=5, score_tobe=7 (gap=2)
+      // Commit asis=1 for Health → gap becomes |7-1|=6 >= 3, but tier is free → no nudge
+      render(<WheelPage />)
+      const asisSlider = screen.getByLabelText('As-Is score for Health')
+      fireEvent.mouseUp(asisSlider, { target: { value: '1' } })
+      expect(screen.queryByText(/Big gap detected/i)).not.toBeInTheDocument()
+    })
+
+    it('nudge dialog appears for premium user when |tobe - asis| >= 3 after commit', () => {
+      vi.mocked(useWheel).mockReturnValue(premiumResult)
+      render(<WheelPage />)
+      // Commit tobe=9 for Health → gap = |9-5| = 4 >= 3 → nudge should appear
+      const tobeSlider = screen.getByLabelText('To-Be score for Health')
+      fireEvent.change(tobeSlider, { target: { value: '9' } })
+      fireEvent.mouseUp(tobeSlider, { target: { value: '9' } })
+      expect(screen.getByText(/Big gap detected/i)).toBeInTheDocument()
+    })
+
+    it('nudge dialog does NOT appear when category is already important', () => {
+      vi.mocked(useWheel).mockReturnValue({
+        ...premiumResult,
+        categories: [
+          { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 5, is_important: true, created_at: '', updated_at: '' },
+          { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 6, is_important: false, created_at: '', updated_at: '' },
+          { id: 'cat-3', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Finance', position: 2, score_asis: 4, score_tobe: 4, is_important: false, created_at: '', updated_at: '' },
+        ],
+        setCategories: vi.fn(),
+      })
+      render(<WheelPage />)
+      const tobeSlider = screen.getByLabelText('To-Be score for Health')
+      fireEvent.change(tobeSlider, { target: { value: '9' } })
+      fireEvent.mouseUp(tobeSlider, { target: { value: '9' } })
+      expect(screen.queryByText(/Big gap detected/i)).not.toBeInTheDocument()
+    })
+
+    it('clicking Accept calls updateCategoryImportant with true', async () => {
+      vi.mocked(useWheel).mockReturnValue(premiumResult)
+      render(<WheelPage />)
+      const tobeSlider = screen.getByLabelText('To-Be score for Health')
+      fireEvent.change(tobeSlider, { target: { value: '9' } })
+      fireEvent.mouseUp(tobeSlider, { target: { value: '9' } })
+      const acceptBtn = screen.getByRole('button', { name: /mark as important/i })
+      fireEvent.click(acceptBtn)
+      await waitFor(() => {
+        expect(mockUpdateCategoryImportant).toHaveBeenCalledWith('cat-1', true)
+      })
+    })
+
+    it('clicking Dismiss does not call updateCategoryImportant', () => {
+      vi.mocked(useWheel).mockReturnValue(premiumResult)
+      render(<WheelPage />)
+      const tobeSlider = screen.getByLabelText('To-Be score for Health')
+      fireEvent.change(tobeSlider, { target: { value: '9' } })
+      fireEvent.mouseUp(tobeSlider, { target: { value: '9' } })
+      const dismissBtn = screen.getByRole('button', { name: /dismiss/i })
+      fireEvent.click(dismissBtn)
+      expect(mockUpdateCategoryImportant).not.toHaveBeenCalled()
+      expect(screen.queryByText(/Big gap detected/i)).not.toBeInTheDocument()
+    })
+
+    it('nudge does NOT appear again for same category after Dismiss', () => {
+      vi.mocked(useWheel).mockReturnValue(premiumResult)
+      render(<WheelPage />)
+      // First trigger — gap >= 3
+      const tobeSlider = screen.getByLabelText('To-Be score for Health')
+      fireEvent.change(tobeSlider, { target: { value: '9' } })
+      fireEvent.mouseUp(tobeSlider, { target: { value: '9' } })
+      fireEvent.click(screen.getByRole('button', { name: /dismiss/i }))
+      // Second trigger for same category — nudge should not reappear
+      fireEvent.change(tobeSlider, { target: { value: '9' } })
+      fireEvent.mouseUp(tobeSlider, { target: { value: '9' } })
+      expect(screen.queryByText(/Big gap detected/i)).not.toBeInTheDocument()
+    })
+  })
 })
