@@ -12,7 +12,9 @@ vi.mock('recharts', () => ({
   RadarChart: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="radar-chart">{children}</div>
   ),
-  Radar: () => <div data-testid="radar" />,
+  Radar: ({ name, fill }: { name?: string; fill?: string }) => (
+    <div data-testid="radar" data-name={name} data-fill={fill} />
+  ),
   PolarGrid: () => <div data-testid="polar-grid" />,
   PolarAngleAxis: () => <div data-testid="polar-angle-axis" />,
   PolarRadiusAxis: () => <div data-testid="polar-radius-axis" />,
@@ -44,5 +46,53 @@ describe('WheelChart', () => {
   it('chart container div is present in the rendered output', () => {
     render(<WheelChart data={SAMPLE_DATA} />)
     expect(screen.getByTestId('responsive-container')).toBeInTheDocument()
+  })
+
+  it('renders without errors when importantCategories and highlightedCategory are not provided (regression)', () => {
+    expect(() => render(<WheelChart data={SAMPLE_DATA} />)).not.toThrow()
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument()
+  })
+
+  it('renders without errors when importantCategories and highlightedCategory are both provided', () => {
+    expect(() =>
+      render(
+        <WheelChart
+          data={SAMPLE_DATA}
+          importantCategories={['Health']}
+          highlightedCategory="Career"
+        />
+      )
+    ).not.toThrow()
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument()
+  })
+
+  it('renders Important Radar layer when importantCategories is non-empty', () => {
+    render(<WheelChart data={SAMPLE_DATA} importantCategories={['Health']} />)
+    const radars = screen.getAllByTestId('radar')
+    const importantRadar = radars.find(r => r.getAttribute('data-name') === 'Important')
+    expect(importantRadar).toBeTruthy()
+    expect(importantRadar?.getAttribute('data-fill')).toBe('#b45309')
+  })
+
+  it('does NOT render Important Radar layer when importantCategories is empty', () => {
+    render(<WheelChart data={SAMPLE_DATA} importantCategories={[]} />)
+    const radars = screen.getAllByTestId('radar')
+    const importantRadar = radars.find(r => r.getAttribute('data-name') === 'Important')
+    expect(importantRadar).toBeFalsy()
+  })
+
+  it('renders Highlighted Radar layer when highlightedCategory is set', () => {
+    render(<WheelChart data={SAMPLE_DATA} highlightedCategory="Career" />)
+    const radars = screen.getAllByTestId('radar')
+    const highlightRadar = radars.find(r => r.getAttribute('data-name') === 'Highlighted')
+    expect(highlightRadar).toBeTruthy()
+    expect(highlightRadar?.getAttribute('data-fill')).toBe('#fbbf24')
+  })
+
+  it('does NOT render Highlighted Radar layer when highlightedCategory is undefined', () => {
+    render(<WheelChart data={SAMPLE_DATA} />)
+    const radars = screen.getAllByTestId('radar')
+    const highlightRadar = radars.find(r => r.getAttribute('data-name') === 'Highlighted')
+    expect(highlightRadar).toBeFalsy()
   })
 })
