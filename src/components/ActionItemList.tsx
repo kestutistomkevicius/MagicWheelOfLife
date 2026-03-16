@@ -97,9 +97,12 @@ export function ActionItemList({
 
   async function handleSaveNote() {
     if (!completionPending) return
-    await saveCompletionNote({ id: completionPending, note: noteText })
+    const savedNote = noteText
+    const savedId = completionPending
     setCompletionPending(null)
     setNoteText('')
+    await saveCompletionNote({ id: savedId, note: savedNote })
+    onItemsChange(items.map(i => i.id === savedId ? { ...i, note: savedNote } : i))
   }
 
   function handleSkip() {
