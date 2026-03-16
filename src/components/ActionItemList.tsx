@@ -57,8 +57,8 @@ export function ActionItemList({
 
       setCelebrating(id)
 
-      // Open modal partway through animation so user sees the flash first
-      modalTimeoutRef.current = setTimeout(() => setCompletionPending(id), 500)
+      // Open modal near end of animation so user sees the full flash first
+      modalTimeoutRef.current = setTimeout(() => setCompletionPending(id), 700)
 
       // Move item to completed list after animation finishes
       celebrateTimeoutRef.current = setTimeout(() => {
