@@ -193,7 +193,8 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- Revisit POLISH-01 celebration animation UX — timing/visual feel needs more testing
+- Fix POLISH-02 hover highlight — category not highlighting in wheel chart on hover (Recharts re-render issue suspected)
 
 ### Blockers/Concerns
 
@@ -203,6 +204,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T16:17:58.987Z
-Stopped at: Completed 07-07-PLAN.md
+Last session: 2026-03-16T21:45:00.000Z
+Stopped at: Phase 07 — mid human verification (07-08). POLISH-01 ✓ (with todo), POLISH-08 ✓, POLISH-02 partially approved (items 1,2,4 ✓ — hover highlight still broken). POLISH-07, 05, 06, 04, 03 not yet tested.
 Resume file: None
