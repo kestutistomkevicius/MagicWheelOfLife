@@ -23,6 +23,7 @@ export function ActionItemList({
   const [adding, setAdding] = useState(false)
   const [celebrating, setCelebrating] = useState<string | null>(null)
   const celebrateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const modalTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [completionPending, setCompletionPending] = useState<string | null>(null)
   const [noteText, setNoteText] = useState('')
   const [completedExpanded, setCompletedExpanded] = useState(false)
@@ -50,17 +51,25 @@ export function ActionItemList({
 
   async function handleToggle(id: string, currentValue: boolean) {
     if (!currentValue) {
-      // Completing an item: trigger celebration + open completion modal
+      // Completing an item: animate first, then open modal, then move to completed
       if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current)
+      if (modalTimeoutRef.current) clearTimeout(modalTimeoutRef.current)
+
       setCelebrating(id)
-      celebrateTimeoutRef.current = setTimeout(() => setCelebrating(null), 800)
-      setCompletionPending(id)
-      // Optimistic update: mark as complete with current timestamp
-      onItemsChange(
-        items.map((i) =>
-          i.id === id ? { ...i, is_complete: true, completed_at: new Date().toISOString() } : i
+
+      // Open modal partway through animation so user sees the flash first
+      modalTimeoutRef.current = setTimeout(() => setCompletionPending(id), 500)
+
+      // Move item to completed list after animation finishes
+      celebrateTimeoutRef.current = setTimeout(() => {
+        setCelebrating(null)
+        onItemsChange(
+          items.map((i) =>
+            i.id === id ? { ...i, is_complete: true, completed_at: new Date().toISOString() } : i
+          )
         )
-      )
+      }, 800)
+
       await toggleActionItem({ id, isComplete: true })
     } else {
       // Un-completing: no modal, just toggle
