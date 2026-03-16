@@ -250,7 +250,7 @@ export function ActionItemList({
           </DialogHeader>
           <div className="space-y-2">
             <label htmlFor="completion-note" className="text-sm text-stone-600">
-              Note (optional)
+              Note for your future self and reflection (optional)
             </label>
             <textarea
               id="completion-note"

@@ -404,7 +404,7 @@ export function WheelPage() {
                 removeDisabled={localCategories.length <= 3}
                 isExpanded={expandedCategories.has(cat.id)}
                 onExpandToggle={() => { void handleExpandCategory(cat.id) }}
-                actionItemCount={actionItemsByCategory[cat.id]?.length}
+                actionItemCount={actionItemsByCategory[cat.id]?.filter(i => !i.is_complete).length}
                 isImportant={cat.is_important}
                 onToggleImportant={() => void updateCategoryImportant(cat.id, !cat.is_important)}
                 userTier={tier}
