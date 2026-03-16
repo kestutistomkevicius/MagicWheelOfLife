@@ -3,11 +3,27 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
+stopped_at: Completed 07-07-PLAN.md
+last_updated: "2026-03-16T16:17:58.990Z"
+last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
+progress:
+  total_phases: 10
+  completed_phases: 6
+  total_plans: 38
+  completed_plans: 37
+  percent: 97
+---
+
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
 stopped_at: Completed 07-06-PLAN.md
 last_updated: "2026-03-16T13:47:12.371Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
-  total_phases: 10
+  [██████████] 97%
   completed_phases: 6
   total_plans: 38
   completed_plans: 36
@@ -86,6 +102,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 07-action-items-and-wheel-polish P04 | 28min | 2 tasks | 4 files |
 | Phase 07-action-items-and-wheel-polish P05 | 55min | 3 tasks | 4 files |
 | Phase 07-action-items-and-wheel-polish P06 | 242 | 3 tasks | 6 files |
+| Phase 07-action-items-and-wheel-polish P07 | 20min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -171,6 +188,8 @@ Recent decisions affecting current work:
 - [Phase 07-action-items-and-wheel-polish]: vi.clearAllMocks() in beforeEach required — mockResolvedValue resets implementation but not call history, causing cross-test bleed
 - [Phase 07-action-items-and-wheel-polish]: Recharts v3 Radar does not accept per-component data prop — merged dataset with asisImportant and asisHighlight keys used for extra Radar layers in WheelChart
 - [Phase 07-action-items-and-wheel-polish]: Star button uses IIFE in JSX to access local variables (isFree, atLimit, disabled, tooltipTitle) without extracting a separate component
+- [Phase 07-action-items-and-wheel-polish]: Marker date matching uses exact string equality via shared formatDate() — consistent with no fuzzy logic
+- [Phase 07-action-items-and-wheel-polish]: Markers only plotted when date aligns with an existing snapshot date — avoids phantom ReferenceLines off the X-axis
 
 ### Pending Todos
 
@@ -184,6 +203,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T13:47:12.368Z
-Stopped at: Completed 07-06-PLAN.md
+Last session: 2026-03-16T16:17:58.987Z
+Stopped at: Completed 07-07-PLAN.md
 Resume file: None
