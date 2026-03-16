@@ -216,13 +216,18 @@ export function useWheel(userId: string): UseWheelResult {
       .update({ is_important: isImportant, updated_at: new Date().toISOString() })
       .eq('id', categoryId)
 
-    // Persist positions in batch — read current local state via setCategories callback
+    // Persist positions in batch
     setCategories(prev => {
       const reordered = reorderWithImportantFirst(prev)
-      // Fire-and-forget position upsert
-      void supabase
-        .from('categories')
-        .upsert(reordered.map(c => ({ id: c.id, position: c.position, updated_at: new Date().toISOString() })))
+      const now = new Date().toISOString()
+      void Promise.all(
+        reordered.map(c =>
+          supabase
+            .from('categories')
+            .update({ position: c.position, updated_at: now })
+            .eq('id', c.id)
+        )
+      )
       return reordered
     })
   }
