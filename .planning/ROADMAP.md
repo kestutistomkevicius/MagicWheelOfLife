@@ -168,7 +168,17 @@ Plans:
   4. In-app feature request form is accessible from the nav; submissions are stored or forwarded
   5. A new user sees a clear explanation of what a snapshot is and why to use it before their first save
   6. Premium users can select which wheel to view trends for on the TrendPage
-**Plans**: TBD
+**Plans**: 8 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — DB migration (avatar_url + feature_requests table + storage bucket), TypeScript types, premium seed second wheel
+- [ ] 08-02-PLAN.md — Wave 0: test stubs for useProfile, SettingsPage, FeatureRequestModal
+- [ ] 08-03-PLAN.md — useProfile hook (avatar upload, tier) + Sidebar avatar display
+- [ ] 08-04-PLAN.md — AvatarUpload component + SettingsPage full implementation (avatar, tier badge, dev toggle)
+- [ ] 08-05-PLAN.md — FeatureRequestModal + Sidebar feedback nav entry
+- [ ] 08-06-PLAN.md — Full Terms of Service + Privacy Policy legal content
+- [ ] 08-07-PLAN.md — SnapshotsPage onboarding callout + TrendPage wheel selector tests (CONTENT-04, CONTENT-05)
+- [ ] 08-08-PLAN.md — Human verification checkpoint: end-to-end all PROFILE and CONTENT flows
 
 ### Phase 9: AI & Premium
 **Goal**: AI lowers the friction of scoring; premium tier is fully testable end-to-end
@@ -208,6 +218,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Trend Chart | 3/3 | Complete | 2026-03-15 |
 | 6. Landing Page | 4/4 | Complete | 2026-03-15 |
 | 7. Action Items & Wheel Polish | 6/8 | In Progress|  |
-| 8. Profile, Settings & Content | 0/TBD | Not started | - |
+| 8. Profile, Settings & Content | 0/8 | Not started | - |
 | 9. AI & Premium | 0/TBD | Not started | - |
 | 10. Launch | 0/TBD | Not started | - |
