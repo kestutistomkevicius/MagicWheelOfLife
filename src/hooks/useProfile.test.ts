@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor, act } from '@testing-library/react'
 
 // ── Supabase mock (vi.hoisted for variables used inside vi.mock factory) ──────
 const { mockFrom, mockStorageFrom, mockUpload, mockGetPublicUrl, mockUpdate, mockEq, mockSelect, mockLimit } = vi.hoisted(() => {
@@ -95,7 +95,9 @@ describe('useProfile', () => {
     await waitFor(() => expect(result.current.loading).toBe(false))
 
     const file = new File(['content'], 'photo.png', { type: 'image/png' })
-    await result.current.updateAvatar(file)
+    await act(async () => {
+      await result.current.updateAvatar(file)
+    })
 
     expect(mockStorageFrom).toHaveBeenCalledWith('avatars')
     expect(mockUpload).toHaveBeenCalledWith(
@@ -138,7 +140,9 @@ describe('useProfile', () => {
     const { result } = renderHook(() => useProfile(USER_ID))
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    await result.current.updateTier('premium')
+    await act(async () => {
+      await result.current.updateTier('premium')
+    })
 
     expect(result.current.tier).toBe('premium')
   })
