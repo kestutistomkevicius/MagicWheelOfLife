@@ -218,6 +218,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Trend Chart | 3/3 | Complete | 2026-03-15 |
 | 6. Landing Page | 4/4 | Complete | 2026-03-15 |
 | 7. Action Items & Wheel Polish | 6/8 | In Progress|  |
-| 8. Profile, Settings & Content | 5/8 | In Progress|  |
+| 8. Profile, Settings & Content | 6/8 | In Progress|  |
 | 9. AI & Premium | 0/TBD | Not started | - |
 | 10. Launch | 0/TBD | Not started | - |
