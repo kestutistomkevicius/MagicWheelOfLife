@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-03-19T23:08:23.290Z"
+stopped_at: Completed 09-03-PLAN.md
+last_updated: "2026-03-19T23:14:52.699Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 56
-  completed_plans: 48
+  completed_plans: 49
 ---
 
 ---
@@ -144,6 +144,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 08-profile-settings-content P08 | checkpoint | 1 tasks | 0 files |
 | Phase 09-ai-and-premium P01 | 420s | 2 tasks | 4 files |
 | Phase 09-ai-and-premium P02 | 5min | 2 tasks | 3 files |
+| Phase 09-ai-and-premium P03 | 216s | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -246,6 +247,7 @@ Recent decisions affecting current work:
 - [Phase 09-ai-and-premium]: Wave 0 stub pattern continues from Phase 8: import only describe/it from vitest, use only it.todo — no feature module imports so stubs survive until implementation plans run
 - [Phase 09-ai-and-premium]: AiChatMessageRow uses type alias (not interface) — Supabase PostgrestVersion tag inference breaks when Database.Tables references an interface via Omit<>
 - [Phase 09-ai-and-premium]: pg_cron cleanup job for ai_chat_messages scheduled in migration file (not application code) — version-controlled and applied atomically
+- [Phase 09-ai-and-premium]: ai-coach Edge Function uses npm:@anthropic-ai/sdk in Deno — no package.json, resolved at deploy time; model defaults to claude-haiku-4-5-20251001 if ANTHROPIC_MODEL secret not set
 
 ### Pending Todos
 
@@ -260,6 +262,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-19T23:08:23.283Z
-Stopped at: Completed 09-02-PLAN.md
+Last session: 2026-03-19T23:14:52.690Z
+Stopped at: Completed 09-03-PLAN.md
 Resume file: None
