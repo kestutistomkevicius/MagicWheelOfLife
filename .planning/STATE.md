@@ -3,11 +3,27 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-03-19T10:54:50.524Z"
+last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
+progress:
+  total_phases: 10
+  completed_phases: 7
+  total_plans: 46
+  completed_plans: 39
+  percent: 85
+---
+
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
 stopped_at: Phase 8 planned — 8 plans in 3 waves, ready to execute
 last_updated: "2026-03-18T00:00:00.000Z"
 last_activity: 2026-03-18 — Phase 8 planned: Profile, Settings & Content (8 plans, 3 waves)
 progress:
-  total_phases: 10
+  [█████████░] 85%
   completed_phases: 7
   total_plans: 38
   completed_plans: 38
@@ -103,6 +119,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 07-action-items-and-wheel-polish P05 | 55min | 3 tasks | 4 files |
 | Phase 07-action-items-and-wheel-polish P06 | 242 | 3 tasks | 6 files |
 | Phase 07-action-items-and-wheel-polish P07 | 20min | 2 tasks | 4 files |
+| Phase 08-profile-settings-content P01 | 373s | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -190,6 +207,9 @@ Recent decisions affecting current work:
 - [Phase 07-action-items-and-wheel-polish]: Star button uses IIFE in JSX to access local variables (isFree, atLimit, disabled, tooltipTitle) without extracting a separate component
 - [Phase 07-action-items-and-wheel-polish]: Marker date matching uses exact string equality via shared formatDate() — consistent with no fuzzy logic
 - [Phase 07-action-items-and-wheel-polish]: Markers only plotted when date aligns with an existing snapshot date — avoids phantom ReferenceLines off the X-axis
+- [Phase 08-profile-settings-content]: feature_requests INSERT-only RLS — no SELECT for users; founder reads via Studio
+- [Phase 08-profile-settings-content]: avatars storage bucket public-read, owner-write via foldername isolation
+- [Phase 08-profile-settings-content]: Second wheel seed uses deterministic UUIDs for cross-phase references (000...0010, 0031-0033, 0041-0043)
 
 ### Pending Todos
 
@@ -204,6 +224,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-18T00:00:00.000Z
-Stopped at: Phase 8 planned. 8 plans created and verified. Ready to execute on branch phase/08-profile-settings-content.
+Last session: 2026-03-19T10:54:50.516Z
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None
