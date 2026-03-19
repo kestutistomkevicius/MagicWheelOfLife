@@ -6,6 +6,16 @@ export type ProfileRow = {
   tier: 'free' | 'premium'
   created_at: string
   avatar_url: string | null
+  color_scheme: string  // palette preference — default 'amber'
+}
+
+export type AiChatMessageRow = {
+  id: string
+  user_id: string
+  category_id: string
+  role: 'user' | 'assistant'
+  content: string
+  created_at: string
 }
 
 export type WheelRow = {
@@ -74,8 +84,14 @@ export type Database = {
     Tables: {
       profiles: {
         Row: ProfileRow
-        Insert: Omit<ProfileRow, 'created_at'>
+        Insert: Omit<ProfileRow, 'created_at' | 'color_scheme'> & { color_scheme?: string }
         Update: Partial<Omit<ProfileRow, 'id'>>
+        Relationships: []
+      }
+      ai_chat_messages: {
+        Row: AiChatMessageRow
+        Insert: Omit<AiChatMessageRow, 'id' | 'created_at'>
+        Update: never
         Relationships: []
       }
       feature_requests: {
