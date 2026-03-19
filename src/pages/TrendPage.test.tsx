@@ -34,16 +34,18 @@ vi.mock('@/components/TrendChart', () => ({
   ),
 }))
 
-const { mockListSnapshots, mockFetchScores, mockWheel, mockLoadActionItems, mockCategories } = vi.hoisted(() => {
+const { mockListSnapshots, mockFetchScores, mockWheel, mockLoadActionItems, mockCategories, mockUseWheel, mockSelectWheel } = vi.hoisted(() => {
   const mockListSnapshots = vi.fn()
   const mockFetchScores = vi.fn()
   const mockLoadActionItems = vi.fn()
+  const mockSelectWheel = vi.fn()
   const mockWheel = { id: 'wheel-1', name: 'My Wheel', user_id: 'user-1', created_at: '', updated_at: '' }
   const mockCategories = [
     { id: 'cat-health', name: 'Health', wheel_id: 'wheel-1', user_id: 'user-1', position: 0, score_asis: 7, score_tobe: 9, created_at: '', updated_at: '' },
     { id: 'cat-career', name: 'Career', wheel_id: 'wheel-1', user_id: 'user-1', position: 1, score_asis: 6, score_tobe: 8, created_at: '', updated_at: '' },
   ]
-  return { mockListSnapshots, mockFetchScores, mockWheel, mockLoadActionItems, mockCategories }
+  const mockUseWheel = vi.fn()
+  return { mockListSnapshots, mockFetchScores, mockWheel, mockLoadActionItems, mockCategories, mockUseWheel, mockSelectWheel }
 })
 
 vi.mock('@/hooks/useSnapshots', () => ({
@@ -56,18 +58,7 @@ vi.mock('@/hooks/useSnapshots', () => ({
 }))
 
 vi.mock('@/hooks/useWheel', () => ({
-  useWheel: () => ({
-    wheel: mockWheel,
-    loading: false,
-    wheels: [mockWheel],
-    categories: mockCategories,
-    setCategories: vi.fn(),
-    error: null,
-    canCreateWheel: false,
-    selectWheel: vi.fn(),
-    createWheel: vi.fn(),
-    updateScore: vi.fn(),
-  }),
+  useWheel: (...args: unknown[]) => mockUseWheel(...args),
 }))
 
 vi.mock('@/hooks/useActionItems', () => ({
@@ -118,6 +109,19 @@ function makeActionItem(
 describe('TrendPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Default useWheel: single wheel
+    mockUseWheel.mockReturnValue({
+      wheel: mockWheel,
+      loading: false,
+      wheels: [mockWheel],
+      categories: mockCategories,
+      setCategories: vi.fn(),
+      error: null,
+      canCreateWheel: false,
+      selectWheel: mockSelectWheel,
+      createWheel: vi.fn(),
+      updateScore: vi.fn(),
+    })
     // Default: no action items
     mockLoadActionItems.mockResolvedValue([])
   })
@@ -340,6 +344,84 @@ describe('TrendPage', () => {
       expect(markers).toHaveLength(1)
       expect(markers[0].color).toBe('#16a34a')
     })
+  })
+
+  // Wheel selector tests (CONTENT-05)
+  it('does not render wheel selector when only one wheel exists', async () => {
+    // Default mock already has wheels: [mockWheel] — single wheel
+    mockListSnapshots.mockResolvedValue([])
+    mockFetchScores.mockResolvedValue([])
+
+    render(<TrendPage />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/trend/i)).toBeInTheDocument()
+    })
+
+    // With a single wheel there should be no wheel selector <select> near the h1
+    // The category selector only appears when snapshots exist; with 0 snapshots there are no selects at all
+    const selects = screen.queryAllByRole('combobox')
+    expect(selects).toHaveLength(0)
+  })
+
+  it('renders wheel selector when multiple wheels exist', async () => {
+    const wheel2 = { id: 'wheel-2', name: 'Work Wheel', user_id: 'user-1', created_at: '', updated_at: '' }
+    mockUseWheel.mockReturnValue({
+      wheel: mockWheel,
+      loading: false,
+      wheels: [mockWheel, wheel2],
+      categories: mockCategories,
+      setCategories: vi.fn(),
+      error: null,
+      canCreateWheel: false,
+      selectWheel: mockSelectWheel,
+      createWheel: vi.fn(),
+      updateScore: vi.fn(),
+    })
+    mockListSnapshots.mockResolvedValue([])
+    mockFetchScores.mockResolvedValue([])
+
+    render(<TrendPage />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/trend/i)).toBeInTheDocument()
+    })
+
+    // Wheel selector should be present with options for both wheels
+    const wheelSelect = screen.getByRole('combobox')
+    expect(wheelSelect).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: mockWheel.name })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: wheel2.name })).toBeInTheDocument()
+  })
+
+  it('selecting a different wheel calls selectWheel with the new wheel id', async () => {
+    const wheel2 = { id: 'wheel-2', name: 'Work Wheel', user_id: 'user-1', created_at: '', updated_at: '' }
+    mockUseWheel.mockReturnValue({
+      wheel: mockWheel,
+      loading: false,
+      wheels: [mockWheel, wheel2],
+      categories: mockCategories,
+      setCategories: vi.fn(),
+      error: null,
+      canCreateWheel: false,
+      selectWheel: mockSelectWheel,
+      createWheel: vi.fn(),
+      updateScore: vi.fn(),
+    })
+    mockListSnapshots.mockResolvedValue([])
+    mockFetchScores.mockResolvedValue([])
+
+    render(<TrendPage />)
+
+    await waitFor(() => {
+      expect(screen.getByRole('combobox')).toBeInTheDocument()
+    })
+
+    const wheelSelect = screen.getByRole('combobox')
+    const user = userEvent.setup()
+    await user.selectOptions(wheelSelect, wheel2.id)
+
+    expect(mockSelectWheel).toHaveBeenCalledWith(wheel2.id)
   })
 
   it('overdue item marker has red color #dc2626', async () => {
