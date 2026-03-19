@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { NavLink } from 'react-router'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
+import { useWheel } from '@/hooks/useWheel'
 import { cn } from '@/lib/utils'
 import {
   Circle,
@@ -13,8 +14,7 @@ import {
 } from 'lucide-react'
 import { FeatureRequestModal } from '@/components/FeatureRequestModal'
 
-const navItems = [
-  { to: '/wheel', label: 'My Wheel', icon: Circle },
+const staticNavItems = [
   { to: '/snapshots', label: 'Snapshots', icon: Camera },
   { to: '/trend', label: 'Trend', icon: TrendingUp },
   { to: '/settings', label: 'Settings', icon: Settings },
@@ -26,7 +26,14 @@ export function Sidebar() {
   const email = session?.user?.email ?? ''
   const initial = email.charAt(0).toUpperCase()
   const { avatarUrl } = useProfile(userId)
+  const { wheels } = useWheel(userId)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
+
+  const wheelLabel = wheels.length > 1 ? 'My Wheels' : 'My Wheel'
+  const navItems = [
+    { to: '/wheel', label: wheelLabel, icon: Circle },
+    ...staticNavItems,
+  ]
 
   return (
     <aside className="flex h-screen w-56 flex-col bg-[#292524] text-stone-300">
