@@ -343,3 +343,69 @@ BEGIN
     (snap4_id, premium_user_id, 'Family & Friends',     7, 5, 7)
   ON CONFLICT DO NOTHING;
 END $$;
+
+-- =============================================================
+-- Phase 8 Seed: Second wheel "Work & Purpose" for premium user
+-- Enables CONTENT-05 wheel selector on TrendPage.
+-- Deterministic UUIDs:
+--   second_wheel_id = 00000000-0000-0000-0000-000000000010
+--   snapshots:      0031, 0032, 0033  (3 months ago, 2 months ago, 1 month ago)
+--   categories:     0041 Career, 0042 Finance, 0043 Purpose
+-- Score story: improving trajectory across 3 months
+--   Career:  5 → 6 → 7  (to-be 9)
+--   Finance: 4 → 5 → 6  (to-be 8)
+--   Purpose: 6 → 7 → 8  (to-be 9)
+-- =============================================================
+DO $$
+DECLARE
+  premium_user_id uuid := '00000000-0000-0000-0000-000000000002';
+  second_wheel_id uuid := '00000000-0000-0000-0000-000000000010';
+  snap_w2_1 uuid := '00000000-0000-0000-0000-000000000031';
+  snap_w2_2 uuid := '00000000-0000-0000-0000-000000000032';
+  snap_w2_3 uuid := '00000000-0000-0000-0000-000000000033';
+  cat_career2  uuid := '00000000-0000-0000-0000-000000000041';
+  cat_finance2 uuid := '00000000-0000-0000-0000-000000000042';
+  cat_purpose2 uuid := '00000000-0000-0000-0000-000000000043';
+BEGIN
+
+  -- Second wheel
+  INSERT INTO public.wheels (id, user_id, name)
+    VALUES (second_wheel_id, premium_user_id, 'Work & Purpose')
+    ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
+
+  -- Categories (deterministic IDs)
+  INSERT INTO public.categories (id, wheel_id, user_id, name, position, score_asis, score_tobe)
+    VALUES
+      (cat_career2,  second_wheel_id, premium_user_id, 'Career',  0, 7, 9),
+      (cat_finance2, second_wheel_id, premium_user_id, 'Finance', 1, 6, 8),
+      (cat_purpose2, second_wheel_id, premium_user_id, 'Purpose', 2, 8, 9)
+    ON CONFLICT (id) DO UPDATE
+      SET name = EXCLUDED.name,
+          position = EXCLUDED.position,
+          score_asis = EXCLUDED.score_asis,
+          score_tobe = EXCLUDED.score_tobe;
+
+  -- 3 snapshots — 3 months ago, 2 months ago, 1 month ago
+  INSERT INTO public.snapshots (id, wheel_id, user_id, name, saved_at) VALUES
+    (snap_w2_1, second_wheel_id, premium_user_id, 'Month 1 Check-In', now() - interval '3 months'),
+    (snap_w2_2, second_wheel_id, premium_user_id, 'Month 2 Check-In', now() - interval '2 months'),
+    (snap_w2_3, second_wheel_id, premium_user_id, 'Month 3 Check-In', now() - interval '1 month')
+  ON CONFLICT (id) DO NOTHING;
+
+  -- Snapshot scores — improving trajectory
+  INSERT INTO public.snapshot_scores (snapshot_id, user_id, category_name, position, score_asis, score_tobe) VALUES
+    -- Month 1
+    (snap_w2_1, premium_user_id, 'Career',  0, 5, 9),
+    (snap_w2_1, premium_user_id, 'Finance', 1, 4, 8),
+    (snap_w2_1, premium_user_id, 'Purpose', 2, 6, 9),
+    -- Month 2
+    (snap_w2_2, premium_user_id, 'Career',  0, 6, 9),
+    (snap_w2_2, premium_user_id, 'Finance', 1, 5, 8),
+    (snap_w2_2, premium_user_id, 'Purpose', 2, 7, 9),
+    -- Month 3
+    (snap_w2_3, premium_user_id, 'Career',  0, 7, 9),
+    (snap_w2_3, premium_user_id, 'Finance', 1, 6, 8),
+    (snap_w2_3, premium_user_id, 'Purpose', 2, 8, 9)
+  ON CONFLICT DO NOTHING;
+
+END $$;
