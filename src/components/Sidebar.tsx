@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router'
 import { useAuth } from '@/hooks/useAuth'
+import { useProfile } from '@/hooks/useProfile'
 import { cn } from '@/lib/utils'
 import {
   Circle,
@@ -18,8 +19,10 @@ const navItems = [
 
 export function Sidebar() {
   const { signOut, session } = useAuth()
+  const userId = session?.user?.id ?? ''
   const email = session?.user?.email ?? ''
   const initial = email.charAt(0).toUpperCase()
+  const { avatarUrl } = useProfile(userId)
 
   return (
     <aside className="flex h-screen w-56 flex-col bg-[#292524] text-stone-300">
@@ -52,9 +55,17 @@ export function Sidebar() {
       {/* User + Sign out */}
       <div className="border-t border-stone-700 p-3 space-y-2">
         <div className="flex items-center gap-3 px-1">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-400 text-xs font-bold text-white">
-            {initial}
-          </div>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="Your avatar"
+              className="h-7 w-7 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-400 text-xs font-bold text-white">
+              {initial}
+            </div>
+          )}
           <span className="truncate text-xs text-stone-300">{email}</span>
         </div>
         <button
