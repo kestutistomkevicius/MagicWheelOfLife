@@ -159,6 +159,7 @@ export function WheelPage() {
     if (!cat) return
     if (cat.is_important) return
     if (nudgeDismissed.has(categoryId)) return
+    if (cats.filter(c => c.is_important).length >= 3) return
     if (Math.abs(cat.score_tobe - cat.score_asis) >= 3) {
       setNudgeCategoryId(categoryId)
     }
@@ -321,7 +322,7 @@ export function WheelPage() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {/* Wheel switcher */}
-          {wheels.length > 1 ? (
+          {wheels.length > 1 && !editingWheelName && (
             <select
               value={wheel.id}
               onChange={e => selectWheel(e.target.value)}
@@ -331,7 +332,8 @@ export function WheelPage() {
                 <option key={w.id} value={w.id}>{w.name}</option>
               ))}
             </select>
-          ) : editingWheelName ? (
+          )}
+          {editingWheelName ? (
             <input
               className="text-xl font-semibold text-stone-800 border border-stone-300 rounded px-1 focus:outline-none"
               value={wheelNameEdit}
@@ -358,13 +360,22 @@ export function WheelPage() {
               }}
               aria-label="Rename wheel"
             />
-          ) : (
+          ) : wheels.length === 1 ? (
             <h2
               className="text-xl font-semibold text-stone-800 cursor-pointer hover:underline"
               onClick={() => { setWheelNameEdit(wheel.name); setEditingWheelName(true) }}
             >
               {wheel.name}
             </h2>
+          ) : (
+            <button
+              type="button"
+              aria-label="Rename wheel"
+              onClick={() => { setWheelNameEdit(wheel.name); setEditingWheelName(true) }}
+              className="text-stone-400 hover:text-stone-600"
+            >
+              ✎
+            </button>
           )}
         </div>
         <div className="flex gap-2">
@@ -491,7 +502,7 @@ export function WheelPage() {
             <button
               type="button"
               onClick={() => {
-                if (nudgeCategoryId) {
+                if (nudgeCategoryId && localCategories.filter(c => c.is_important).length < 3) {
                   void updateCategoryImportant(nudgeCategoryId, true)
                 }
                 setNudgeCategoryId(null)

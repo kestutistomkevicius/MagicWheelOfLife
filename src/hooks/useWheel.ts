@@ -99,7 +99,7 @@ export function useWheel(userId: string): UseWheelResult {
       if (firstWheel) {
         const catsRes = await supabase
           .from('categories')
-          .select('id, wheel_id, user_id, name, position, score_asis, score_tobe, created_at, updated_at')
+          .select('id, wheel_id, user_id, name, position, score_asis, score_tobe, is_important, created_at, updated_at')
           .eq('wheel_id', firstWheel.id)
           .order('position')
 
@@ -131,7 +131,7 @@ export function useWheel(userId: string): UseWheelResult {
 
     const catsRes = await supabase
       .from('categories')
-      .select('id, wheel_id, user_id, name, position, score_asis, score_tobe, created_at, updated_at')
+      .select('id, wheel_id, user_id, name, position, score_asis, score_tobe, is_important, created_at, updated_at')
       .eq('wheel_id', wheelId)
       .order('position')
 

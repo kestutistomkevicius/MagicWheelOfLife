@@ -18,7 +18,7 @@ export function TrendPage() {
   const { session } = useAuth()
   const userId = session?.user?.id ?? ''
 
-  const { wheel, categories } = useWheel(userId)
+  const { wheel, wheels, categories, selectWheel } = useWheel(userId)
   const { listSnapshots, fetchSnapshotScores } = useSnapshots()
   const { loadActionItems } = useActionItems()
 
@@ -115,7 +115,20 @@ export function TrendPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold text-stone-800">Trend</h1>
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-semibold text-stone-800">Trend</h1>
+        {wheels.length > 1 && (
+          <select
+            value={wheel?.id ?? ''}
+            onChange={e => void selectWheel(e.target.value)}
+            className="text-sm border border-stone-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-stone-400"
+          >
+            {wheels.map(w => (
+              <option key={w.id} value={w.id}>{w.name}</option>
+            ))}
+          </select>
+        )}
+      </div>
       {loading ? (
         <p className="text-stone-500">Loading...</p>
       ) : !hasEnoughSnapshots ? (
