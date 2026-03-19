@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-03-19T10:58:10.411Z"
+stopped_at: Completed 08-03-PLAN.md
+last_updated: "2026-03-19T11:03:36.897Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 10
   completed_phases: 7
   total_plans: 46
-  completed_plans: 40
+  completed_plans: 41
   percent: 85
 ---
 
@@ -121,6 +121,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 07-action-items-and-wheel-polish P07 | 20min | 2 tasks | 4 files |
 | Phase 08-profile-settings-content P01 | 373s | 2 tasks | 3 files |
 | Phase 08-profile-settings-content P02 | 88s | 2 tasks | 3 files |
+| Phase 08-profile-settings-content P03 | 178s | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -212,6 +213,7 @@ Recent decisions affecting current work:
 - [Phase 08-profile-settings-content]: avatars storage bucket public-read, owner-write via foldername isolation
 - [Phase 08-profile-settings-content]: Second wheel seed uses deterministic UUIDs for cross-phase references (000...0010, 0031-0033, 0041-0043)
 - [Phase 08-profile-settings-content]: Wave 0 stub pattern: import only describe/it from vitest, use only it.todo — no feature module imports so stubs survive until Plans 03-05 implement the features
+- [Phase 08-profile-settings-content]: act() wrapping required for async mutations in renderHook tests — updateAvatar and updateTier trigger setState after await, which needs act() to flush synchronously in test assertions
 
 ### Pending Todos
 
@@ -226,6 +228,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-19T10:58:10.394Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-03-19T11:03:36.884Z
+Stopped at: Completed 08-03-PLAN.md
 Resume file: None
