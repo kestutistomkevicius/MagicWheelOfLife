@@ -188,7 +188,19 @@ Plans:
   1. User can open an AI chat per category; the AI asks guided questions and suggests an as-is or to-be score; user confirms before any score is saved
   2. User can switch their tier between free and premium from Settings (dev/staging only); tier-gated features respond immediately
   3. User can select a color scheme for their wheel from a set of predefined palettes; the wheel and UI accent update immediately
-**Plans**: TBD
+**Plans**: 10 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Wave 0: test stubs for useAiChat, AiCoachDrawer, ColorSchemePicker, PaletteContext
+- [ ] 09-02-PLAN.md — DB migrations: ai_chat_messages table + RLS + pg_cron + profiles.color_scheme column + TypeScript types
+- [ ] 09-03-PLAN.md — Supabase Edge Function: ai-coach (JWT gate + premium check + Anthropic streaming proxy)
+- [ ] 09-04-PLAN.md — PaletteContext (PALETTES, applyPalette, PaletteProvider, usePalette) + useProfile color_scheme extension + tailwind.config.ts palette tokens
+- [ ] 09-05-PLAN.md — useAiChat hook: streaming fetch, sentinel detection, DB persistence, history load, error/retry
+- [ ] 09-06-PLAN.md — AiCoachDrawer component: chat thread, streaming bubbles, proposal card with Apply buttons
+- [ ] 09-07-PLAN.md — ColorSchemePicker component: swatch grid, selection indicator, free-tier lock overlay
+- [ ] 09-08-PLAN.md — WheelChart color props refactor + AppShell PaletteProvider wrap + Sidebar palette-accent
+- [ ] 09-09-PLAN.md — Wire-up: CategorySlider AI button + WheelPage drawer + SettingsPage color picker + PREMIUM-01 toggle fix
+- [ ] 09-10-PLAN.md — Human verification checkpoint: end-to-end all AI-01, PREMIUM-01, PREMIUM-02 flows
 
 ### Phase 10: Launch
 **Goal**: The application is publicly accessible in production with all data secured and RLS enforced
@@ -219,5 +231,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Landing Page | 4/4 | Complete | 2026-03-15 |
 | 7. Action Items & Wheel Polish | 6/8 | In Progress|  |
 | 8. Profile, Settings & Content | 7/8 | In Progress|  |
-| 9. AI & Premium | 0/TBD | Not started | - |
+| 9. AI & Premium | 0/10 | Not started | - |
 | 10. Launch | 0/TBD | Not started | - |
