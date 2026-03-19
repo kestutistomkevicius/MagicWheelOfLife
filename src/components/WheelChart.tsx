@@ -36,14 +36,32 @@ export function WheelChart({ data, highlightedCategory, importantCategories }: W
     asisHighlight: d.category === highlightedCategory ? d.asis : 0,
   }))
 
+  const customTick = (props: { x: string | number; y: string | number; textAnchor?: 'end' | 'inherit' | 'start' | 'middle'; payload?: { value: string } }) => {
+    const { x, y, textAnchor, payload } = props
+    const label = payload?.value ?? ''
+    const isHighlighted = label === highlightedCategory
+    return (
+      <text
+        x={x}
+        y={y}
+        textAnchor={textAnchor}
+        fontSize={isHighlighted ? 13 : 12}
+        fontWeight={isHighlighted ? 700 : 400}
+        fill={isHighlighted ? '#d97706' : '#374151'}
+      >
+        {label}
+      </text>
+    )
+  }
+
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <RadarChart data={extendedData} cx="50%" cy="50%" outerRadius="70%">
+      <RadarChart key={highlightedCategory ?? ''} data={extendedData} cx="50%" cy="50%" outerRadius="70%">
         <PolarGrid stroke="#e5e7eb" />
-        <PolarAngleAxis dataKey="category" tick={{ fontSize: 12 }} />
+        <PolarAngleAxis dataKey="category" tick={customTick} />
         <PolarRadiusAxis domain={[0, 10]} tickCount={6} tick={false} axisLine={false} />
-        <Radar name="As-Is" dataKey="asis" stroke="#e8a23a" fill="#e8a23a" fillOpacity={0.4} dot={false} />
-        <Radar name="To-Be" dataKey="tobe" stroke="#60a5fa" fill="#60a5fa" fillOpacity={0.15} dot={false} />
+        <Radar name="As-Is" dataKey="asis" stroke="#e8a23a" fill="#e8a23a" fillOpacity={0.4} dot={false} isAnimationActive={false} />
+        <Radar name="To-Be" dataKey="tobe" stroke="#60a5fa" fill="#60a5fa" fillOpacity={0.15} dot={false} isAnimationActive={false} />
         {(importantCategories ?? []).length > 0 && (
           <Radar
             name="Important"
@@ -53,19 +71,19 @@ export function WheelChart({ data, highlightedCategory, importantCategories }: W
             fillOpacity={0.65}
             dot={false}
             legendType="none"
+            isAnimationActive={false}
           />
         )}
-        {highlightedCategory && (
-          <Radar
-            name="Highlighted"
-            dataKey="asisHighlight"
-            stroke="none"
-            fill="#fbbf24"
-            fillOpacity={0.5}
-            dot={false}
-            legendType="none"
-          />
-        )}
+        <Radar
+          name="Highlighted"
+          dataKey="asisHighlight"
+          stroke="none"
+          fill="#fbbf24"
+          fillOpacity={0.5}
+          dot={false}
+          legendType="none"
+          isAnimationActive={false}
+        />
         <Legend />
         <Tooltip
           wrapperStyle={{ outline: 'none' }}

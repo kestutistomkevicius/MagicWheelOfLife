@@ -91,6 +91,26 @@ A Wheel has **Snapshots** — timestamped score copies for historical comparison
 
 **Scoring** → 1–10 integer. Side-by-side comparison of any two snapshots. Trend chart at 3+ snapshots. Current vs. previous overlay (stretch).
 
+## Git Branching and Deployment
+
+**Branch strategy: one feature branch per phase.**
+
+- At the start of each phase, create a branch: `git checkout -b phase/XX-phase-name`
+- All plan commits within that phase go on this branch.
+- When the phase is fully complete and verified, merge to `master`:
+  ```bash
+  git checkout master
+  git merge --no-ff phase/XX-phase-name
+  git push origin master
+  ```
+- Merging `master` triggers the Vercel deployment pipeline (frontend auto-deploy).
+- For database migrations, push separately after merge: `supabase db push --linked`
+- Delete the phase branch after merge: `git branch -d phase/XX-phase-name`
+
+**Branch naming:** `phase/01-foundation`, `phase/02-wheel-scoring`, `phase/07-action-items-and-wheel-polish`, etc. — match the `.planning/phases/` directory names.
+
+**Do not push individual plan commits directly to `master`.** All work stays on the phase branch until the phase is done.
+
 ## Conventions
 
 - ISO dates (YYYY-MM-DD).

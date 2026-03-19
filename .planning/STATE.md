@@ -3,11 +3,43 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
+stopped_at: Completed 08-08-PLAN.md — Phase 8 fully complete and verified
+last_updated: "2026-03-19T17:54:10.892Z"
+last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
+progress:
+  total_phases: 10
+  completed_phases: 8
+  total_plans: 46
+  completed_plans: 46
+  percent: 85
+---
+
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+stopped_at: Phase 8 planned — 8 plans in 3 waves, ready to execute
+last_updated: "2026-03-18T00:00:00.000Z"
+last_activity: 2026-03-18 — Phase 8 planned: Profile, Settings & Content (8 plans, 3 waves)
+progress:
+  [█████████░] 85%
+  completed_phases: 7
+  total_plans: 38
+  completed_plans: 38
+  percent: 70
+---
+
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
 stopped_at: Completed 07-06-PLAN.md
 last_updated: "2026-03-16T13:47:12.371Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
-  total_phases: 10
+  [██████████] 97%
   completed_phases: 6
   total_plans: 38
   completed_plans: 36
@@ -86,6 +118,15 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 07-action-items-and-wheel-polish P04 | 28min | 2 tasks | 4 files |
 | Phase 07-action-items-and-wheel-polish P05 | 55min | 3 tasks | 4 files |
 | Phase 07-action-items-and-wheel-polish P06 | 242 | 3 tasks | 6 files |
+| Phase 07-action-items-and-wheel-polish P07 | 20min | 2 tasks | 4 files |
+| Phase 08-profile-settings-content P01 | 373s | 2 tasks | 3 files |
+| Phase 08-profile-settings-content P02 | 88s | 2 tasks | 3 files |
+| Phase 08-profile-settings-content P03 | 178s | 2 tasks | 4 files |
+| Phase 08-profile-settings-content P06 | 104s | 2 tasks | 4 files |
+| Phase 08-profile-settings-content P07 | 176s | 2 tasks | 3 files |
+| Phase 08-profile-settings-content P04 | 160s | 2 tasks | 4 files |
+| Phase 08-profile-settings-content P05 | 3min | 2 tasks | 3 files |
+| Phase 08-profile-settings-content P08 | checkpoint | 1 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -171,10 +212,25 @@ Recent decisions affecting current work:
 - [Phase 07-action-items-and-wheel-polish]: vi.clearAllMocks() in beforeEach required — mockResolvedValue resets implementation but not call history, causing cross-test bleed
 - [Phase 07-action-items-and-wheel-polish]: Recharts v3 Radar does not accept per-component data prop — merged dataset with asisImportant and asisHighlight keys used for extra Radar layers in WheelChart
 - [Phase 07-action-items-and-wheel-polish]: Star button uses IIFE in JSX to access local variables (isFree, atLimit, disabled, tooltipTitle) without extracting a separate component
+- [Phase 07-action-items-and-wheel-polish]: Marker date matching uses exact string equality via shared formatDate() — consistent with no fuzzy logic
+- [Phase 07-action-items-and-wheel-polish]: Markers only plotted when date aligns with an existing snapshot date — avoids phantom ReferenceLines off the X-axis
+- [Phase 08-profile-settings-content]: feature_requests INSERT-only RLS — no SELECT for users; founder reads via Studio
+- [Phase 08-profile-settings-content]: avatars storage bucket public-read, owner-write via foldername isolation
+- [Phase 08-profile-settings-content]: Second wheel seed uses deterministic UUIDs for cross-phase references (000...0010, 0031-0033, 0041-0043)
+- [Phase 08-profile-settings-content]: Wave 0 stub pattern: import only describe/it from vitest, use only it.todo — no feature module imports so stubs survive until Plans 03-05 implement the features
+- [Phase 08-profile-settings-content]: act() wrapping required for async mutations in renderHook tests — updateAvatar and updateTier trigger setState after await, which needs act() to flush synchronously in test assertions
+- [Phase 08-profile-settings-content]: Inline legal text (not external legal service) for Terms/Privacy pages — recommended in RESEARCH.md, simpler to maintain
+- [Phase 08-profile-settings-content]: TrendPage useWheel mock converted from static arrow function to hoisted vi.fn() — enables per-test return value overrides without re-declaring the entire vi.mock factory
+- [Phase 08-profile-settings-content]: Onboarding callout uses brand-50/brand-200/brand-800 tokens (defined in tailwind.config.ts) consistent with landing page amber palette
+- [Phase 08-profile-settings-content]: AvatarUpload is purely presentational; file size guard is client-side convenience only (useProfile also guards)
+- [Phase 08-profile-settings-content]: FeatureRequestModal uses plain Tailwind modal (not shadcn Dialog) — consistent with existing SnapshotNameDialog pattern, avoids jsdom Radix portal issues in tests
+- [Phase 08-profile-settings-content]: Footer should also appear in logged-in views — deferred to future work (noted during Phase 8 verification)
+- [Phase 08-profile-settings-content]: Sidebar 'My wheel' label should become 'My wheels' (plural) when user has >1 wheel — deferred to future work (noted during Phase 8 verification)
 
 ### Pending Todos
 
-None yet.
+- Revisit POLISH-01 celebration animation UX — timing/visual feel needs more testing
+- Rethink trend chart action markers — current exact-date-match approach is too simplistic; vision is to show what actions led to score improvements (inspirational/motivational tool)
 
 ### Blockers/Concerns
 
@@ -184,6 +240,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T13:47:12.368Z
-Stopped at: Completed 07-06-PLAN.md
+Last session: 2026-03-19T12:03:07.466Z
+Stopped at: Completed 08-08-PLAN.md — Phase 8 fully complete and verified
 Resume file: None

@@ -77,13 +77,13 @@
 
 ### Profile, Settings & Content (Phase 8)
 
-- [ ] **PROFILE-01**: User can upload or select an avatar/photo that appears near the sign-out button in the app shell
-- [ ] **PROFILE-02**: Settings page is complete: color scheme selector, avatar management, current tier display, and a dev-only tier toggle for testing
-- [ ] **CONTENT-01**: Terms of Service page has full legal content replacing the "coming soon" stub
-- [ ] **CONTENT-02**: Privacy Policy page has full legal content replacing the "coming soon" stub
-- [ ] **CONTENT-03**: In-app feature request form is accessible from the nav; submissions are persisted or forwarded to the founder
-- [ ] **CONTENT-04**: A new user encounters a clear explanation of what a snapshot is and why to use it before or during their first snapshot save
-- [ ] **CONTENT-05**: Premium users can select which wheel to view trends for via a dropdown on TrendPage; seed data includes snapshots for multiple wheels
+- [x] **PROFILE-01**: User can upload or select an avatar/photo that appears near the sign-out button in the app shell
+- [x] **PROFILE-02**: Settings page is complete: color scheme selector, avatar management, current tier display, and a dev-only tier toggle for testing
+- [x] **CONTENT-01**: Terms of Service page has full legal content replacing the "coming soon" stub
+- [x] **CONTENT-02**: Privacy Policy page has full legal content replacing the "coming soon" stub
+- [x] **CONTENT-03**: In-app feature request form is accessible from the nav; submissions are persisted or forwarded to the founder
+- [x] **CONTENT-04**: A new user encounters a clear explanation of what a snapshot is and why to use it before or during their first snapshot save
+- [x] **CONTENT-05**: Premium users can select which wheel to view trends for via a dropdown on TrendPage; seed data includes snapshots for multiple wheels
 
 ### AI & Premium (Phase 9)
 

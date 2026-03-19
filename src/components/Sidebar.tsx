@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router'
 import { useAuth } from '@/hooks/useAuth'
+import { useProfile } from '@/hooks/useProfile'
+import { useWheel } from '@/hooks/useWheel'
 import { cn } from '@/lib/utils'
 import {
   Circle,
@@ -7,10 +10,11 @@ import {
   TrendingUp,
   Settings,
   LogOut,
+  MessageSquare,
 } from 'lucide-react'
+import { FeatureRequestModal } from '@/components/FeatureRequestModal'
 
-const navItems = [
-  { to: '/wheel', label: 'My Wheel', icon: Circle },
+const staticNavItems = [
   { to: '/snapshots', label: 'Snapshots', icon: Camera },
   { to: '/trend', label: 'Trend', icon: TrendingUp },
   { to: '/settings', label: 'Settings', icon: Settings },
@@ -18,8 +22,18 @@ const navItems = [
 
 export function Sidebar() {
   const { signOut, session } = useAuth()
+  const userId = session?.user?.id ?? ''
   const email = session?.user?.email ?? ''
   const initial = email.charAt(0).toUpperCase()
+  const { avatarUrl } = useProfile(userId)
+  const { wheels } = useWheel(userId)
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
+
+  const wheelLabel = wheels.length > 1 ? 'My Wheels' : 'My Wheel'
+  const navItems = [
+    { to: '/wheel', label: wheelLabel, icon: Circle },
+    ...staticNavItems,
+  ]
 
   return (
     <aside className="flex h-screen w-56 flex-col bg-[#292524] text-stone-300">
@@ -49,12 +63,31 @@ export function Sidebar() {
         ))}
       </nav>
 
+      {/* Feedback button */}
+      <div className="px-2 pb-2">
+        <button
+          onClick={() => setFeedbackOpen(true)}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-100"
+        >
+          <MessageSquare className="h-4 w-4 shrink-0" aria-hidden="true" />
+          Share feedback
+        </button>
+      </div>
+
       {/* User + Sign out */}
       <div className="border-t border-stone-700 p-3 space-y-2">
         <div className="flex items-center gap-3 px-1">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-400 text-xs font-bold text-white">
-            {initial}
-          </div>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="Your avatar"
+              className="h-7 w-7 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-400 text-xs font-bold text-white">
+              {initial}
+            </div>
+          )}
           <span className="truncate text-xs text-stone-300">{email}</span>
         </div>
         <button
@@ -65,6 +98,7 @@ export function Sidebar() {
           Sign out
         </button>
       </div>
+      <FeatureRequestModal open={feedbackOpen} userId={userId} onClose={() => setFeedbackOpen(false)} />
     </aside>
   )
 }

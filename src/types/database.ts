@@ -5,6 +5,7 @@ export type ProfileRow = {
   id: string
   tier: 'free' | 'premium'
   created_at: string
+  avatar_url: string | null
 }
 
 export type WheelRow = {
@@ -60,6 +61,13 @@ export type SnapshotScoreRow = {
   score_tobe: number
 }
 
+export type FeatureRequestRow = {
+  id: string
+  user_id: string | null
+  text: string
+  created_at: string
+}
+
 export type Database = {
   __InternalSupabase: { PostgrestVersion: '12' }
   public: {
@@ -68,6 +76,12 @@ export type Database = {
         Row: ProfileRow
         Insert: Omit<ProfileRow, 'created_at'>
         Update: Partial<Omit<ProfileRow, 'id'>>
+        Relationships: []
+      }
+      feature_requests: {
+        Row: FeatureRequestRow
+        Insert: Omit<FeatureRequestRow, 'id' | 'created_at'>
+        Update: never
         Relationships: []
       }
       wheels: {

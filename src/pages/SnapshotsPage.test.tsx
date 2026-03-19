@@ -229,6 +229,26 @@ describe('SnapshotsPage', () => {
     expect(rows.length).toBeGreaterThan(1)
   })
 
+  it('shows onboarding callout when no snapshots exist', async () => {
+    mockListSnapshots.mockResolvedValue([])
+    render(<SnapshotsPage />)
+
+    await waitFor(() => {
+      expect(screen.getByText('What is a snapshot?')).toBeInTheDocument()
+    })
+  })
+
+  it('does not show onboarding callout when snapshots exist', async () => {
+    // Default mock already returns snap1 and snap2
+    render(<SnapshotsPage />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Q1 Review').length).toBeGreaterThan(0)
+    })
+
+    expect(screen.queryByText('What is a snapshot?')).not.toBeInTheDocument()
+  })
+
   it('category select is populated with unique category names from all snapshots', async () => {
     render(<SnapshotsPage />)
 

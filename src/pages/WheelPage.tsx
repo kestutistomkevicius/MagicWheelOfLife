@@ -71,7 +71,9 @@ export function WheelPage() {
   const [highlightedCategory, setHighlightedCategory] = useState<string | null>(null)
   const [nudgeCategoryId, setNudgeCategoryId] = useState<string | null>(null)
   const [nudgeDismissed, setNudgeDismissed] = useState<Set<string>>(new Set())
-  const { loadActionItems, toggleActionItem } = useActionItems()
+  const { loadActionItems, toggleActionItem, saveCompletionNote } = useActionItems()
+  const [dueSoonCompletionPending, setDueSoonCompletionPending] = useState<string | null>(null)
+  const [dueSoonNoteText, setDueSoonNoteText] = useState('')
 
   // Sync local categories from hook whenever categories change (e.g., after createWheel or selectWheel)
   useEffect(() => {
@@ -157,6 +159,7 @@ export function WheelPage() {
     if (!cat) return
     if (cat.is_important) return
     if (nudgeDismissed.has(categoryId)) return
+    if (cats.filter(c => c.is_important).length >= 3) return
     if (Math.abs(cat.score_tobe - cat.score_asis) >= 3) {
       setNudgeCategoryId(categoryId)
     }
@@ -228,18 +231,35 @@ export function WheelPage() {
   }
 
   function handleDueSoonMarkComplete(itemId: string) {
-    // Find item in actionItemsByCategory, mark complete optimistically
     for (const [catId, items] of Object.entries(actionItemsByCategory)) {
       const item = items.find(i => i.id === itemId)
       if (item) {
+        const now = new Date().toISOString()
         setActionItemsByCategory(prev => ({
           ...prev,
-          [catId]: items.map(i => i.id === itemId ? { ...i, is_complete: true } : i),
+          [catId]: items.map(i => i.id === itemId ? { ...i, is_complete: true, completed_at: now } : i),
         }))
         void toggleActionItem({ id: itemId, isComplete: true })
+        setDueSoonCompletionPending(itemId)
         return
       }
     }
+  }
+
+  async function handleDueSoonSaveNote() {
+    if (!dueSoonCompletionPending) return
+    const savedId = dueSoonCompletionPending
+    const savedNote = dueSoonNoteText
+    setDueSoonCompletionPending(null)
+    setDueSoonNoteText('')
+    await saveCompletionNote({ id: savedId, note: savedNote })
+    setActionItemsByCategory(prev => {
+      const next = { ...prev }
+      for (const catId of Object.keys(next)) {
+        next[catId] = next[catId].map(i => i.id === savedId ? { ...i, note: savedNote } : i)
+      }
+      return next
+    })
   }
 
   async function handleCreateWheel(mode: 'template' | 'blank', name: string) {
@@ -302,7 +322,7 @@ export function WheelPage() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {/* Wheel switcher */}
-          {wheels.length > 1 ? (
+          {wheels.length > 1 && !editingWheelName && (
             <select
               value={wheel.id}
               onChange={e => selectWheel(e.target.value)}
@@ -312,7 +332,8 @@ export function WheelPage() {
                 <option key={w.id} value={w.id}>{w.name}</option>
               ))}
             </select>
-          ) : editingWheelName ? (
+          )}
+          {editingWheelName ? (
             <input
               className="text-xl font-semibold text-stone-800 border border-stone-300 rounded px-1 focus:outline-none"
               value={wheelNameEdit}
@@ -339,13 +360,22 @@ export function WheelPage() {
               }}
               aria-label="Rename wheel"
             />
-          ) : (
+          ) : wheels.length === 1 ? (
             <h2
               className="text-xl font-semibold text-stone-800 cursor-pointer hover:underline"
               onClick={() => { setWheelNameEdit(wheel.name); setEditingWheelName(true) }}
             >
               {wheel.name}
             </h2>
+          ) : (
+            <button
+              type="button"
+              aria-label="Rename wheel"
+              onClick={() => { setWheelNameEdit(wheel.name); setEditingWheelName(true) }}
+              className="text-stone-400 hover:text-stone-600"
+            >
+              ✎
+            </button>
           )}
         </div>
         <div className="flex gap-2">
@@ -404,7 +434,7 @@ export function WheelPage() {
                 removeDisabled={localCategories.length <= 3}
                 isExpanded={expandedCategories.has(cat.id)}
                 onExpandToggle={() => { void handleExpandCategory(cat.id) }}
-                actionItemCount={actionItemsByCategory[cat.id]?.length}
+                actionItemCount={actionItemsByCategory[cat.id]?.filter(i => !i.is_complete).length}
                 isImportant={cat.is_important}
                 onToggleImportant={() => void updateCategoryImportant(cat.id, !cat.is_important)}
                 userTier={tier}
@@ -472,7 +502,7 @@ export function WheelPage() {
             <button
               type="button"
               onClick={() => {
-                if (nudgeCategoryId) {
+                if (nudgeCategoryId && localCategories.filter(c => c.is_important).length < 3) {
                   void updateCategoryImportant(nudgeCategoryId, true)
                 }
                 setNudgeCategoryId(null)
@@ -492,6 +522,48 @@ export function WheelPage() {
               className="px-4 py-2 text-sm border border-stone-300 rounded hover:bg-stone-50"
             >
               Dismiss
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Due Soon mark-complete note modal */}
+      <Dialog
+        open={dueSoonCompletionPending !== null}
+        onOpenChange={(open) => { if (!open) { setDueSoonCompletionPending(null); setDueSoonNoteText('') } }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Great work!</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label htmlFor="due-soon-note" className="text-sm text-stone-600">
+              Note for your future self and reflection (optional)
+            </label>
+            <textarea
+              id="due-soon-note"
+              value={dueSoonNoteText}
+              onChange={(e) => setDueSoonNoteText(e.target.value)}
+              maxLength={500}
+              placeholder="Add a note to yourself…"
+              className="w-full text-sm border border-stone-200 rounded p-2 focus:outline-none focus:border-stone-400 resize-none"
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => { setDueSoonCompletionPending(null); setDueSoonNoteText('') }}
+              className="px-4 py-2 text-sm text-stone-500 hover:text-stone-700"
+            >
+              Skip
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleDueSoonSaveNote()}
+              className="px-4 py-2 text-sm bg-brand-400 text-white rounded hover:bg-brand-500"
+            >
+              Save note
             </button>
           </DialogFooter>
         </DialogContent>

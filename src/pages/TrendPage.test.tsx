@@ -24,16 +24,28 @@ vi.mock('recharts', () => ({
 
 // Mock TrendChart so TrendPage tests focus on page logic, not chart rendering
 vi.mock('@/components/TrendChart', () => ({
-  TrendChart: ({ data, categoryName }: { data: unknown[]; categoryName: string }) => (
-    <div data-testid="trend-chart" data-points={data.length} data-category={categoryName} />
+  TrendChart: ({ data, categoryName, markers }: { data: unknown[]; categoryName: string; markers?: unknown[] }) => (
+    <div
+      data-testid="trend-chart"
+      data-points={data.length}
+      data-category={categoryName}
+      data-markers={JSON.stringify(markers ?? [])}
+    />
   ),
 }))
 
-const { mockListSnapshots, mockFetchScores, mockWheel } = vi.hoisted(() => {
+const { mockListSnapshots, mockFetchScores, mockWheel, mockLoadActionItems, mockCategories, mockUseWheel, mockSelectWheel } = vi.hoisted(() => {
   const mockListSnapshots = vi.fn()
   const mockFetchScores = vi.fn()
+  const mockLoadActionItems = vi.fn()
+  const mockSelectWheel = vi.fn()
   const mockWheel = { id: 'wheel-1', name: 'My Wheel', user_id: 'user-1', created_at: '', updated_at: '' }
-  return { mockListSnapshots, mockFetchScores, mockWheel }
+  const mockCategories = [
+    { id: 'cat-health', name: 'Health', wheel_id: 'wheel-1', user_id: 'user-1', position: 0, score_asis: 7, score_tobe: 9, created_at: '', updated_at: '' },
+    { id: 'cat-career', name: 'Career', wheel_id: 'wheel-1', user_id: 'user-1', position: 1, score_asis: 6, score_tobe: 8, created_at: '', updated_at: '' },
+  ]
+  const mockUseWheel = vi.fn()
+  return { mockListSnapshots, mockFetchScores, mockWheel, mockLoadActionItems, mockCategories, mockUseWheel, mockSelectWheel }
 })
 
 vi.mock('@/hooks/useSnapshots', () => ({
@@ -46,17 +58,18 @@ vi.mock('@/hooks/useSnapshots', () => ({
 }))
 
 vi.mock('@/hooks/useWheel', () => ({
-  useWheel: () => ({
-    wheel: mockWheel,
-    loading: false,
-    wheels: [mockWheel],
-    categories: [],
-    setCategories: vi.fn(),
-    error: null,
-    canCreateWheel: false,
-    selectWheel: vi.fn(),
-    createWheel: vi.fn(),
-    updateScore: vi.fn(),
+  useWheel: (...args: unknown[]) => mockUseWheel(...args),
+}))
+
+vi.mock('@/hooks/useActionItems', () => ({
+  useActionItems: () => ({
+    loadActionItems: mockLoadActionItems,
+    addActionItem: vi.fn(),
+    toggleActionItem: vi.fn(),
+    setDeadline: vi.fn(),
+    deleteActionItem: vi.fn(),
+    saveCompletionNote: vi.fn(),
+    reopenActionItem: vi.fn(),
   }),
 }))
 
@@ -81,9 +94,36 @@ function makeScore(snapshotId: string, categoryName: string, asis: number, tobe:
   }
 }
 
+// Helper to build an action item row
+function makeActionItem(
+  id: string,
+  categoryId: string,
+  text: string,
+  deadline: string | null = null,
+  isComplete = false,
+  completedAt: string | null = null,
+): { id: string; category_id: string; user_id: string; text: string; is_complete: boolean; deadline: string | null; completed_at: string | null; note: string | null; position: number; created_at: string; updated_at: string } {
+  return { id, category_id: categoryId, user_id: 'user-1', text, is_complete: isComplete, deadline, completed_at: completedAt, note: null, position: 0, created_at: '', updated_at: '' }
+}
+
 describe('TrendPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Default useWheel: single wheel
+    mockUseWheel.mockReturnValue({
+      wheel: mockWheel,
+      loading: false,
+      wheels: [mockWheel],
+      categories: mockCategories,
+      setCategories: vi.fn(),
+      error: null,
+      canCreateWheel: false,
+      selectWheel: mockSelectWheel,
+      createWheel: vi.fn(),
+      updateScore: vi.fn(),
+    })
+    // Default: no action items
+    mockLoadActionItems.mockResolvedValue([])
   })
 
   it('shows empty state message when fewer than 3 snapshots exist', async () => {
@@ -234,6 +274,176 @@ describe('TrendPage', () => {
       const chart = screen.getByTestId('trend-chart')
       // Career only appears in snap2 and snap3 (not snap1) — 2 points, not 3
       expect(chart.getAttribute('data-points')).toBe('2')
+    })
+  })
+
+  // Marker computation tests
+  it('passes markers array to TrendChart when completed action item date matches snapshot date', async () => {
+    // Snapshots: Jan, Feb, Mar 2026
+    // "01 Jan 2026" formatted by formatDate('2026-01-01T00:00:00Z')
+    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
+    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
+    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapshotId: string) =>
+      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
+    )
+    // Action item completed on 2026-02-01 — should match snapshot s2
+    mockLoadActionItems.mockResolvedValue([
+      makeActionItem('ai-1', 'cat-health', 'Go for a run', null, true, '2026-02-01T10:00:00Z'),
+    ])
+
+    render(<TrendPage />)
+
+    await waitFor(() => {
+      const chart = screen.getByTestId('trend-chart')
+      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
+      expect(markers).toHaveLength(1)
+    })
+  })
+
+  it('passes empty markers when no action item dates match snapshot dates', async () => {
+    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
+    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
+    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapshotId: string) =>
+      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
+    )
+    // Action item completed on a date that does NOT match any snapshot
+    mockLoadActionItems.mockResolvedValue([
+      makeActionItem('ai-1', 'cat-health', 'Some task', null, true, '2026-04-15T10:00:00Z'),
+    ])
+
+    render(<TrendPage />)
+
+    await waitFor(() => {
+      const chart = screen.getByTestId('trend-chart')
+      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
+      expect(markers).toHaveLength(0)
+    })
+  })
+
+  it('completed item marker has green color #16a34a', async () => {
+    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
+    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
+    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapshotId: string) =>
+      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
+    )
+    mockLoadActionItems.mockResolvedValue([
+      makeActionItem('ai-1', 'cat-health', 'Completed task', null, true, '2026-01-01T10:00:00Z'),
+    ])
+
+    render(<TrendPage />)
+
+    await waitFor(() => {
+      const chart = screen.getByTestId('trend-chart')
+      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
+      expect(markers).toHaveLength(1)
+      expect(markers[0].color).toBe('#16a34a')
+    })
+  })
+
+  // Wheel selector tests (CONTENT-05)
+  it('does not render wheel selector when only one wheel exists', async () => {
+    // Default mock already has wheels: [mockWheel] — single wheel
+    mockListSnapshots.mockResolvedValue([])
+    mockFetchScores.mockResolvedValue([])
+
+    render(<TrendPage />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/trend/i)).toBeInTheDocument()
+    })
+
+    // With a single wheel there should be no wheel selector <select> near the h1
+    // The category selector only appears when snapshots exist; with 0 snapshots there are no selects at all
+    const selects = screen.queryAllByRole('combobox')
+    expect(selects).toHaveLength(0)
+  })
+
+  it('renders wheel selector when multiple wheels exist', async () => {
+    const wheel2 = { id: 'wheel-2', name: 'Work Wheel', user_id: 'user-1', created_at: '', updated_at: '' }
+    mockUseWheel.mockReturnValue({
+      wheel: mockWheel,
+      loading: false,
+      wheels: [mockWheel, wheel2],
+      categories: mockCategories,
+      setCategories: vi.fn(),
+      error: null,
+      canCreateWheel: false,
+      selectWheel: mockSelectWheel,
+      createWheel: vi.fn(),
+      updateScore: vi.fn(),
+    })
+    mockListSnapshots.mockResolvedValue([])
+    mockFetchScores.mockResolvedValue([])
+
+    render(<TrendPage />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/trend/i)).toBeInTheDocument()
+    })
+
+    // Wheel selector should be present with options for both wheels
+    const wheelSelect = screen.getByRole('combobox')
+    expect(wheelSelect).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: mockWheel.name })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: wheel2.name })).toBeInTheDocument()
+  })
+
+  it('selecting a different wheel calls selectWheel with the new wheel id', async () => {
+    const wheel2 = { id: 'wheel-2', name: 'Work Wheel', user_id: 'user-1', created_at: '', updated_at: '' }
+    mockUseWheel.mockReturnValue({
+      wheel: mockWheel,
+      loading: false,
+      wheels: [mockWheel, wheel2],
+      categories: mockCategories,
+      setCategories: vi.fn(),
+      error: null,
+      canCreateWheel: false,
+      selectWheel: mockSelectWheel,
+      createWheel: vi.fn(),
+      updateScore: vi.fn(),
+    })
+    mockListSnapshots.mockResolvedValue([])
+    mockFetchScores.mockResolvedValue([])
+
+    render(<TrendPage />)
+
+    await waitFor(() => {
+      expect(screen.getByRole('combobox')).toBeInTheDocument()
+    })
+
+    const wheelSelect = screen.getByRole('combobox')
+    const user = userEvent.setup()
+    await user.selectOptions(wheelSelect, wheel2.id)
+
+    expect(mockSelectWheel).toHaveBeenCalledWith(wheel2.id)
+  })
+
+  it('overdue item marker has red color #dc2626', async () => {
+    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
+    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
+    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapshotId: string) =>
+      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
+    )
+    // Deadline on 2026-01-01 — a past date, not complete → overdue (red)
+    mockLoadActionItems.mockResolvedValue([
+      makeActionItem('ai-2', 'cat-health', 'Overdue task', '2026-01-01', false, null),
+    ])
+
+    render(<TrendPage />)
+
+    await waitFor(() => {
+      const chart = screen.getByTestId('trend-chart')
+      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
+      expect(markers).toHaveLength(1)
+      expect(markers[0].color).toBe('#dc2626')
     })
   })
 })

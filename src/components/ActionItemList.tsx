@@ -23,6 +23,7 @@ export function ActionItemList({
   const [adding, setAdding] = useState(false)
   const [celebrating, setCelebrating] = useState<string | null>(null)
   const celebrateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const modalTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [completionPending, setCompletionPending] = useState<string | null>(null)
   const [noteText, setNoteText] = useState('')
   const [completedExpanded, setCompletedExpanded] = useState(false)
@@ -50,17 +51,25 @@ export function ActionItemList({
 
   async function handleToggle(id: string, currentValue: boolean) {
     if (!currentValue) {
-      // Completing an item: trigger celebration + open completion modal
+      // Completing an item: animate first, then open modal, then move to completed
       if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current)
+      if (modalTimeoutRef.current) clearTimeout(modalTimeoutRef.current)
+
       setCelebrating(id)
-      celebrateTimeoutRef.current = setTimeout(() => setCelebrating(null), 800)
-      setCompletionPending(id)
-      // Optimistic update: mark as complete with current timestamp
-      onItemsChange(
-        items.map((i) =>
-          i.id === id ? { ...i, is_complete: true, completed_at: new Date().toISOString() } : i
+
+      // Open modal near end of animation so user sees the full flash first
+      modalTimeoutRef.current = setTimeout(() => setCompletionPending(id), 700)
+
+      // Move item to completed list after animation finishes
+      celebrateTimeoutRef.current = setTimeout(() => {
+        setCelebrating(null)
+        onItemsChange(
+          items.map((i) =>
+            i.id === id ? { ...i, is_complete: true, completed_at: new Date().toISOString() } : i
+          )
         )
-      )
+      }, 800)
+
       await toggleActionItem({ id, isComplete: true })
     } else {
       // Un-completing: no modal, just toggle
@@ -88,9 +97,12 @@ export function ActionItemList({
 
   async function handleSaveNote() {
     if (!completionPending) return
-    await saveCompletionNote({ id: completionPending, note: noteText })
+    const savedNote = noteText
+    const savedId = completionPending
     setCompletionPending(null)
     setNoteText('')
+    await saveCompletionNote({ id: savedId, note: savedNote })
+    onItemsChange(items.map(i => i.id === savedId ? { ...i, note: savedNote } : i))
   }
 
   function handleSkip() {
@@ -241,7 +253,7 @@ export function ActionItemList({
           </DialogHeader>
           <div className="space-y-2">
             <label htmlFor="completion-note" className="text-sm text-stone-600">
-              Note (optional)
+              Note for your future self and reflection (optional)
             </label>
             <textarea
               id="completion-note"

@@ -177,6 +177,7 @@ describe('ActionItemList', () => {
     })
 
     it('calls toggleActionItem when Checkbox is clicked on active item', async () => {
+      vi.useFakeTimers()
       const onItemsChange = vi.fn()
       render(
         <ActionItemList
@@ -185,11 +186,13 @@ describe('ActionItemList', () => {
           onItemsChange={onItemsChange}
         />
       )
-      fireEvent.click(screen.getByRole('checkbox'))
-      await waitFor(() => {
-        expect(mockToggleActionItem).toHaveBeenCalledWith({ id: 'item-1', isComplete: true })
+      await act(async () => {
+        fireEvent.click(screen.getByRole('checkbox'))
       })
+      expect(mockToggleActionItem).toHaveBeenCalledWith({ id: 'item-1', isComplete: true })
+      act(() => { vi.advanceTimersByTime(800) })
       expect(onItemsChange).toHaveBeenCalled()
+      vi.useRealTimers()
     })
   })
 
