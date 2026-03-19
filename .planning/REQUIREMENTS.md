@@ -82,7 +82,7 @@
 - [x] **CONTENT-01**: Terms of Service page has full legal content replacing the "coming soon" stub
 - [x] **CONTENT-02**: Privacy Policy page has full legal content replacing the "coming soon" stub
 - [x] **CONTENT-03**: In-app feature request form is accessible from the nav; submissions are persisted or forwarded to the founder
-- [ ] **CONTENT-04**: A new user encounters a clear explanation of what a snapshot is and why to use it before or during their first snapshot save
+- [x] **CONTENT-04**: A new user encounters a clear explanation of what a snapshot is and why to use it before or during their first snapshot save
 - [x] **CONTENT-05**: Premium users can select which wheel to view trends for via a dropdown on TrendPage; seed data includes snapshots for multiple wheels
 
 ### AI & Premium (Phase 9)
