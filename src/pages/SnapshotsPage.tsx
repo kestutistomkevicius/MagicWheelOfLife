@@ -19,7 +19,7 @@ export function SnapshotsPage() {
   const { session } = useAuth()
   const userId = session?.user?.id ?? ''
 
-  const { wheel, categories } = useWheel(userId)
+  const { wheel, wheels, categories, selectWheel } = useWheel(userId)
   const { listSnapshots, saveSnapshot, fetchSnapshotScores } = useSnapshots()
 
   const [snapshots, setSnapshots] = useState<SnapshotRow[]>([])
@@ -160,9 +160,20 @@ export function SnapshotsPage() {
     <div className="p-6 max-w-4xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-stone-800">
-          Snapshots{wheel?.name ? ` — ${wheel.name}` : ''}
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold text-stone-800">Snapshots</h1>
+          {wheels.length > 1 && (
+            <select
+              value={wheel?.id ?? ''}
+              onChange={e => void selectWheel(e.target.value)}
+              className="text-sm border border-stone-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-stone-400"
+            >
+              {wheels.map(w => (
+                <option key={w.id} value={w.id}>{w.name}</option>
+              ))}
+            </select>
+          )}
+        </div>
         <Button onClick={() => setDialogOpen(true)} disabled={!wheel}>
           Save snapshot
         </Button>
@@ -170,8 +181,18 @@ export function SnapshotsPage() {
 
       {/* Snapshot list */}
       {snapshots.length === 0 ? (
-        <div className="rounded-lg border border-stone-200 p-8 text-center text-stone-500">
-          <p>No snapshots yet. Save your first snapshot to get started.</p>
+        <div className="space-y-4">
+          <div className="rounded-lg border border-brand-200 bg-brand-50 p-4 text-sm">
+            <p className="font-medium text-brand-800">What is a snapshot?</p>
+            <p className="mt-1 text-stone-600">
+              A snapshot is a saved copy of your current wheel scores. Take one now to
+              capture where you stand today — you'll be able to compare it with future
+              snapshots to see how you've grown over time.
+            </p>
+          </div>
+          <div className="rounded-lg border border-stone-200 p-8 text-center text-stone-500">
+            <p>No snapshots yet. Save your first snapshot to get started.</p>
+          </div>
         </div>
       ) : (
         <div className="space-y-2">
