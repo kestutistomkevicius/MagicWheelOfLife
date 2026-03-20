@@ -146,4 +146,88 @@ describe('useProfile', () => {
 
     expect(result.current.tier).toBe('premium')
   })
+
+  // ── color_scheme extension ──────────────────────────────────────────────────
+
+  it('useProfile returns colorScheme: "amber" when profile.color_scheme is "amber"', async () => {
+    mockFrom.mockReturnValue(
+      buildDbChain({ data: [{ id: USER_ID, tier: 'free', avatar_url: null, color_scheme: 'amber' }], error: null })
+    )
+
+    const { result } = renderHook(() => useProfile(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.colorScheme).toBe('amber')
+  })
+
+  it('useProfile returns colorScheme: "ocean" when profile.color_scheme is "ocean"', async () => {
+    mockFrom.mockReturnValue(
+      buildDbChain({ data: [{ id: USER_ID, tier: 'free', avatar_url: null, color_scheme: 'ocean' }], error: null })
+    )
+
+    const { result } = renderHook(() => useProfile(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.colorScheme).toBe('ocean')
+  })
+
+  it('useProfile defaults colorScheme to "amber" when profile.color_scheme is missing', async () => {
+    mockFrom.mockReturnValue(
+      buildDbChain({ data: [{ id: USER_ID, tier: 'free', avatar_url: null }], error: null })
+    )
+
+    const { result } = renderHook(() => useProfile(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.colorScheme).toBe('amber')
+  })
+
+  it('updateColorScheme calls supabase .update({ color_scheme: "ocean" }) on the profiles table', async () => {
+    // Initial fetch
+    mockFrom.mockReturnValueOnce(
+      buildDbChain({ data: [{ id: USER_ID, tier: 'free', avatar_url: null, color_scheme: 'amber' }], error: null })
+    )
+    // update call
+    const updateChain: Record<string, unknown> = {}
+    updateChain.eq = vi.fn().mockReturnValue(updateChain)
+    updateChain.then = (resolve: (v: unknown) => void) => Promise.resolve({ data: null, error: null }).then(resolve)
+    const mockUpdateFn = vi.fn().mockReturnValue(updateChain)
+    mockFrom.mockReturnValueOnce({ update: mockUpdateFn })
+
+    const { result } = renderHook(() => useProfile(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    await act(async () => {
+      await result.current.updateColorScheme('ocean')
+    })
+
+    expect(mockUpdateFn).toHaveBeenCalledWith({ color_scheme: 'ocean' })
+  })
+
+  it('updateColorScheme updates colorScheme state optimistically before the DB write resolves', async () => {
+    // Initial fetch
+    mockFrom.mockReturnValueOnce(
+      buildDbChain({ data: [{ id: USER_ID, tier: 'free', avatar_url: null, color_scheme: 'amber' }], error: null })
+    )
+    // update call (delayed to simulate async DB write)
+    let resolveUpdate!: (v: unknown) => void
+    const updateChain: Record<string, unknown> = {}
+    updateChain.eq = vi.fn().mockReturnValue(updateChain)
+    updateChain.then = (resolve: (v: unknown) => void) => {
+      resolveUpdate = resolve
+      return new Promise(() => {})  // never resolves during the test assertion
+    }
+    mockFrom.mockReturnValueOnce({ update: vi.fn().mockReturnValue(updateChain) })
+
+    const { result } = renderHook(() => useProfile(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    // Start the update (don't await — we want to check optimistic state)
+    act(() => {
+      result.current.updateColorScheme('forest')
+    })
+
+    // State should already be updated optimistically, before DB resolves
+    expect(result.current.colorScheme).toBe('forest')
+
+    // Clean up pending promise
+    if (resolveUpdate) resolveUpdate({ data: null, error: null })
+  })
 })
