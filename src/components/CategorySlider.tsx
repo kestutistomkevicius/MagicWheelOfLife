@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Star } from 'lucide-react'
+import { Star, Sparkles } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
 
 interface CategorySliderProps {
@@ -20,6 +20,8 @@ interface CategorySliderProps {
   onToggleImportant?: () => void
   userTier?: 'free' | 'premium'
   importantCount?: number
+  onAiCoach?: () => void
+  isPremiumForAi?: boolean
 }
 
 export function CategorySlider({
@@ -40,9 +42,12 @@ export function CategorySlider({
   onToggleImportant,
   userTier,
   importantCount,
+  onAiCoach,
+  isPremiumForAi,
 }: CategorySliderProps) {
   const [editing, setEditing] = useState(false)
   const [editValue, setEditValue] = useState(categoryName)
+  const [showAiUpgrade, setShowAiUpgrade] = useState(false)
 
   function handleRenameSubmit() {
     const trimmed = editValue.trim()
@@ -100,6 +105,22 @@ export function CategorySlider({
               </button>
             )
           })()
+        )}
+        {onAiCoach !== undefined && (
+          <button
+            type="button"
+            aria-label="AI Coach"
+            onClick={() => {
+              if (isPremiumForAi) {
+                onAiCoach()
+              } else {
+                setShowAiUpgrade(true)
+              }
+            }}
+            className="text-stone-400 cursor-pointer hover:text-amber-500"
+          >
+            <Sparkles size={14} strokeWidth={1.5} />
+          </button>
         )}
         <div className="flex gap-1">
           {onExpandToggle && (
@@ -162,6 +183,31 @@ export function CategorySlider({
         />
         <span className="w-8 text-sm font-medium text-stone-800 text-right">{tobeValue}</span>
       </div>
+
+      {/* AI Coach upgrade modal for free users */}
+      {showAiUpgrade && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setShowAiUpgrade(false)}
+        >
+          <div
+            className="relative w-full max-w-sm rounded-lg bg-white p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-sm text-stone-700 mb-4">
+              AI Coach is a premium feature. Upgrade to unlock personalized coaching for each life area.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowAiUpgrade(false)}
+              className="w-full rounded-md border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
+              aria-label="Close"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

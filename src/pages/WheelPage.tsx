@@ -9,7 +9,9 @@ import { ActionItemList } from '@/components/ActionItemList'
 import { CreateWheelModal } from '@/components/CreateWheelModal'
 import { SnapshotWarningDialog } from '@/components/SnapshotWarningDialog'
 import { DueSoonWidget, getDueSoonItems } from '@/components/DueSoonWidget'
+import { AiCoachDrawer } from '@/components/AiCoachDrawer'
 import { useActionItems } from '@/hooks/useActionItems'
+import { usePalette, PALETTES } from '@/contexts/PaletteContext'
 import {
   Dialog,
   DialogContent,
@@ -74,6 +76,11 @@ export function WheelPage() {
   const { loadActionItems, toggleActionItem, saveCompletionNote } = useActionItems()
   const [dueSoonCompletionPending, setDueSoonCompletionPending] = useState<string | null>(null)
   const [dueSoonNoteText, setDueSoonNoteText] = useState('')
+  const [drawerCategoryId, setDrawerCategoryId] = useState<string | null>(null)
+  const drawerOpen = drawerCategoryId !== null
+
+  const { currentPalette } = usePalette()
+  const paletteVars = PALETTES[currentPalette] ?? PALETTES.amber
 
   // Sync local categories from hook whenever categories change (e.g., after createWheel or selectWheel)
   useEffect(() => {
@@ -403,6 +410,10 @@ export function WheelPage() {
             data={chartData}
             highlightedCategory={highlightedCategory ?? undefined}
             importantCategories={localCategories.filter(c => c.is_important).map(c => c.name)}
+            primaryColor={paletteVars['--palette-primary']}
+            secondaryColor={paletteVars['--palette-secondary']}
+            importantColor={paletteVars['--palette-important']}
+            highlightColor={paletteVars['--palette-highlight']}
           />
           <DueSoonWidget
             items={getDueSoonItems(actionItemsByCategory, localCategories)}
@@ -439,6 +450,8 @@ export function WheelPage() {
                 onToggleImportant={() => void updateCategoryImportant(cat.id, !cat.is_important)}
                 userTier={tier}
                 importantCount={localCategories.filter(c => c.is_important).length}
+                onAiCoach={() => setDrawerCategoryId(cat.id)}
+                isPremiumForAi={tier === 'premium'}
               />
               {expandedCategories.has(cat.id) && (
                 <ActionItemList
@@ -526,6 +539,23 @@ export function WheelPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* AI Coach drawer */}
+      {drawerOpen && drawerCategoryId !== null && (() => {
+        const selectedCat = localCategories.find(c => c.id === drawerCategoryId)
+        if (!selectedCat) return null
+        return (
+          <AiCoachDrawer
+            categoryId={selectedCat.id}
+            categoryName={selectedCat.name}
+            asisScore={selectedCat.score_asis}
+            tobeScore={selectedCat.score_tobe}
+            onApplyAsis={(v) => handleAsisCommit(selectedCat.id, v)}
+            onApplyTobe={(v) => handleTobeCommit(selectedCat.id, v)}
+            onClose={() => setDrawerCategoryId(null)}
+          />
+        )
+      })()}
 
       {/* Due Soon mark-complete note modal */}
       <Dialog
