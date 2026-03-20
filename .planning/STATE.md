@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 09-05-PLAN.md
-last_updated: "2026-03-20T06:41:30.562Z"
+stopped_at: Completed 09-06-PLAN.md
+last_updated: "2026-03-20T06:56:06.024Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 56
-  completed_plans: 51
+  completed_plans: 52
 ---
 
 ---
@@ -147,6 +147,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 09-ai-and-premium P03 | 216s | 1 tasks | 1 files |
 | Phase 09-ai-and-premium P04 | 4min | 2 tasks | 5 files |
 | Phase 09-ai-and-premium P05 | 6min | 1 tasks | 2 files |
+| Phase 09-ai-and-premium P06 | 12min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -256,6 +257,8 @@ Recent decisions affecting current work:
 - [Phase 09-ai-and-premium]: updateColorScheme uses optimistic update — setColorScheme fires synchronously before supabase .update() resolves
 - [Phase 09-ai-and-premium]: useAiChat uses historyLoaded state (not ref) to trigger useEffect for auto-send opening message — state triggers re-render, ref does not
 - [Phase 09-ai-and-premium]: Empty assistant placeholder removed on non-ok response in useAiChat — prevents stale empty bubble blocking retry assertion
+- [Phase 09-ai-and-premium]: AiCoachDrawer uses plain Tailwind backdrop+panel (not Radix Dialog) — avoids jsdom portal issues in tests
+- [Phase 09-ai-and-premium]: useAiChat instantiated inside AiCoachDrawer (not injected as prop) — mocked cleanly via vi.mock in tests
 
 ### Pending Todos
 
@@ -270,6 +273,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-20T06:41:24.499Z
-Stopped at: Completed 09-05-PLAN.md
+Last session: 2026-03-20T06:55:54.243Z
+Stopped at: Completed 09-06-PLAN.md
 Resume file: None
