@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 09-04-PLAN.md
-last_updated: "2026-03-20T05:55:51.938Z"
+stopped_at: Completed 09-05-PLAN.md
+last_updated: "2026-03-20T06:41:30.562Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 56
-  completed_plans: 50
+  completed_plans: 51
 ---
 
 ---
@@ -146,6 +146,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 09-ai-and-premium P02 | 5min | 2 tasks | 3 files |
 | Phase 09-ai-and-premium P03 | 216s | 1 tasks | 1 files |
 | Phase 09-ai-and-premium P04 | 4min | 2 tasks | 5 files |
+| Phase 09-ai-and-premium P05 | 6min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -253,6 +254,8 @@ Recent decisions affecting current work:
 - [Phase 09-ai-and-premium]: FOUC guard: applyPaletteEagerly reads localStorage synchronously in PaletteProvider useState initializer before React mounts
 - [Phase 09-ai-and-premium]: PaletteProvider prefers localStorage over colorScheme prop on mount; syncs from async profile prop only when localStorage is empty
 - [Phase 09-ai-and-premium]: updateColorScheme uses optimistic update — setColorScheme fires synchronously before supabase .update() resolves
+- [Phase 09-ai-and-premium]: useAiChat uses historyLoaded state (not ref) to trigger useEffect for auto-send opening message — state triggers re-render, ref does not
+- [Phase 09-ai-and-premium]: Empty assistant placeholder removed on non-ok response in useAiChat — prevents stale empty bubble blocking retry assertion
 
 ### Pending Todos
 
@@ -267,6 +270,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-20T05:55:51.933Z
-Stopped at: Completed 09-04-PLAN.md
+Last session: 2026-03-20T06:41:24.499Z
+Stopped at: Completed 09-05-PLAN.md
 Resume file: None
