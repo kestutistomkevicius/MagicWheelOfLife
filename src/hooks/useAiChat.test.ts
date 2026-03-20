@@ -140,9 +140,11 @@ describe('useAiChat', () => {
     const sendPromise = result.current.sendMessage('Test').then(() => { sendDone = true })
 
     // Allow the event loop to process: fetch resolves, streaming=true is set
-    await new Promise((r) => setTimeout(r, 10))
+    // Wrap in act() so React flushes the setStreaming(true) state update
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
 
-    // Re-render the hook to pick up state updates
     // streaming should now be true (it's set before reader.read() loop)
     expect(result.current.streaming).toBe(true)
     expect(sendDone).toBe(false)
