@@ -95,4 +95,41 @@ describe('WheelChart', () => {
     const highlightRadar = radars.find(r => r.getAttribute('data-name') === 'Highlighted')
     expect(highlightRadar).toBeTruthy()
   })
+
+  it('uses amber defaults when no color props are provided', () => {
+    render(<WheelChart data={SAMPLE_DATA} />)
+    const radars = screen.getAllByTestId('radar')
+    const asisRadar = radars.find(r => r.getAttribute('data-name') === 'As-Is')
+    expect(asisRadar?.getAttribute('data-fill')).toBe('#e8a23a')
+    const tobeRadar = radars.find(r => r.getAttribute('data-name') === 'To-Be')
+    expect(tobeRadar?.getAttribute('data-fill')).toBe('#60a5fa')
+  })
+
+  it('uses primaryColor prop for As-Is radar when provided', () => {
+    render(<WheelChart data={SAMPLE_DATA} primaryColor="#ff0000" />)
+    const radars = screen.getAllByTestId('radar')
+    const asisRadar = radars.find(r => r.getAttribute('data-name') === 'As-Is')
+    expect(asisRadar?.getAttribute('data-fill')).toBe('#ff0000')
+  })
+
+  it('uses secondaryColor prop for To-Be radar when provided', () => {
+    render(<WheelChart data={SAMPLE_DATA} secondaryColor="#00ff00" />)
+    const radars = screen.getAllByTestId('radar')
+    const tobeRadar = radars.find(r => r.getAttribute('data-name') === 'To-Be')
+    expect(tobeRadar?.getAttribute('data-fill')).toBe('#00ff00')
+  })
+
+  it('uses importantColor prop for Important radar when provided', () => {
+    render(<WheelChart data={SAMPLE_DATA} importantCategories={['Health']} importantColor="#0000ff" />)
+    const radars = screen.getAllByTestId('radar')
+    const importantRadar = radars.find(r => r.getAttribute('data-name') === 'Important')
+    expect(importantRadar?.getAttribute('data-fill')).toBe('#0000ff')
+  })
+
+  it('uses highlightColor prop for Highlighted radar when provided', () => {
+    render(<WheelChart data={SAMPLE_DATA} highlightColor="#ff00ff" />)
+    const radars = screen.getAllByTestId('radar')
+    const highlightRadar = radars.find(r => r.getAttribute('data-name') === 'Highlighted')
+    expect(highlightRadar?.getAttribute('data-fill')).toBe('#ff00ff')
+  })
 })
