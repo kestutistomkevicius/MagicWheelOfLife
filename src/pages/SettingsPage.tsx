@@ -2,11 +2,14 @@ import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProfile } from '@/hooks/useProfile'
 import { AvatarUpload } from '@/components/AvatarUpload'
+import { ColorSchemePicker } from '@/components/ColorSchemePicker'
+import { usePalette } from '@/contexts/PaletteContext'
 
 export function SettingsPage() {
   const { session } = useAuth()
   const userId = session?.user?.id ?? ''
-  const { tier, avatarUrl, loading, updateAvatar, updateTier } = useProfile(userId)
+  const { tier, avatarUrl, loading, updateAvatar, updateTier, colorScheme, updateColorScheme } = useProfile(userId)
+  const { applyPalette } = usePalette()
   const [uploading, setUploading] = useState(false)
 
   async function handleUpload(file: File) {
@@ -46,10 +49,21 @@ export function SettingsPage() {
         </span>
       </section>
 
-      {/* TODO Phase 9: color scheme selector (PREMIUM-02) */}
+      {/* Color scheme (PREMIUM-02) */}
+      <section>
+        <h2 className="text-sm font-medium text-stone-500 mb-3">Color scheme</h2>
+        <ColorSchemePicker
+          currentPalette={colorScheme}
+          isPremium={tier === 'premium'}
+          onSelect={(name) => {
+            applyPalette(name)
+            void updateColorScheme(name)
+          }}
+        />
+      </section>
 
       {/* Dev-only tier toggle */}
-      {import.meta.env.DEV && (
+      {(import.meta.env.DEV || import.meta.env.VITE_SHOW_TIER_TOGGLE === 'true') && (
         <section className="rounded border border-amber-300 bg-amber-50 p-4 space-y-2">
           <p className="text-xs font-medium text-amber-700">Dev only — not shown in production</p>
           <p className="text-xs text-amber-600">

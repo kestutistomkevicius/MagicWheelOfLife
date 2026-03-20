@@ -171,6 +171,23 @@ vi.mock('@/components/DueSoonWidget', () => ({
   getDueSoonItems: () => [],
 }))
 
+vi.mock('@/contexts/PaletteContext', () => ({
+  usePalette: vi.fn(() => ({ currentPalette: 'amber', applyPalette: vi.fn() })),
+  PALETTES: {
+    amber: {
+      '--palette-primary': '#e8a23a',
+      '--palette-secondary': '#60a5fa',
+      '--palette-accent': '#292524',
+      '--palette-important': '#b45309',
+      '--palette-highlight': '#fbbf24',
+    },
+  },
+}))
+
+vi.mock('@/components/AiCoachDrawer', () => ({
+  AiCoachDrawer: () => <div data-testid="ai-coach-drawer" />,
+}))
+
 // Mock Dialog and AlertDialog to render children directly in jsdom
 vi.mock('@/components/ui/dialog', () => ({
   Dialog: ({ children, open }: { children: React.ReactNode; open: boolean }) =>
