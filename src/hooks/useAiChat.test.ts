@@ -117,43 +117,43 @@ describe('useAiChat', () => {
   it('sendMessage sets streaming=true during fetch and false after', async () => {
     mockFrom.mockReturnValue(buildChain({ data: null, error: null }))
 
-    let resolveStream!: () => void
-    const streamPromise = new Promise<void>((resolve) => { resolveStream = resolve })
+    const encoder = new TextEncoder()
+    // Use a controllable stream: enqueue one chunk then wait for signal to close
+    let closeStream!: () => void
+    const streamClosedSignal = new Promise<void>((resolve) => { closeStream = resolve })
 
-    // Create a slow stream that we control
-    let streamController!: ReadableStreamDefaultController<Uint8Array>
-    const slowStream = new ReadableStream<Uint8Array>({
-      start(controller) {
-        streamController = controller
+    const controlledStream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        controller.enqueue(encoder.encode('Hello'))
+        // Wait until closeStream() is called before closing
+        await streamClosedSignal
+        controller.close()
       },
     })
 
-    mockFetch.mockResolvedValue({ ok: true, status: 200, body: slowStream })
+    mockFetch.mockResolvedValue({ ok: true, status: 200, body: controlledStream })
 
     const { result } = renderHook(() => useAiChat(DEFAULT_PARAMS))
 
-    // Start sendMessage but don't await yet
+    // Start sendMessage without awaiting — this runs the async function
     let sendDone = false
-    act(() => {
-      result.current.sendMessage('Test').then(() => { sendDone = true })
-    })
+    const sendPromise = result.current.sendMessage('Test').then(() => { sendDone = true })
 
-    // Flush the fetch microtask so streaming starts
-    await act(async () => { await Promise.resolve() })
-    await act(async () => { await Promise.resolve() })
-    await act(async () => { await Promise.resolve() })
+    // Allow the event loop to process: fetch resolves, streaming=true is set
+    await new Promise((r) => setTimeout(r, 10))
 
-    // streaming should be true while stream is open
+    // Re-render the hook to pick up state updates
+    // streaming should now be true (it's set before reader.read() loop)
     expect(result.current.streaming).toBe(true)
+    expect(sendDone).toBe(false)
 
-    // Close the stream
-    await act(async () => {
-      streamController.close()
-      await streamPromise.catch(() => {})
-      resolveStream()
-    })
+    // Release the stream
+    closeStream()
 
-    await waitFor(() => expect(result.current.streaming).toBe(false))
+    // Wait for completion
+    await act(async () => { await sendPromise })
+
+    expect(result.current.streaming).toBe(false)
     expect(sendDone).toBe(true)
   })
 
