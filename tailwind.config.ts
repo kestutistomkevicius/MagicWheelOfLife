@@ -58,6 +58,13 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        palette: {
+          primary:   'var(--palette-primary)',
+          secondary: 'var(--palette-secondary)',
+          accent:    'var(--palette-accent)',
+          important: 'var(--palette-important)',
+          highlight: 'var(--palette-highlight)',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
