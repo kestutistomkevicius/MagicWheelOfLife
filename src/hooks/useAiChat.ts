@@ -43,6 +43,8 @@ export function useAiChat(params: {
   const sendMessageRef = useRef<((text: string) => Promise<void>) | undefined>(undefined)
   // Mirror messages state in a ref so sendMessage can read current value synchronously
   const messagesRef = useRef<AiChatMessage[]>([])
+  // Generation counter — incremented on each loadHistory call so stale completions are ignored
+  const loadGenRef = useRef(0)
 
   /**
    * Strip the score_proposal sentinel JSON from a text string.
@@ -204,14 +206,19 @@ export function useAiChat(params: {
   }
 
   async function loadHistory(catId: string): Promise<void> {
-    // Reset the auto-send guard so a new loadHistory call can trigger it
-    autoSendFiredRef.current = false
+    // Increment generation — any in-flight call with an older generation is discarded.
+    // This prevents React Strict Mode's double-invocation from resetting autoSendFiredRef
+    // and triggering a second auto-send after the first already fired.
+    const gen = ++loadGenRef.current
 
     const { data } = await supabase
       .from('ai_chat_messages')
       .select('role, content')
       .eq('category_id', catId)
       .order('created_at', { ascending: true })
+
+    // Discard stale call (e.g. from Strict Mode double-invoke)
+    if (gen !== loadGenRef.current) return
 
     const rows = (data ?? []) as AiChatMessage[]
     messagesRef.current = rows
