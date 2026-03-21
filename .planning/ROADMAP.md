@@ -21,7 +21,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 7: Action Items & Wheel Polish** - Gamification, expiry widget, trend markers, important categories, tier limits, wheel rename
 - [ ] **Phase 8: Profile, Settings & Content** - Settings page, avatar, terms/privacy, feature requests, snapshot UX, wheel selector on trends
 - [x] **Phase 9: AI & Premium** - AI-assisted category scoring chat, tier switching, color scheme personalization (completed 2026-03-21)
-- [ ] **Phase 10: Launch** - Production deployment on Vercel and Supabase Cloud
+- [ ] **Phase 10: Pre-Launch Improvements** - Soft-delete wheels with 10-min recovery, delete snapshots, authenticated footer, hover highlight fix
+- [ ] **Phase 15: Launch** - Production deployment on Vercel and Supabase Cloud
 
 ## Phase Details
 
@@ -202,18 +203,16 @@ Plans:
 - [ ] 09-09-PLAN.md — Wire-up: CategorySlider AI button + WheelPage drawer + SettingsPage color picker + PREMIUM-01 toggle fix
 - [ ] 09-10-PLAN.md — Human verification checkpoint: end-to-end all AI-01, PREMIUM-01, PREMIUM-02 flows
 
-### Phase 10: Launch
-**Goal**: The application is publicly accessible in production with all data secured and RLS enforced
+### Phase 10: Pre-Launch Improvements
+**Goal**: Users can delete wheels (with 10-minute undo), delete snapshots, access legal links from within the app, and the DueSoon hover highlight works correctly
 **Depends on**: Phase 9
-**Requirements**: DEPLOY-01, DEPLOY-02
+**Requirements**: (derived from todo backlog — no formal requirement IDs)
 **Success Criteria** (what must be TRUE):
-  1. The frontend is live at a public Vercel URL and loads the landing page without errors
-  2. Supabase Cloud has all migrations applied; every table has RLS enabled; a real user can register, create a wheel, and save a snapshot through the production URL
-**Security Checklist** (OWASP gaps to close before go-live):
-  - A05: Supabase Cloud dashboard → Auth → Email confirmation is ON (local config.toml has it disabled for dev)
-  - A06: `npm audit --audit-level=high` passes with zero high/critical vulnerabilities
-  - A08: `package-lock.json` is committed and up to date (ensures dependency integrity)
-  - A09: Supabase Cloud dashboard → Logs → Auth logs enabled and reviewed for anomalies
+  1. Soft-deleting a wheel keeps it visible in the selector with "— Deleting in ~10 min" suffix; clicking Undo restores it; after 10 min the DB hard-deletes it
+  2. When all wheels are soft-deleted the empty state shows a "Recover a wheel" section
+  3. A snapshot can be deleted from the Snapshots page with a confirmation; it disappears immediately from all lists
+  4. A pinned footer with Terms and Privacy links is visible on every authenticated page
+  5. Hovering a due-soon item highlights the matching category axis in the wheel chart
 **Plans**: TBD
 
 ## Progress
@@ -232,4 +231,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Action Items & Wheel Polish | 6/8 | In Progress|  |
 | 8. Profile, Settings & Content | 7/8 | In Progress|  |
 | 9. AI & Premium | 10/10 | Complete   | 2026-03-21 |
-| 10. Launch | 0/TBD | Not started | - |
+| 10. Pre-Launch Improvements | 0/TBD | Not started | - |
+| 15. Launch | 0/TBD | Not started | - |
