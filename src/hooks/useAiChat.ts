@@ -41,6 +41,8 @@ export function useAiChat(params: {
   const autoSendFiredRef = useRef(false)
   // Keep a stable ref to sendMessage to avoid stale closure in useEffect
   const sendMessageRef = useRef<((text: string) => Promise<void>) | undefined>(undefined)
+  // Mirror messages state in a ref so sendMessage can read current value synchronously
+  const messagesRef = useRef<AiChatMessage[]>([])
 
   /**
    * Strip the score_proposal sentinel JSON from a text string.
@@ -71,18 +73,15 @@ export function useAiChat(params: {
     const token = sessionResult.data?.session?.access_token ?? ''
     const userId = sessionResult.data?.session?.user?.id ?? ''
 
-    // Build conversation history for the request (current messages state)
-    // We capture this before modifying state for this turn
-    const conversationHistory: AiChatMessage[] = []
+    // Build conversation history using the ref (synchronously available)
+    const conversationHistory: AiChatMessage[] = [...messagesRef.current]
 
     // 1. If non-empty user text: append user bubble and persist to DB
     if (userText !== '') {
       const userMessage: AiChatMessage = { role: 'user', content: userText }
-
-      setMessages((prev) => {
-        conversationHistory.push(...prev, userMessage)
-        return [...prev, userMessage]
-      })
+      conversationHistory.push(userMessage)
+      messagesRef.current = conversationHistory
+      setMessages([...conversationHistory])
 
       // Persist user message to DB
       await supabase.from('ai_chat_messages').insert({
@@ -90,12 +89,6 @@ export function useAiChat(params: {
         category_id: categoryId,
         role: 'user',
         content: userText,
-      })
-    } else {
-      // For auto-open (empty userText), use current messages as history
-      setMessages((prev) => {
-        conversationHistory.push(...prev)
-        return prev
       })
     }
 
@@ -107,7 +100,9 @@ export function useAiChat(params: {
     setError(null)
 
     // 4. Append empty assistant placeholder
-    setMessages((prev) => [...prev, { role: 'assistant', content: '' }])
+    const withPlaceholder = [...messagesRef.current, { role: 'assistant' as const, content: '' }]
+    messagesRef.current = withPlaceholder
+    setMessages(withPlaceholder)
 
     // 5. Fetch from Edge Function
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
@@ -136,14 +131,13 @@ export function useAiChat(params: {
     // 6. Handle non-ok response
     if (!res.ok) {
       // Remove the empty assistant placeholder we appended before the fetch
-      setMessages((prev) => {
-        const updated = [...prev]
-        const lastIdx = updated.length - 1
-        if (lastIdx >= 0 && updated[lastIdx].role === 'assistant' && updated[lastIdx].content === '') {
-          updated.splice(lastIdx, 1)
-        }
-        return updated
-      })
+      const withoutPlaceholder = [...messagesRef.current]
+      const lastErrIdx = withoutPlaceholder.length - 1
+      if (lastErrIdx >= 0 && withoutPlaceholder[lastErrIdx].role === 'assistant' && withoutPlaceholder[lastErrIdx].content === '') {
+        withoutPlaceholder.splice(lastErrIdx, 1)
+      }
+      messagesRef.current = withoutPlaceholder
+      setMessages(withoutPlaceholder)
       setError('AI response failed')
       setStreaming(false)
       return
@@ -164,14 +158,13 @@ export function useAiChat(params: {
       const displayText = stripSentinel(rawAccumulated)
 
       // Update the last assistant message with the accumulated text
-      setMessages((prev) => {
-        const updated = [...prev]
-        const lastIdx = updated.length - 1
-        if (lastIdx >= 0 && updated[lastIdx].role === 'assistant') {
-          updated[lastIdx] = { role: 'assistant', content: displayText }
-        }
-        return updated
-      })
+      const updatedStream = [...messagesRef.current]
+      const lastStreamIdx = updatedStream.length - 1
+      if (lastStreamIdx >= 0 && updatedStream[lastStreamIdx].role === 'assistant') {
+        updatedStream[lastStreamIdx] = { role: 'assistant', content: displayText }
+      }
+      messagesRef.current = updatedStream
+      setMessages(updatedStream)
     }
 
     // 8. After stream ends: detect proposal and persist final assistant message
@@ -179,13 +172,15 @@ export function useAiChat(params: {
 
     const finalContent = stripSentinel(rawAccumulated)
 
-    // Persist final assistant message to DB
-    await supabase.from('ai_chat_messages').insert({
-      user_id: userId,
-      category_id: categoryId,
-      role: 'assistant',
-      content: finalContent,
-    })
+    // Only persist if content is not an error message
+    if (!finalContent.includes('[Error:')) {
+      await supabase.from('ai_chat_messages').insert({
+        user_id: userId,
+        category_id: categoryId,
+        role: 'assistant',
+        content: finalContent,
+      })
+    }
 
     // 9. Done streaming
     setStreaming(false)
@@ -219,6 +214,7 @@ export function useAiChat(params: {
       .order('created_at', { ascending: true })
 
     const rows = (data ?? []) as AiChatMessage[]
+    messagesRef.current = rows
     setMessages(rows)
 
     // Setting historyLoaded=true AFTER setMessages so the effect sees the correct messages.length

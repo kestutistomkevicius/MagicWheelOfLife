@@ -25,7 +25,15 @@ export function AiCoachDrawer({
     useAiChat({ categoryId, categoryName, asisScore, tobeScore })
 
   const [inputText, setInputText] = useState('')
+  const [asisApplied, setAsisApplied] = useState(false)
+  const [tobeApplied, setTobeApplied] = useState(false)
   const threadRef = useRef<HTMLDivElement>(null)
+
+  // Reset applied state whenever a new proposal arrives
+  useEffect(() => {
+    setAsisApplied(false)
+    setTobeApplied(false)
+  }, [proposal])
 
   // Load conversation history on mount
   useEffect(() => {
@@ -103,8 +111,8 @@ export function AiCoachDrawer({
           ))}
         </div>
 
-        {/* Proposal card — pinned above the input when proposal exists */}
-        {proposal !== null && (
+        {/* Proposal card — pinned above the input; hidden once both scores applied */}
+        {proposal !== null && !(asisApplied && tobeApplied) && (
           <div className="border-t p-4 bg-stone-50">
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-2">
               <p className="text-sm font-medium text-stone-900">Suggested scores</p>
@@ -113,14 +121,16 @@ export function AiCoachDrawer({
               </p>
               <div className="flex gap-2">
                 <button
-                  onClick={() => onApplyAsis(proposal.asis)}
-                  className="flex-1 rounded-md border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-amber-50 transition-colors"
+                  onClick={() => { onApplyAsis(proposal.asis); setAsisApplied(true) }}
+                  disabled={asisApplied || proposal.asis === asisScore}
+                  className="flex-1 rounded-md border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-amber-50 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Apply to As-Is
                 </button>
                 <button
-                  onClick={() => onApplyTobe(proposal.tobe)}
-                  className="flex-1 rounded-md border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-amber-50 transition-colors"
+                  onClick={() => { onApplyTobe(proposal.tobe); setTobeApplied(true) }}
+                  disabled={tobeApplied || proposal.tobe === tobeScore}
+                  className="flex-1 rounded-md border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-amber-50 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Apply to To-Be
                 </button>

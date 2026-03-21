@@ -86,6 +86,13 @@ Deno.serve(async (req: Request) => {
     return new Response('Bad Request: missing required fields', { status: 400, headers: corsHeaders })
   }
 
+  // Ensure at least one message (Anthropic requires it).
+  // On first open the client sends an empty array — inject a silent opener.
+  const effectiveMessages =
+    messages.length === 0
+      ? [{ role: 'user' as const, content: 'Hello, please start our session.' }]
+      : messages
+
   // Initialize Anthropic client
   const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY')
   if (!anthropicApiKey) {
@@ -104,7 +111,7 @@ Deno.serve(async (req: Request) => {
           max_tokens: 1024,
           stream: true,
           system: buildSystemPrompt(categoryName, asisScore, tobeScore),
-          messages,
+          messages: effectiveMessages,
         })
 
         for await (const event of stream) {

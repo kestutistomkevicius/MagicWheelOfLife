@@ -33,6 +33,7 @@ dist-ssr
 # Supabase
 .supabase
 supabase/.env.local
+supabase/functions/.env
 supabase/.branches/
 supabase/.temp/
 supabase/snippets/
