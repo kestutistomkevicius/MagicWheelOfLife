@@ -247,6 +247,50 @@ describe('CategorySlider', () => {
     })
   })
 
+  describe('AI Coach button (AI-01)', () => {
+    it('does not render AI Coach button when onAiCoach is not provided', () => {
+      render(<CategorySlider {...defaultProps} />)
+      expect(screen.queryByRole('button', { name: /ai coach/i })).not.toBeInTheDocument()
+    })
+
+    it('renders AI Coach button when onAiCoach is provided', () => {
+      const onAiCoach = vi.fn()
+      render(<CategorySlider {...defaultProps} onAiCoach={onAiCoach} isPremiumForAi={true} />)
+      expect(screen.getByRole('button', { name: /ai coach/i })).toBeInTheDocument()
+    })
+
+    it('clicking AI Coach calls onAiCoach when isPremiumForAi=true', () => {
+      const onAiCoach = vi.fn()
+      render(<CategorySlider {...defaultProps} onAiCoach={onAiCoach} isPremiumForAi={true} />)
+      fireEvent.click(screen.getByRole('button', { name: /ai coach/i }))
+      expect(onAiCoach).toHaveBeenCalledTimes(1)
+    })
+
+    it('clicking AI Coach does NOT call onAiCoach when isPremiumForAi=false', () => {
+      const onAiCoach = vi.fn()
+      render(<CategorySlider {...defaultProps} onAiCoach={onAiCoach} isPremiumForAi={false} />)
+      fireEvent.click(screen.getByRole('button', { name: /ai coach/i }))
+      expect(onAiCoach).not.toHaveBeenCalled()
+    })
+
+    it('clicking AI Coach when isPremiumForAi=false shows upgrade modal', () => {
+      const onAiCoach = vi.fn()
+      render(<CategorySlider {...defaultProps} onAiCoach={onAiCoach} isPremiumForAi={false} />)
+      fireEvent.click(screen.getByRole('button', { name: /ai coach/i }))
+      expect(screen.getByText(/upgrade/i)).toBeInTheDocument()
+    })
+
+    it('upgrade modal has a close/dismiss button', () => {
+      const onAiCoach = vi.fn()
+      render(<CategorySlider {...defaultProps} onAiCoach={onAiCoach} isPremiumForAi={false} />)
+      fireEvent.click(screen.getByRole('button', { name: /ai coach/i }))
+      const closeBtn = screen.getByRole('button', { name: /close/i })
+      expect(closeBtn).toBeInTheDocument()
+      fireEvent.click(closeBtn)
+      expect(screen.queryByText(/upgrade/i)).not.toBeInTheDocument()
+    })
+  })
+
   describe('rename button UX (fix for UX debt)', () => {
     it('clicking Rename button shows inline input without immediately calling onRename', () => {
       const onRename = vi.fn()

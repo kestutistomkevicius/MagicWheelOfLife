@@ -87,9 +87,9 @@
 
 ### AI & Premium (Phase 9)
 
-- [ ] **AI-01**: User can open a per-category AI chat; the AI asks guided questions and suggests an as-is or to-be score; user confirms before any score is saved
-- [ ] **PREMIUM-01**: User can switch their tier between free and premium from Settings (dev/staging environment only); all tier-gated features respond immediately without a page reload
-- [ ] **PREMIUM-02**: User can select a color scheme for their wheel from a set of predefined palettes; the wheel chart and UI accent color update immediately and persist across sessions
+- [x] **AI-01**: User can open a per-category AI chat; the AI asks guided questions and suggests an as-is or to-be score; user confirms before any score is saved
+- [x] **PREMIUM-01**: User can switch their tier between free and premium from Settings (dev/staging environment only); all tier-gated features respond immediately without a page reload
+- [x] **PREMIUM-02**: User can select a color scheme for their wheel from a set of predefined palettes; the wheel chart and UI accent color update immediately and persist across sessions
 
 ### Deployment (Phase 10)
 

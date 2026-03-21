@@ -19,9 +19,21 @@ interface WheelChartProps {
   data: WheelChartPoint[]
   highlightedCategory?: string
   importantCategories?: string[]
+  primaryColor?: string
+  secondaryColor?: string
+  importantColor?: string
+  highlightColor?: string
 }
 
-export function WheelChart({ data, highlightedCategory, importantCategories }: WheelChartProps) {
+export function WheelChart({
+  data,
+  highlightedCategory,
+  importantCategories,
+  primaryColor = '#e8a23a',
+  secondaryColor = '#60a5fa',
+  importantColor = '#b45309',
+  highlightColor = '#fbbf24',
+}: WheelChartProps) {
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[400px] text-stone-400 text-sm">
@@ -47,7 +59,7 @@ export function WheelChart({ data, highlightedCategory, importantCategories }: W
         textAnchor={textAnchor}
         fontSize={isHighlighted ? 13 : 12}
         fontWeight={isHighlighted ? 700 : 400}
-        fill={isHighlighted ? '#d97706' : '#374151'}
+        fill={isHighlighted ? highlightColor : '#374151'}
       >
         {label}
       </text>
@@ -60,14 +72,14 @@ export function WheelChart({ data, highlightedCategory, importantCategories }: W
         <PolarGrid stroke="#e5e7eb" />
         <PolarAngleAxis dataKey="category" tick={customTick} />
         <PolarRadiusAxis domain={[0, 10]} tickCount={6} tick={false} axisLine={false} />
-        <Radar name="As-Is" dataKey="asis" stroke="#e8a23a" fill="#e8a23a" fillOpacity={0.4} dot={false} isAnimationActive={false} />
-        <Radar name="To-Be" dataKey="tobe" stroke="#60a5fa" fill="#60a5fa" fillOpacity={0.15} dot={false} isAnimationActive={false} />
+        <Radar name="As-Is" dataKey="asis" stroke={primaryColor} fill={primaryColor} fillOpacity={0.4} dot={false} isAnimationActive={false} />
+        <Radar name="To-Be" dataKey="tobe" stroke={secondaryColor} fill={secondaryColor} fillOpacity={0.15} dot={false} isAnimationActive={false} />
         {(importantCategories ?? []).length > 0 && (
           <Radar
             name="Important"
             dataKey="asisImportant"
-            stroke="#b45309"
-            fill="#b45309"
+            stroke={importantColor}
+            fill={importantColor}
             fillOpacity={0.65}
             dot={false}
             legendType="none"
@@ -78,7 +90,7 @@ export function WheelChart({ data, highlightedCategory, importantCategories }: W
           name="Highlighted"
           dataKey="asisHighlight"
           stroke="none"
-          fill="#fbbf24"
+          fill={highlightColor}
           fillOpacity={0.5}
           dot={false}
           legendType="none"

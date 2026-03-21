@@ -3,6 +3,21 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
+stopped_at: Completed 09-10-PLAN.md — Phase 9 fully complete and verified
+last_updated: "2026-03-21T14:22:34.296Z"
+last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
+progress:
+  total_phases: 10
+  completed_phases: 9
+  total_plans: 56
+  completed_plans: 56
+---
+
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
 stopped_at: Completed 08-08-PLAN.md — Phase 8 fully complete and verified
 last_updated: "2026-03-19T17:54:10.892Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
@@ -127,6 +142,16 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 08-profile-settings-content P04 | 160s | 2 tasks | 4 files |
 | Phase 08-profile-settings-content P05 | 3min | 2 tasks | 3 files |
 | Phase 08-profile-settings-content P08 | checkpoint | 1 tasks | 0 files |
+| Phase 09-ai-and-premium P01 | 420s | 2 tasks | 4 files |
+| Phase 09-ai-and-premium P02 | 5min | 2 tasks | 3 files |
+| Phase 09-ai-and-premium P03 | 216s | 1 tasks | 1 files |
+| Phase 09-ai-and-premium P04 | 4min | 2 tasks | 5 files |
+| Phase 09-ai-and-premium P05 | 6min | 1 tasks | 2 files |
+| Phase 09-ai-and-premium P06 | 12min | 1 tasks | 2 files |
+| Phase 09-ai-and-premium P07 | 3min | 1 tasks | 2 files |
+| Phase 09-ai-and-premium P08 | 5min | 2 tasks | 4 files |
+| Phase 09-ai-and-premium P09 | 520s | 2 tasks | 6 files |
+| Phase 09-ai-and-premium P10 | continuation | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -226,6 +251,28 @@ Recent decisions affecting current work:
 - [Phase 08-profile-settings-content]: FeatureRequestModal uses plain Tailwind modal (not shadcn Dialog) — consistent with existing SnapshotNameDialog pattern, avoids jsdom Radix portal issues in tests
 - [Phase 08-profile-settings-content]: Footer should also appear in logged-in views — deferred to future work (noted during Phase 8 verification)
 - [Phase 08-profile-settings-content]: Sidebar 'My wheel' label should become 'My wheels' (plural) when user has >1 wheel — deferred to future work (noted during Phase 8 verification)
+- [Phase 09-ai-and-premium]: Wave 0 stub pattern continues from Phase 8: import only describe/it from vitest, use only it.todo — no feature module imports so stubs survive until implementation plans run
+- [Phase 09-ai-and-premium]: AiChatMessageRow uses type alias (not interface) — Supabase PostgrestVersion tag inference breaks when Database.Tables references an interface via Omit<>
+- [Phase 09-ai-and-premium]: pg_cron cleanup job for ai_chat_messages scheduled in migration file (not application code) — version-controlled and applied atomically
+- [Phase 09-ai-and-premium]: ai-coach Edge Function uses npm:@anthropic-ai/sdk in Deno — no package.json, resolved at deploy time; model defaults to claude-haiku-4-5-20251001 if ANTHROPIC_MODEL secret not set
+- [Phase 09-ai-and-premium]: Amber palette hex values match current WheelChart hardcoded strings exactly — Plan 08 replacement will be zero-visual-change refactor
+- [Phase 09-ai-and-premium]: FOUC guard: applyPaletteEagerly reads localStorage synchronously in PaletteProvider useState initializer before React mounts
+- [Phase 09-ai-and-premium]: PaletteProvider prefers localStorage over colorScheme prop on mount; syncs from async profile prop only when localStorage is empty
+- [Phase 09-ai-and-premium]: updateColorScheme uses optimistic update — setColorScheme fires synchronously before supabase .update() resolves
+- [Phase 09-ai-and-premium]: useAiChat uses historyLoaded state (not ref) to trigger useEffect for auto-send opening message — state triggers re-render, ref does not
+- [Phase 09-ai-and-premium]: Empty assistant placeholder removed on non-ok response in useAiChat — prevents stale empty bubble blocking retry assertion
+- [Phase 09-ai-and-premium]: AiCoachDrawer uses plain Tailwind backdrop+panel (not Radix Dialog) — avoids jsdom portal issues in tests
+- [Phase 09-ai-and-premium]: useAiChat instantiated inside AiCoachDrawer (not injected as prop) — mocked cleanly via vi.mock in tests
+- [Phase 09-ai-and-premium]: ColorSchemePicker uses data-testid on lock overlays for reliable test assertions
+- [Phase 09-ai-and-premium]: ColorSchemePicker upgrade modal uses plain Tailwind (no Radix) — consistent with FeatureRequestModal pattern
+- [Phase 09-ai-and-premium]: WheelChart color props use destructured defaults — all existing callers compile unchanged, zero visual regression on amber palette
+- [Phase 09-ai-and-premium]: AppShell wraps layout with PaletteProvider using hook-based Option B (useAuth + useProfile inside AppShell) — consistent with existing AppShell pattern
+- [Phase 09-ai-and-premium]: Sidebar uses bg-palette-accent Tailwind token not inline style — keeps all styling in class names, Tailwind-first approach
+- [Phase 09-ai-and-premium]: CategorySlider AI Coach uses Sparkles icon (lucide) — more visually descriptive of AI features than BrainCircuit
+- [Phase 09-ai-and-premium]: WheelPage uses IIFE to find selectedCat before rendering AiCoachDrawer — consistent with existing nudge dialog IIFE pattern
+- [Phase 09-ai-and-premium]: Auto-send race condition fixed with isSendingRef guard — React Strict Mode double-invokes effects; guard ensures opening AI message only sends once
+- [Phase 09-ai-and-premium]: Proposal card apply buttons disabled when score matches proposed value; card auto-dismisses after both applied
+- [Phase 09-ai-and-premium]: Edge Function injects synthetic opener when messages array is empty — Anthropic API requires non-empty messages array
 
 ### Pending Todos
 
@@ -240,6 +287,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-19T12:03:07.466Z
-Stopped at: Completed 08-08-PLAN.md — Phase 8 fully complete and verified
+Last session: 2026-03-21T14:16:25.280Z
+Stopped at: Completed 09-10-PLAN.md — Phase 9 fully complete and verified
 Resume file: None

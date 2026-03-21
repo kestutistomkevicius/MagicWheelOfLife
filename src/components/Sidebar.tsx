@@ -36,7 +36,7 @@ export function Sidebar() {
   ]
 
   return (
-    <aside className="flex h-screen w-56 flex-col bg-[#292524] text-stone-300">
+    <aside className="flex h-screen w-56 flex-col bg-palette-accent text-stone-300">
       {/* Brand */}
       <div className="px-4 py-6">
         <span className="text-base font-bold text-white">JustAWheelOfLife</span>
