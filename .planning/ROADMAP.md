@@ -240,5 +240,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Action Items & Wheel Polish | 6/8 | In Progress|  |
 | 8. Profile, Settings & Content | 7/8 | In Progress|  |
 | 9. AI & Premium | 10/10 | Complete   | 2026-03-21 |
-| 10. Pre-Launch Improvements | 0/7 | Not started | - |
+| 10. Pre-Launch Improvements | 1/7 | In Progress|  |
 | 15. Launch | 0/TBD | Not started | - |

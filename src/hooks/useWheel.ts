@@ -37,6 +37,8 @@ export interface UseWheelResult {
   ) => Promise<void>
   renameWheel: (wheelId: string, newName: string) => Promise<void>
   updateCategoryImportant: (categoryId: string, isImportant: boolean) => Promise<void>
+  softDeleteWheel: (wheelId: string) => Promise<void>
+  undoDeleteWheel: (wheelId: string) => Promise<void>
 }
 
 export function useWheel(userId: string): UseWheelResult {
@@ -78,7 +80,7 @@ export function useWheel(userId: string): UseWheelResult {
       // Fetch all user wheels
       const wheelsRes = await supabase
         .from('wheels')
-        .select('id, user_id, name, created_at, updated_at')
+        .select('id, user_id, name, created_at, updated_at, deleted_at')
         .eq('user_id', userId)
         .order('created_at')
 
