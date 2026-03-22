@@ -10,16 +10,23 @@ vi.mock('recharts', () => ({
     <div data-testid="responsive-container">{children}</div>
   ),
   RadarChart: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="radar-chart">{children}</div>
+    <svg data-testid="radar-chart">{children}</svg>
   ),
   Radar: ({ name, fill }: { name?: string; fill?: string }) => (
-    <div data-testid="radar" data-name={name} data-fill={fill} />
+    <g data-testid="radar" data-name={name} data-fill={fill} />
   ),
-  PolarGrid: () => <div data-testid="polar-grid" />,
-  PolarAngleAxis: () => <div data-testid="polar-angle-axis" />,
-  PolarRadiusAxis: () => <div data-testid="polar-radius-axis" />,
-  Legend: () => <div data-testid="legend" />,
-  Tooltip: () => <div data-testid="tooltip" />,
+  PolarGrid: () => <g data-testid="polar-grid" />,
+  PolarAngleAxis: ({ tick }: { tick?: (props: unknown) => React.ReactNode }) => {
+    // Invoke the custom tick renderer with synthetic props so customTick logic runs in tests
+    if (typeof tick === 'function') {
+      const rendered = tick({ x: 100, y: 50, cx: 200, cy: 200, textAnchor: 'middle', payload: { value: 'Health' } })
+      return <g data-testid="polar-angle-axis">{rendered}</g>
+    }
+    return <g data-testid="polar-angle-axis" />
+  },
+  PolarRadiusAxis: () => <g data-testid="polar-radius-axis" />,
+  Legend: () => <g data-testid="legend" />,
+  Tooltip: () => <g data-testid="tooltip" />,
 }))
 
 const SAMPLE_DATA: WheelChartPoint[] = [
@@ -131,5 +138,35 @@ describe('WheelChart', () => {
     const radars = screen.getAllByTestId('radar')
     const highlightRadar = radars.find(r => r.getAttribute('data-name') === 'Highlighted')
     expect(highlightRadar?.getAttribute('data-fill')).toBe('#ff00ff')
+  })
+})
+
+describe('DueSoon spoke highlight', () => {
+  it('renders a <line> SVG element when highlightedCategory is set', () => {
+    // The PolarAngleAxis mock invokes the tick prop with payload.value='Health'
+    // When highlightedCategory='Health' the customTick renders a <line> for the spoke
+    const { container } = render(
+      <WheelChart
+        data={SAMPLE_DATA}
+        highlightedCategory="Health"
+        highlightColor="#fbbf24"
+      />
+    )
+    const lines = container.querySelectorAll('line[stroke="#fbbf24"]')
+    expect(lines.length).toBeGreaterThan(0)
+  })
+
+  it('does not render spoke line when highlightedCategory is null', () => {
+    // The PolarAngleAxis mock invokes the tick prop with payload.value='Health'
+    // When highlightedCategory is undefined, no <line> should be rendered
+    const { container } = render(
+      <WheelChart
+        data={SAMPLE_DATA}
+        highlightedCategory={undefined}
+        highlightColor="#fbbf24"
+      />
+    )
+    const lines = container.querySelectorAll('line[stroke="#fbbf24"]')
+    expect(lines.length).toBe(0)
   })
 })
