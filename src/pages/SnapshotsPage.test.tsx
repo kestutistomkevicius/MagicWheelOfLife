@@ -29,8 +29,8 @@ vi.mock('@/hooks/useSnapshots', () => ({
 
 vi.mock('@/hooks/useWheel', () => ({
   useWheel: vi.fn(() => ({
-    wheel: { id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '' },
-    wheels: [{ id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '' }],
+    wheel: { id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '', deleted_at: null },
+    wheels: [{ id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '', deleted_at: null }],
     categories: [
       { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 7, created_at: '', updated_at: '' },
       { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 8, created_at: '', updated_at: '' },
@@ -265,5 +265,11 @@ describe('SnapshotsPage', () => {
     const optionValues = options.map(o => o.textContent)
     expect(optionValues).toContain('Health')
     expect(optionValues).toContain('Career')
+  })
+
+  describe('snapshot delete', () => {
+    it.todo('shows Delete button for each snapshot row')
+    it.todo('clicking Delete shows inline confirmation')
+    it.todo('confirming delete removes snapshot from list immediately')
   })
 })

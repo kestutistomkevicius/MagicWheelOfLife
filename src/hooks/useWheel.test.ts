@@ -50,6 +50,7 @@ const mockWheel: WheelRow = {
   name: 'My Wheel',
   created_at: '2026-01-01T00:00:00Z',
   updated_at: '2026-01-01T00:00:00Z',
+  deleted_at: null,
 }
 
 const mockCategories: CategoryRow[] = [
@@ -523,6 +524,14 @@ describe('useWheel', () => {
       )
     })
   })
+})
+
+describe('soft delete', () => {
+  it.todo('softDeleteWheel sets deleted_at on the target wheel in local state')
+  it.todo('softDeleteWheel switches active wheel to next non-deleted wheel')
+  it.todo('softDeleteWheel sets canCreateWheel=true for free user after deleting their only wheel')
+  it.todo('undoDeleteWheel clears deleted_at on the target wheel')
+  it.todo('undoDeleteWheel does not affect canCreateWheel for premium users')
 })
 
 // Suppress unused import warnings
