@@ -6,6 +6,7 @@ import { ComparisonChart } from '@/components/ComparisonChart'
 import { SnapshotNameDialog } from '@/components/SnapshotNameDialog'
 import { Button } from '@/components/ui/button'
 import type { SnapshotRow, SnapshotScoreRow } from '@/types/database'
+import { supabase } from '@/lib/supabase'
 
 function formatDate(savedAt: string): string {
   return new Date(savedAt).toLocaleDateString('en-GB', {
@@ -32,6 +33,9 @@ export function SnapshotsPage() {
   // Score history table state
   const [allHistoryScores, setAllHistoryScores] = useState<SnapshotScoreRow[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('')
+
+  // Delete confirmation
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   // Dialog
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -142,6 +146,29 @@ export function SnapshotsPage() {
     }
   }
 
+  async function deleteSnapshot(snapId: string): Promise<void> {
+    // Optimistic local removal
+    setSnapshots(prev => prev.filter(s => s.id !== snapId))
+    setSelectedSnapIds(prev => {
+      const next = new Set(prev)
+      next.delete(snapId)
+      return next
+    })
+    setScoresCache(prev => {
+      const next = { ...prev }
+      delete next[snapId]
+      return next
+    })
+    setAllHistoryScores(prev => prev.filter(s => s.snapshot_id !== snapId))
+    setPendingDeleteId(null)
+    // Persist deletion
+    await supabase
+      .from('snapshots')
+      .delete()
+      .eq('id', snapId)
+      .eq('user_id', userId)
+  }
+
   if (loading && !snapshots.length) {
     return (
       <div className="p-6 max-w-4xl mx-auto">
@@ -219,6 +246,30 @@ export function SnapshotsPage() {
                   />
                   <span className="flex-1 text-stone-800 font-medium">{snap.name}</span>
                   <span className="text-stone-400 text-sm">{formatDate(snap.saved_at)}</span>
+                  {pendingDeleteId === snap.id ? (
+                    <div className="flex items-center gap-2 ml-auto">
+                      <button
+                        onClick={() => void deleteSnapshot(snap.id)}
+                        className="text-xs text-red-400 hover:text-red-300 font-medium"
+                      >
+                        Confirm delete
+                      </button>
+                      <button
+                        onClick={() => setPendingDeleteId(null)}
+                        className="text-xs text-stone-400 hover:text-stone-300"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setPendingDeleteId(snap.id)}
+                      className="ml-auto text-xs text-stone-500 hover:text-red-400 transition-colors"
+                      aria-label={`Delete snapshot ${snap.name}`}
+                    >
+                      Delete
+                    </button>
+                  )}
                 </label>
               )
             })}
