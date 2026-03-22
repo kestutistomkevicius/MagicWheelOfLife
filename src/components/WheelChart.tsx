@@ -48,21 +48,46 @@ export function WheelChart({
     asisHighlight: d.category === highlightedCategory ? d.asis : 0,
   }))
 
-  const customTick = (props: { x: string | number; y: string | number; textAnchor?: 'end' | 'inherit' | 'start' | 'middle'; payload?: { value: string } }) => {
-    const { x, y, textAnchor, payload } = props
+  const customTick = (props: {
+    x: string | number;
+    y: string | number;
+    cx?: number;
+    cy?: number;
+    textAnchor?: 'end' | 'inherit' | 'start' | 'middle';
+    payload?: { value: string }
+  }) => {
+    const { textAnchor, payload } = props
+    const x = Number(props.x)
+    const y = Number(props.y)
+    const cx = props.cx ?? 0
+    const cy = props.cy ?? 0
     const label = payload?.value ?? ''
     const isHighlighted = label === highlightedCategory
     return (
-      <text
-        x={x}
-        y={y}
-        textAnchor={textAnchor}
-        fontSize={isHighlighted ? 13 : 12}
-        fontWeight={isHighlighted ? 700 : 400}
-        fill={isHighlighted ? highlightColor : '#374151'}
-      >
-        {label}
-      </text>
+      <g>
+        {isHighlighted && (
+          <line
+            x1={cx}
+            y1={cy}
+            x2={x}
+            y2={y}
+            stroke={highlightColor}
+            strokeWidth={2}
+            strokeOpacity={0.6}
+            strokeDasharray="4 2"
+          />
+        )}
+        <text
+          x={x}
+          y={y}
+          textAnchor={textAnchor}
+          fontSize={isHighlighted ? 13 : 12}
+          fontWeight={isHighlighted ? 700 : 400}
+          fill={isHighlighted ? highlightColor : '#374151'}
+        >
+          {label}
+        </text>
+      </g>
     )
   }
 
