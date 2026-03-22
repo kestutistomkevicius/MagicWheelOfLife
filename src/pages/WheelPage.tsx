@@ -56,6 +56,8 @@ export function WheelPage() {
     updateScore,
     renameWheel,
     updateCategoryImportant,
+    softDeleteWheel,
+    undoDeleteWheel,
   } = useWheel(userId)
 
   const { addCategory, renameCategory, removeCategory } = useCategories()
@@ -109,6 +111,8 @@ export function WheelPage() {
     [localCategories]
   )
 
+  const softDeletedWheels = wheels.filter(w => w.deleted_at)
+
   // Loading state
   if (loading || wheel === undefined) {
     return (
@@ -142,6 +146,22 @@ export function WheelPage() {
         >
           Create my wheel
         </button>
+        {softDeletedWheels.length > 0 && (
+          <div className="mt-6 rounded-lg border border-stone-700 p-4 w-full max-w-sm">
+            <p className="text-sm font-medium text-stone-300 mb-3">Recover a wheel</p>
+            {softDeletedWheels.map(w => (
+              <div key={w.id} className="flex items-center justify-between py-1">
+                <span className="text-sm text-stone-400">{w.name} — Deleting in ~10 min</span>
+                <button
+                  onClick={() => void undoDeleteWheel(w.id)}
+                  className="text-xs text-brand-400 hover:text-brand-300 font-medium"
+                >
+                  Undo
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
         <CreateWheelModal
           open={modalOpen}
           showUpgradePrompt={false}
@@ -384,6 +404,15 @@ export function WheelPage() {
               ✎
             </button>
           )}
+          {!editingWheelName && (
+            <button
+              onClick={() => void softDeleteWheel(wheel.id)}
+              className="ml-2 text-xs text-stone-400 hover:text-red-400 transition-colors"
+              aria-label="Delete this wheel"
+            >
+              Delete wheel
+            </button>
+          )}
         </div>
         <div className="flex gap-2">
           <button
@@ -401,6 +430,25 @@ export function WheelPage() {
           </button>
         </div>
       </div>
+
+      {softDeletedWheels.length > 0 && (
+        <div className="mb-4 rounded-lg border border-red-900/40 bg-red-950/20 px-4 py-3 space-y-1">
+          <p className="text-xs text-red-400 font-medium">Pending deletion</p>
+          {softDeletedWheels.map(w => (
+            <div key={w.id} className="flex items-center justify-between">
+              <span className="text-sm text-stone-400">
+                {w.name} — Deleting in ~10 min
+              </span>
+              <button
+                onClick={() => void undoDeleteWheel(w.id)}
+                className="text-xs text-brand-400 hover:text-brand-300 font-medium"
+              >
+                Undo
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Two-column layout: chart left, sliders right */}
       <div className="flex flex-col md:flex-row gap-6">
