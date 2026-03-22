@@ -213,7 +213,16 @@ Plans:
   3. A snapshot can be deleted from the Snapshots page with a confirmation; it disappears immediately from all lists
   4. A pinned footer with Terms and Privacy links is visible on every authenticated page
   5. Hovering a due-soon item highlights the matching category axis in the wheel chart
-**Plans**: TBD
+**Plans**: 7 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Wave 0: apply soft-delete migration, extend WheelRow type with deleted_at, add it.todo stubs to 5 test files
+- [ ] 10-02-PLAN.md — useWheel hook: softDeleteWheel, undoDeleteWheel, canCreateWheel fix, deleted_at in select
+- [ ] 10-03-PLAN.md — SnapshotsPage: snapshot hard-delete with inline confirmation and optimistic state removal
+- [ ] 10-04-PLAN.md — Sidebar: Terms + Privacy footer links pinned at bottom
+- [ ] 10-05-PLAN.md — WheelChart customTick: spoke line SVG element for DueSoon hover highlight
+- [ ] 10-06-PLAN.md — WheelPage: soft-delete button, pending-deletion banner, Undo, empty state recovery section
+- [ ] 10-07-PLAN.md — Human verification checkpoint: all 5 success criteria end-to-end
 
 ## Progress
 
@@ -231,5 +240,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Action Items & Wheel Polish | 6/8 | In Progress|  |
 | 8. Profile, Settings & Content | 7/8 | In Progress|  |
 | 9. AI & Premium | 10/10 | Complete   | 2026-03-21 |
-| 10. Pre-Launch Improvements | 0/TBD | Not started | - |
+| 10. Pre-Launch Improvements | 0/7 | Not started | - |
 | 15. Launch | 0/TBD | Not started | - |
