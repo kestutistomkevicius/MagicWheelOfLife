@@ -263,10 +263,17 @@ Plans:
 ### Phase 11: Security Fix
 **Goal**: Close DEC-006 — free users must not be able to self-elevate to premium tier via direct API call
 **Depends on**: Phase 10
+**Requirements**: SEC-01, SEC-02, SEC-03
 **Success Criteria** (what must be TRUE):
   1. A free user cannot patch their own `tier` column to `premium` via direct Supabase API call
   2. Tier assignment path exists exclusively via service-role (Edge Function or subscriptions table)
   3. Existing tier-gated features continue working correctly after the RLS change
+**Plans**: 3 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — DB migration (column-level REVOKE/GRANT on profiles.tier) + set-tier Edge Function
+- [ ] 11-02-PLAN.md — useProfile.updateTier refactor: direct DB write → functions.invoke + test mock update
+- [ ] 11-03-PLAN.md — Human verification checkpoint: direct tier PATCH blocked, dev toggle works, avatar unaffected
 
 ### Phase 12: Multi-Wheel UX
 **Goal**: Fix broken multi-wheel experience for premium users
