@@ -90,3 +90,29 @@ Starting with both gives real user feedback on which view they actually use. If 
 If user feedback or analytics show the all-categories view is unused or actively confusing, remove it and default to single-category detail.
 
 ---
+
+---
+
+## DEC-007: Role model — admin, coach, user (separate concerns)
+
+**Date**: 2026-03-23
+**Status**: Accepted (coach role deferred to post-launch)
+
+### Context
+Phase 15 introduced an `admin` role for founder operations. As the product grows toward coaching monetization, a distinct `coach` role will be needed — coaches are not admins, but an admin can also be a coach.
+
+### Decision
+Three roles: `user` (default), `coach` (coaching clients, future), `admin` (founder operations). These are not a hierarchy — a user can hold multiple roles. The founder will initially hold both `admin` and `coach`.
+
+Role assignment:
+- `user`: default on signup
+- `coach`: manually assigned by admin, or via future invite flow
+- `admin`: service-role only (no self-assignment)
+
+Phase 15 implements `admin` only. `coach` role and coach-specific features (view consented wheels, coach dashboard, CRM) are deferred until post-launch when coaching clients exist.
+
+### Rationale
+Separating concerns now prevents a role hierarchy assumption from being baked in. Admin = operational control. Coach = client relationship access. They overlap only when the founder is also the coach.
+
+### Trigger to revisit
+First external coaching client onboarded. Review coach role scope: consent model, wheel access, session notes, CRM needs.

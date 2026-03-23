@@ -505,13 +505,21 @@ Plans:
 
 ## Post-Launch Backlog
 
+### Role model review (first coaching client)
+When the first external coaching client is onboarded, revisit DEC-007 and design the `coach` role:
+- Coach role in `profiles` (separate from `admin` — see DEC-007)
+- Admin can hold both `admin` + `coach` roles simultaneously
+- Consent model: user explicitly grants coach access to their wheel
+- Coach can view consented wheels (read-only)
+- Coach dashboard, session notes, CRM (scope TBD at that time)
+
 | Item | Stage |
 |------|-------|
+| Coach role + consent model + dashboard | Post-launch — first coaching client (see DEC-007) |
 | Specialized wheels (Values Alignment, Relationship, Men's Reset, Burnout, Leadership, Parenting) | Post-launch Phase 2 product |
 | Gamification / badge system | Post-launch Phase 2 |
 | Life seasons model | Post-launch Phase 2 |
 | Calendar / time alignment audit | Post-launch Phase 3 |
-| Coach dashboard / CRM | Post-launch Phase 3 |
 | White-label / B2B mode | Post-launch Phase 4 |
 | Partner / couple / buddy mode | Post-launch Phase 4 |
 | Shadow value audit | Post-launch Phase 3 |
