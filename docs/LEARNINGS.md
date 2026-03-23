@@ -22,6 +22,8 @@
 ### Patterns That Worked
 <!-- [YYYY-MM-DD HH:mm] patterns worth repeating -->
 
+[2026-03-23] PreCompact hook + CLAUDE.md rule for automated handoff: Added `.claude/settings.json` with PreCompact(manual) hook that warns if LEARNINGS.md has no HANDOFF entry for today when `.planning/phases/` exists. CLAUDE.md updated to trigger retrospective proactively (after planning, execution, or session-end signal) without waiting to be asked.
+
 ### Mistakes & Corrections
 <!-- [YYYY-MM-DD HH:mm] CORRECTED: what was wrong → what is correct -->
 
