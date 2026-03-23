@@ -228,9 +228,24 @@ export function useWheel(userId: string): UseWheelResult {
   }
 
   async function undoDeleteWheel(wheelId: string): Promise<void> {
-    setWheels(prev => prev.map(w =>
+    const nextWheels = wheels.map(w =>
       w.id === wheelId ? { ...w, deleted_at: null } : w
-    ))
+    )
+    setWheels(nextWheels)
+    const activeAfter = nextWheels.filter(w => !w.deleted_at)
+    setCanCreateWheel(tier === 'premium' || activeAfter.length === 0)
+    if (wheel === null) {
+      const restoredWheel = nextWheels.find(w => w.id === wheelId) ?? null
+      setWheel(restoredWheel)
+      if (restoredWheel) {
+        const catsRes = await supabase
+          .from('categories')
+          .select('id, wheel_id, user_id, name, position, score_asis, score_tobe, is_important, created_at, updated_at')
+          .eq('wheel_id', restoredWheel.id)
+          .order('position')
+        setCategories(Array.isArray(catsRes.data) ? (catsRes.data as CategoryRow[]) : [])
+      }
+    }
     await supabase
       .from('wheels')
       .update({ deleted_at: null, updated_at: new Date().toISOString() })

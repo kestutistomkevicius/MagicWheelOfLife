@@ -610,6 +610,31 @@ describe('soft delete', () => {
     expect(wheel?.deleted_at).toBeNull()
   })
 
+  it('undoDeleteWheel sets wheel and loads categories when restoring from empty state', async () => {
+    const softDeletedWheel: WheelRow = { ...mockWheel, deleted_at: '2026-01-01T10:00:00Z' }
+    // Initial load: all wheels soft-deleted → wheel=null
+    mockFromSequence([
+      { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+      { data: [softDeletedWheel], error: null }, // wheels
+    ])
+    const { result } = renderHook(() => useWheel(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.wheel).toBeNull()
+
+    // Undo: categories fetch + wheels update
+    mockFromSequence([
+      { data: mockCategories, error: null }, // categories for restored wheel
+      { data: null, error: null },           // wheels update
+    ])
+
+    await act(async () => {
+      await result.current.undoDeleteWheel('wheel-001')
+    })
+
+    expect(result.current.wheel?.id).toBe('wheel-001')
+    expect(result.current.wheel?.deleted_at).toBeNull()
+  })
+
   it('undoDeleteWheel does not affect canCreateWheel for premium users', async () => {
     const softDeletedWheel: WheelRow = { ...mockWheel, deleted_at: '2026-01-01T10:00:00Z' }
     mockFromSequence([
