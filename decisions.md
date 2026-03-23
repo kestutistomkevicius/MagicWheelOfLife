@@ -4,25 +4,9 @@
 
 **Date**: 2026-03-14
 **Status**: Accepted
-**Context**: Solo founder with .NET background, no frontend experience. Need multi-user SaaS with secure auth, persistent data, and progress tracking. MVP speed is critical. Two options evaluated:
+**Context**: Solo founder with .NET background, no frontend experience. MVP speed is critical. .NET full-stack was evaluated and rejected — see `decisions_history.md` for the rejected option detail.
 
-### Option A — .NET Full-Stack (rejected for MVP)
-
-| Layer | Choice |
-|---|---|
-| Backend | .NET 10, ASP.NET Web API, C# |
-| Frontend | React + TypeScript + Tailwind |
-| Database | PostgreSQL (self-managed via Docker) |
-| ORM | Entity Framework Core + Npgsql |
-| Auth | Auth0 (free tier) |
-| Local dev | Docker Compose (API + PostgreSQL) |
-| Hosting | Railway or Render |
-| CI/CD | GitHub Actions |
-
-**Pros**: Owner knows .NET. Full control over business logic. Traditional, well-understood architecture.
-**Cons**: Must write dozens of API endpoints, auth flows, migration scripts. Slower path to MVP. More infrastructure to manage as a solo founder.
-
-### Option B — Supabase-centered (accepted)
+### Supabase-centered stack (accepted)
 
 | Layer | Choice | Why |
 |---|---|---|
@@ -67,38 +51,7 @@ Supabase uses standard PostgreSQL. If the project outgrows Supabase, the databas
 
 **Date**: 2026-03-14
 **Status**: Accepted
-**Context**: Evaluated whether development requires Supabase Cloud or Vercel accounts from day one.
-
-### Finding: both run fully locally
-
-**Supabase CLI** spins up the entire Supabase stack in Docker containers on the developer's machine:
-- PostgreSQL database (port 54322)
-- Auth / GoTrue service
-- REST API / PostgREST
-- Realtime server
-- Storage server
-- Studio dashboard UI (http://localhost:54323)
-- Local SMTP server (captures auth emails for testing)
-
-Two commands: `supabase init` + `supabase start`. Works offline. All Docker images are pulled once on first run.
-
-**Vercel** is not needed locally at all. React frontend runs via Vite's built-in dev server (`npm run dev` → http://localhost:5173). Vercel is only a deployment target. The `vercel dev` CLI command exists to replicate Vercel's edge environment locally, but is unnecessary for this project — there are no Vercel-specific features in the codebase.
-
-### Local dev prerequisites
-- Docker Desktop (runs Supabase containers)
-- Node.js ≥ 20 (runs Supabase CLI and React dev server)
-- Supabase CLI (via npm: `npm install -g supabase`)
-- Code editor (VS Code recommended)
-
-### Migration workflow
-1. Make schema changes via local Studio dashboard or write SQL directly
-2. Capture with `supabase db diff --schema public` → creates migration file in `supabase/migrations/`
-3. Test locally with `supabase db reset` (re-runs all migrations from scratch)
-4. Commit migration files to Git
-5. When ready for production: `supabase db push --linked` applies migrations to cloud
-
-### Decision
-Start building immediately with local-only setup. Create Supabase Cloud project and Vercel account only when ready to deploy for real users. This eliminates account management overhead during the MVP build phase and allows fully offline development.
+**Decision**: Build entirely locally via Supabase CLI (`supabase start`) + Vite (`npm run dev`). Create Supabase Cloud and Vercel accounts only when deploying for real users. See `diagrams/local-dev.md` for service map and ports.
 
 ---
 

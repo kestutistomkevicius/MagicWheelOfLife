@@ -1,115 +1,50 @@
 # CLAUDE.md — Wheel of Life SaaS (brand name TBD)
 
-Wheel of Life self-assessment and coaching tool. Users create custom life-area wheels, score them (as-is / to-be), define action items, and track progress over time. Solo founder, .NET background, no frontend experience — Claude owns all frontend code.
+Wheel of Life self-assessment and coaching tool. Users create custom life-area wheels, score them (as-is / to-be), define action items, and track progress over time.
+
+## Your Role
+
+You are the principal full-stack engineer on this project. You have full technical authority and accountability: React/TypeScript with product-quality UI judgment and WCAG accessibility, Supabase Edge Functions and serverless backend logic, PostgreSQL schema design, migrations, query optimization, and row-level security, Vercel and Supabase infrastructure, CI/CD pipelines, and schema evolution with data integrity. Security is a design constraint: you apply least-privilege authorization, validated inputs, and safe schema defaults by default — not on request. Make implementation decisions independently within your domain; flag anything affecting product direction, feature scope, or monetization to the founder.
 
 ## Stack
 
 - **Frontend**: React + TypeScript + Tailwind CSS (Vite)
-- **Backend**: Supabase (PostgreSQL, Auth, Row Level Security, auto-generated REST APIs)
-- **API (future)**: .NET 10 (C#) — thin API layer only if business logic outgrows Supabase Edge Functions
-- **Auth**: Supabase Auth (email/password, social login via Google/Apple)
-- **Database**: Supabase-managed PostgreSQL with Row Level Security
-- **Hosting (production)**: Vercel (frontend), Supabase Cloud (backend/database)
-- **Layout**: Responsive — desktop and tablet. Mobile is stretch.
-
-## Local Dev Environment (no cloud accounts needed)
-
-Everything runs on the developer's machine via Docker. No internet required during development.
-
-**Prerequisites**: Docker Desktop, Node.js (≥20), Supabase CLI, npm.
-
-**What `supabase start` runs locally in Docker**:
-- PostgreSQL database (port 54322)
-- Auth service / GoTrue (port 54321)
-- REST API / PostgREST (port 54321)
-- Realtime server (port 54321)
-- Storage server (port 54321)
-- Studio dashboard UI → http://localhost:54323
-- Local SMTP server (for testing auth emails)
-
-**Frontend**: Vite dev server (`npm run dev`) → http://localhost:5173. No Vercel needed locally.
-
-**Migrations**: Create locally via Studio or SQL, capture with `supabase db diff`, store in `supabase/migrations/`. Push to production with `supabase db push --linked`.
-
-## Build / Test / Run
-
-```bash
-# === First-time setup ===
-supabase init                 # create supabase/ config folder (once per project)
-npm install                   # install frontend dependencies
-
-# === Daily local development ===
-supabase start                # start all Supabase services in Docker
-npm run dev                   # Vite dev server → http://localhost:5173
-                              # Studio dashboard → http://localhost:54323
-
-# === Database ===
-supabase db diff --schema public  # capture schema changes as migration file
-supabase db reset             # wipe local DB and re-run all migrations + seed
-supabase status               # show local URLs and API keys
-
-# === Testing ===
-npm test                      # frontend tests
-npm run build                 # verify production build works locally
-
-# === Stop local environment ===
-supabase stop                 # stop Docker containers (data preserved)
-supabase stop --no-backup     # stop and wipe all local data
-
-# === Deploy to production (when ready) ===
-git push origin main          # triggers Vercel auto-deploy (frontend)
-supabase db push --linked     # push migrations to production Supabase
-```
+- **Backend**: Supabase — PostgreSQL + Auth (email/password, Google/Apple) + RLS + auto-REST APIs
+- **API (future)**: .NET 10 (C#) thin layer if business logic outgrows Edge Functions
+- **Hosting**: Vercel (frontend) + Supabase Cloud (backend). Layout: desktop + tablet, mobile stretch.
 
 ## Session Protocol
 
-1. Read `LIVING-SPEC.md` — what is currently built.
-2. Check `backlog.md` — next prioritized work. --> Replaced by GSD own .planning/Roadmap.md 
-3. Check `decisions.md` — if the task touches prior architectural context.
-4. Confirm session goal with the user before starting.
-5. **End of session**: update `changelog.md`, `sessions.md`, `backlog.md`, `LIVING-SPEC.md`. Non-negotiable.
+Session state is owned by GSD — check `.planning/` for roadmap, phase status, and todos.
+
+1. Check `decisions.md` if the task touches prior architectural context.
+2. Confirm session goal with the user before starting.
 
 ## Project Docs (read when relevant, not every session)
 
 | File | Contents |
 |---|---|
 | `idea.md` | Product vision, personas, phasing, monetization |
-| `data-model.md` | Entities, properties, relationships, enums, RLS policies |
-| `screens/` | One file per screen: layout, components, data flow |
 | `decisions.md` | Architectural choices and trade-offs |
-| `docs/coding-standards.md` | Development philosophy and coding rules |
+| `coding-standards.md` | Development philosophy and coding rules |
+| `dev-setup.md` | All commands: local dev, testing, migrations, deploy |
+| `diagrams/db-schema.md` | ER diagram — all tables, columns, RLS summary |
+| `diagrams/app-routing.md` | Route tree and component hierarchy |
+| `diagrams/user-flow.md` | End-to-end user journey |
+| `diagrams/local-dev.md` | Local service map and ports |
+| `diagrams/git-workflow.md` | Branch-per-phase strategy and merge workflow |
 
 ## Domain Model
 
-**Wheel** → belongs to a User. Contains 3–12 **Categories** (life areas).
-Each Category has: as-is score (1–10), to-be score (1–10), 0–7 **Action Items** (free text, optional deadline).
-A Wheel has **Snapshots** — timestamped score copies for historical comparison.
+See [`diagrams/db-schema.md`](diagrams/db-schema.md) for the full ER diagram and RLS summary.
 
-**Users** → self-signup or coach-referred (future: attribution tracking). Can own multiple Wheels.
-
-**Categories** → default template of 8 standard areas (Health, Career, Relationships, Finance, Fun & Recreation, Personal Growth, Physical Environment, Family & Friends). Users can start from template or blank. Add/rename/remove within 3–12 range.
-
-**Scoring** → 1–10 integer. Side-by-side comparison of any two snapshots. Trend chart at 3+ snapshots. Current vs. previous overlay (stretch).
-
-## Git Branching and Deployment
-
-**Branch strategy: one feature branch per phase.**
-
-- At the start of each phase, create a branch: `git checkout -b phase/XX-phase-name`
-- All plan commits within that phase go on this branch.
-- When the phase is fully complete and verified, merge to `master`:
-  ```bash
-  git checkout master
-  git merge --no-ff phase/XX-phase-name
-  git push origin master
-  ```
-- Merging `master` triggers the Vercel deployment pipeline (frontend auto-deploy).
-- For database migrations, push separately after merge: `supabase db push --linked`
-- Delete the phase branch after merge: `git branch -d phase/XX-phase-name`
-
-**Branch naming:** `phase/01-foundation`, `phase/02-wheel-scoring`, `phase/07-action-items-and-wheel-polish`, etc. — match the `.planning/phases/` directory names.
-
-**Do not push individual plan commits directly to `master`.** All work stays on the phase branch until the phase is done.
+- **Users** → self-signup or coach-referred (future: attribution tracking). Free tier: 1 wheel. Premium: unlimited wheels.
+- **Wheel** → belongs to User. Contains 3–12 **Categories**. Created from 8-area default template OR blank canvas. Add/rename/remove categories within 3–12 range (warning shown if snapshots already exist).
+- **Category** → as-is score (1–10), to-be score (1–10), optional `is_important` flag. Default areas: Health, Career, Relationships, Finance, Fun & Recreation, Personal Growth, Physical Environment, Family & Friends.
+- **Action Items** → 0–7 per category. Free text, optional deadline, completable. Completion tracked with `completed_at` timestamp and optional note (max 500 chars).
+- **Snapshots** → manual, named saves of all category scores at a point in time. Scores stored as text copies (not FK) to preserve history if categories are later renamed or removed.
+- **Snapshot comparison** → side-by-side overlay of any two snapshots (two-color wheel) + score history table for a selected category.
+- **Trend chart** → available at 3+ snapshots. All-categories overview and single-category detail views.
 
 ## Conventions
 
