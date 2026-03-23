@@ -96,4 +96,28 @@ describe('Sidebar', () => {
     expect(img).toBeInTheDocument()
     expect(img).toHaveAttribute('src', 'https://example.com/avatar.jpg')
   })
+
+  describe('legal footer', () => {
+    it('renders Terms link pointing to /terms', async () => {
+      render(
+        <MemoryRouter>
+          <Sidebar />
+        </MemoryRouter>
+      )
+      const link = screen.getByRole('link', { name: /terms/i })
+      expect(link).toBeInTheDocument()
+      expect(link).toHaveAttribute('href', '/terms')
+    })
+
+    it('renders Privacy link pointing to /privacy', async () => {
+      render(
+        <MemoryRouter>
+          <Sidebar />
+        </MemoryRouter>
+      )
+      const link = screen.getByRole('link', { name: /privacy/i })
+      expect(link).toBeInTheDocument()
+      expect(link).toHaveAttribute('href', '/privacy')
+    })
+  })
 })

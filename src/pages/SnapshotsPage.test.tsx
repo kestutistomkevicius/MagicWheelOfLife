@@ -29,8 +29,8 @@ vi.mock('@/hooks/useSnapshots', () => ({
 
 vi.mock('@/hooks/useWheel', () => ({
   useWheel: vi.fn(() => ({
-    wheel: { id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '' },
-    wheels: [{ id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '' }],
+    wheel: { id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '', deleted_at: null },
+    wheels: [{ id: 'wheel-1', user_id: 'user-1', name: 'My Wheel', created_at: '', updated_at: '', deleted_at: null }],
     categories: [
       { id: 'cat-1', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Health', position: 0, score_asis: 5, score_tobe: 7, created_at: '', updated_at: '' },
       { id: 'cat-2', wheel_id: 'wheel-1', user_id: 'user-1', name: 'Career', position: 1, score_asis: 6, score_tobe: 8, created_at: '', updated_at: '' },
@@ -115,6 +115,24 @@ const snap2Scores = [
   makeScore({ category_name: 'Health', position: 0, score_asis: 7, score_tobe: 9, snapshot_id: 'snap-2', id: 'score-2a' }),
   makeScore({ category_name: 'Career', position: 1, score_asis: 8, score_tobe: 9, snapshot_id: 'snap-2', id: 'score-2b' }),
 ]
+
+// Mock supabase — SnapshotsPage directly calls supabase.from('snapshots').delete()
+vi.mock('@/lib/supabase', () => {
+  const buildChain = (terminalResult: unknown) => {
+    const chain: Record<string, unknown> = {}
+    chain.select = vi.fn().mockReturnValue(chain)
+    chain.delete = vi.fn().mockReturnValue(chain)
+    chain.update = vi.fn().mockReturnValue(chain)
+    chain.eq = vi.fn().mockReturnValue(chain)
+    chain.then = (resolve: (v: unknown) => void) => Promise.resolve(terminalResult).then(resolve)
+    return chain
+  }
+  return {
+    supabase: {
+      from: vi.fn().mockImplementation(() => buildChain({ data: null, error: null })),
+    },
+  }
+})
 
 // ── Import after mocks ──────────────────────────────────────────────────────
 
@@ -265,5 +283,49 @@ describe('SnapshotsPage', () => {
     const optionValues = options.map(o => o.textContent)
     expect(optionValues).toContain('Health')
     expect(optionValues).toContain('Career')
+  })
+
+  describe('snapshot delete', () => {
+    it('shows Delete button for each snapshot row', async () => {
+      render(<SnapshotsPage />)
+
+      await waitFor(() => {
+        expect(screen.getAllByText('Q1 Review').length).toBeGreaterThan(0)
+      })
+
+      const deleteButtons = screen.getAllByRole('button', { name: /delete snapshot/i })
+      expect(deleteButtons.length).toBe(2)
+    })
+
+    it('clicking Delete shows inline confirmation', async () => {
+      mockListSnapshots.mockResolvedValue([snap1])
+      render(<SnapshotsPage />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /delete snapshot/i })).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /delete snapshot/i }))
+
+      expect(screen.getByRole('button', { name: /confirm delete/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /delete snapshot/i })).not.toBeInTheDocument()
+    })
+
+    it('confirming delete removes snapshot from list immediately', async () => {
+      mockListSnapshots.mockResolvedValue([snap1])
+      render(<SnapshotsPage />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /delete snapshot/i })).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /delete snapshot/i }))
+      fireEvent.click(screen.getByRole('button', { name: /confirm delete/i }))
+
+      await waitFor(() => {
+        expect(screen.queryByText('Q1 Review')).not.toBeInTheDocument()
+      })
+    })
   })
 })

@@ -37,6 +37,8 @@ export interface UseWheelResult {
   ) => Promise<void>
   renameWheel: (wheelId: string, newName: string) => Promise<void>
   updateCategoryImportant: (categoryId: string, isImportant: boolean) => Promise<void>
+  softDeleteWheel: (wheelId: string) => Promise<void>
+  undoDeleteWheel: (wheelId: string) => Promise<void>
 }
 
 export function useWheel(userId: string): UseWheelResult {
@@ -78,7 +80,7 @@ export function useWheel(userId: string): UseWheelResult {
       // Fetch all user wheels
       const wheelsRes = await supabase
         .from('wheels')
-        .select('id, user_id, name, created_at, updated_at')
+        .select('id, user_id, name, created_at, updated_at, deleted_at')
         .eq('user_id', userId)
         .order('created_at')
 
@@ -92,9 +94,10 @@ export function useWheel(userId: string): UseWheelResult {
 
       const allWheels = Array.isArray(wheelsRes.data) ? (wheelsRes.data as WheelRow[]) : []
       setWheels(allWheels)
-      setCanCreateWheel(userTier === 'premium' || allWheels.length === 0)
+      const activeWheels = allWheels.filter(w => !w.deleted_at)
+      setCanCreateWheel(userTier === 'premium' || activeWheels.length === 0)
 
-      const firstWheel = allWheels[0] ?? null
+      const firstWheel = activeWheels[0] ?? null
 
       if (firstWheel) {
         const catsRes = await supabase
@@ -196,6 +199,59 @@ export function useWheel(userId: string): UseWheelResult {
     setWheels(prev => prev.map(w => w.id === wheelId ? { ...w, name: trimmed } : w))
   }
 
+  async function softDeleteWheel(wheelId: string): Promise<void> {
+    const now = new Date().toISOString()
+    const nextWheels = wheels.map(w =>
+      w.id === wheelId ? { ...w, deleted_at: now } : w
+    )
+    const activeAfter = nextWheels.filter(w => !w.deleted_at)
+    setWheels(nextWheels)
+    setCanCreateWheel(tier === 'premium' || activeAfter.length === 0)
+    if (wheel?.id === wheelId) {
+      const nextActiveWheel = activeAfter[0] ?? null
+      setWheel(nextActiveWheel)
+      if (nextActiveWheel) {
+        const catsRes = await supabase
+          .from('categories')
+          .select('id, wheel_id, user_id, name, position, score_asis, score_tobe, is_important, created_at, updated_at')
+          .eq('wheel_id', nextActiveWheel.id)
+          .order('position')
+        setCategories(Array.isArray(catsRes.data) ? (catsRes.data as CategoryRow[]) : [])
+      } else {
+        setCategories([])
+      }
+    }
+    await supabase
+      .from('wheels')
+      .update({ deleted_at: now, updated_at: now })
+      .eq('id', wheelId)
+  }
+
+  async function undoDeleteWheel(wheelId: string): Promise<void> {
+    const nextWheels = wheels.map(w =>
+      w.id === wheelId ? { ...w, deleted_at: null } : w
+    )
+    setWheels(nextWheels)
+    const activeAfter = nextWheels.filter(w => !w.deleted_at)
+    setCanCreateWheel(tier === 'premium' || activeAfter.length === 0)
+    if (wheel === null) {
+      const restoredWheel = nextWheels.find(w => w.id === wheelId) ?? null
+      setWheel(restoredWheel)
+      if (restoredWheel) {
+        const catsRes = await supabase
+          .from('categories')
+          .select('id, wheel_id, user_id, name, position, score_asis, score_tobe, is_important, created_at, updated_at')
+          .eq('wheel_id', restoredWheel.id)
+          .order('position')
+        setCategories(Array.isArray(catsRes.data) ? (catsRes.data as CategoryRow[]) : [])
+      }
+    }
+    await supabase
+      .from('wheels')
+      .update({ deleted_at: null, updated_at: new Date().toISOString() })
+      .eq('id', wheelId)
+  }
+
   function reorderWithImportantFirst(cats: CategoryRow[]): CategoryRow[] {
     const important = cats.filter(c => c.is_important).slice(0, 3)
     const rest = cats.filter(c => !important.find(i => i.id === c.id))
@@ -246,5 +302,7 @@ export function useWheel(userId: string): UseWheelResult {
     updateScore,
     renameWheel,
     updateCategoryImportant,
+    softDeleteWheel,
+    undoDeleteWheel,
   }
 }

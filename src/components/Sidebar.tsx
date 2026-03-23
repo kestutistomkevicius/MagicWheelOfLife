@@ -98,6 +98,21 @@ export function Sidebar() {
           Sign out
         </button>
       </div>
+      {/* Legal footer */}
+      <div className="px-4 pb-3 flex gap-4">
+        <NavLink
+          to="/terms"
+          className="text-xs text-stone-500 hover:text-stone-300 transition-colors"
+        >
+          Terms
+        </NavLink>
+        <NavLink
+          to="/privacy"
+          className="text-xs text-stone-500 hover:text-stone-300 transition-colors"
+        >
+          Privacy
+        </NavLink>
+      </div>
       <FeatureRequestModal open={feedbackOpen} userId={userId} onClose={() => setFeedbackOpen(false)} />
     </aside>
   )

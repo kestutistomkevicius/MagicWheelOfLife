@@ -50,6 +50,7 @@ const mockWheel: WheelRow = {
   name: 'My Wheel',
   created_at: '2026-01-01T00:00:00Z',
   updated_at: '2026-01-01T00:00:00Z',
+  deleted_at: null,
 }
 
 const mockCategories: CategoryRow[] = [
@@ -522,6 +523,135 @@ describe('useWheel', () => {
         expect.objectContaining({ is_important: true })
       )
     })
+  })
+})
+
+describe('soft delete', () => {
+  it('softDeleteWheel sets deleted_at on the target wheel in local state', async () => {
+    mockFromSequence([
+      { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+      { data: [mockWheel], error: null }, // wheels
+      { data: mockCategories, error: null }, // categories
+    ])
+    const { result } = renderHook(() => useWheel(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    // Deleting current (only) wheel → no next active → just wheels update
+    mockFromSequence([{ data: null, error: null }])
+
+    await act(async () => {
+      await result.current.softDeleteWheel('wheel-001')
+    })
+
+    const deletedWheel = result.current.wheels.find(w => w.id === 'wheel-001')
+    expect(deletedWheel?.deleted_at).not.toBeNull()
+  })
+
+  it('softDeleteWheel switches active wheel to next non-deleted wheel', async () => {
+    const mockWheel2: WheelRow = { ...mockWheel, id: 'wheel-002', name: 'Wheel 2' }
+    mockFromSequence([
+      { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+      { data: [mockWheel, mockWheel2], error: null }, // wheels
+      { data: mockCategories, error: null }, // categories for wheel-001
+    ])
+    const { result } = renderHook(() => useWheel(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.wheel?.id).toBe('wheel-001')
+
+    // softDelete wheel-001: fetch categories for wheel-002, then wheels update
+    mockFromSequence([
+      { data: [], error: null }, // categories for wheel-002
+      { data: null, error: null }, // wheels update
+    ])
+
+    await act(async () => {
+      await result.current.softDeleteWheel('wheel-001')
+    })
+
+    expect(result.current.wheel?.id).toBe('wheel-002')
+  })
+
+  it('softDeleteWheel sets canCreateWheel=true for free user after deleting their only wheel', async () => {
+    mockFromSequence([
+      { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+      { data: [mockWheel], error: null }, // wheels (one active)
+      { data: mockCategories, error: null }, // categories
+    ])
+    const { result } = renderHook(() => useWheel(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.canCreateWheel).toBe(false)
+
+    mockFromSequence([{ data: null, error: null }]) // wheels update
+
+    await act(async () => {
+      await result.current.softDeleteWheel('wheel-001')
+    })
+
+    expect(result.current.canCreateWheel).toBe(true)
+  })
+
+  it('undoDeleteWheel clears deleted_at on the target wheel', async () => {
+    const softDeletedWheel: WheelRow = { ...mockWheel, deleted_at: '2026-01-01T10:00:00Z' }
+    // activeWheels=[] → firstWheel=null → no categories call
+    mockFromSequence([
+      { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+      { data: [softDeletedWheel], error: null }, // wheels
+    ])
+    const { result } = renderHook(() => useWheel(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    mockFromSequence([{ data: null, error: null }]) // wheels update
+
+    await act(async () => {
+      await result.current.undoDeleteWheel('wheel-001')
+    })
+
+    const wheel = result.current.wheels.find(w => w.id === 'wheel-001')
+    expect(wheel?.deleted_at).toBeNull()
+  })
+
+  it('undoDeleteWheel sets wheel and loads categories when restoring from empty state', async () => {
+    const softDeletedWheel: WheelRow = { ...mockWheel, deleted_at: '2026-01-01T10:00:00Z' }
+    // Initial load: all wheels soft-deleted → wheel=null
+    mockFromSequence([
+      { data: { id: USER_ID, tier: 'free', created_at: '' }, error: null }, // profiles
+      { data: [softDeletedWheel], error: null }, // wheels
+    ])
+    const { result } = renderHook(() => useWheel(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.wheel).toBeNull()
+
+    // Undo: categories fetch + wheels update
+    mockFromSequence([
+      { data: mockCategories, error: null }, // categories for restored wheel
+      { data: null, error: null },           // wheels update
+    ])
+
+    await act(async () => {
+      await result.current.undoDeleteWheel('wheel-001')
+    })
+
+    expect(result.current.wheel?.id).toBe('wheel-001')
+    expect(result.current.wheel?.deleted_at).toBeNull()
+  })
+
+  it('undoDeleteWheel does not affect canCreateWheel for premium users', async () => {
+    const softDeletedWheel: WheelRow = { ...mockWheel, deleted_at: '2026-01-01T10:00:00Z' }
+    mockFromSequence([
+      { data: { id: USER_ID, tier: 'premium', created_at: '' }, error: null }, // profiles
+      { data: [softDeletedWheel], error: null }, // wheels
+    ])
+    const { result } = renderHook(() => useWheel(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.canCreateWheel).toBe(true)
+
+    mockFromSequence([{ data: null, error: null }]) // wheels update
+
+    await act(async () => {
+      await result.current.undoDeleteWheel('wheel-001')
+    })
+
+    expect(result.current.canCreateWheel).toBe(true)
   })
 })
 

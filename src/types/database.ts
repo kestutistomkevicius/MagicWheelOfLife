@@ -24,6 +24,7 @@ export type WheelRow = {
   name: string
   created_at: string
   updated_at: string
+  deleted_at: string | null  // null = active; ISO timestamp = pending hard-delete
 }
 
 export type CategoryRow = {
@@ -102,8 +103,8 @@ export type Database = {
       }
       wheels: {
         Row: WheelRow
-        Insert: Omit<WheelRow, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Pick<WheelRow, 'name' | 'updated_at'>>
+        Insert: Omit<WheelRow, 'id' | 'created_at' | 'updated_at' | 'deleted_at'> & { deleted_at?: string | null }
+        Update: Partial<Pick<WheelRow, 'name' | 'updated_at' | 'deleted_at'>>
         Relationships: []
       }
       categories: {
