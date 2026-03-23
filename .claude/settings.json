@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreCompact": [
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('fs');const planDir='.planning/phases';try{const h=fs.readFileSync('docs/LEARNINGS.md','utf8');const today=new Date().toISOString().slice(0,10);const hasHandoff=h.includes('['+today)&&h.includes('HANDOFF:');const hasPlanning=fs.existsSync(planDir);if(!hasHandoff&&hasPlanning){console.log(JSON.stringify({systemMessage:'\\u26a0\\ufe0f  Handoff not written yet. Ask Claude to run the post-phase retrospective before clearing context.'}));}}catch(e){}\"",
+            "statusMessage": "Checking session handoff..."
+          }
+        ]
+      }
+    ]
+  }
+}
