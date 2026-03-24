@@ -31,8 +31,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 11: Security Fix** - Close DEC-006: prevent free users from self-elevating to premium via direct API (completed 2026-03-24)
 - [x] **Phase 12: Multi-Wheel UX** - Fix broken multi-wheel experience; pluralise sidebar label for premium users (completed 2026-03-24)
-- [ ] **Phase 13: Design Refresh** - Implement incoming design assets; add coaching CTA to landing page
-- [ ] **Phase 14: Trend Chart Rethink** - Replace broken exact-date markers with between-snapshot interval approach
+- [ ] **Phase 13: Trend Chart Rethink** - Fix action markers; show per-category action items and importance flag in trend view
+- [ ] **Phase 14: Design Refresh** - Implement incoming design assets; add coaching CTA to landing page
 - [ ] **Phase 15: Admin Foundation** - Minimum viable admin: feature requests view, email notifications, admin role
 - [ ] **Phase 16: Visual & UX Fixes** - Celebration animation, ROADMAP cleanup, close stale todos, final QA pass
 - [ ] **Phase 17: Compliance Research** - GDPR/UK GDPR research; produce COMPLIANCE-FINDINGS.md before personal data phases
@@ -287,25 +287,28 @@ Plans:
 - [ ] 12-01-PLAN.md — Test coverage for MW-01/MW-02 + stale data clear on wheel switch
 - [ ] 12-02-PLAN.md — UAT checkpoint: end-to-end multi-wheel verification
 
-### Phase 13: Design Refresh
-**Goal**: Implement incoming design assets across the full app; add coaching CTA to landing page
+### Phase 13: Trend Chart Rethink
+**Goal**: Fix the broken action marker feature and enrich the per-category trend view with action items and importance signal
 **Depends on**: Phase 12
+**Open question**: Keep all-categories overview + single-category detail, or simplify to single-category only?
+**Success Criteria** (what must be TRUE):
+  1. Action items completed between two snapshots are surfaced alongside the chart when score improved in that interval
+  2. Markers are no longer tied to exact date matching (previous approach almost never fired)
+  3. When a category is selected, its action items (and their completion status) are shown below the trend chart
+  4. The category's `is_important` flag is visible in the trend view
+
+### Phase 14: Design Refresh
+**Goal**: Implement incoming design assets across the full app; add coaching CTA to landing page
+**Depends on**: Phase 13
 **Open question**: Confirm design asset delivery format (MD file or Google Stitch MCP) before planning.
 **Success Criteria** (what must be TRUE):
   1. New visual design is applied consistently across all pages
   2. Landing page has coaching CTA at top linking to coaching website (placeholder URL)
 
-### Phase 14: Trend Chart Rethink
-**Goal**: Fix the broken action marker feature on the trend chart
-**Depends on**: Phase 13
-**Open question**: Keep all-categories overview + single-category detail, or simplify to single-category only?
-**Success Criteria** (what must be TRUE):
-  1. Action items completed between two snapshots are surfaced alongside the chart when score improved in that interval
-  2. Markers are no longer tied to exact date matching (previous approach almost never fired)
-
 ### Phase 15: Admin Foundation
 **Goal**: Minimum viable admin tooling for the founder to operate during development
 **Depends on**: Phase 14
+
 **Success Criteria** (what must be TRUE):
   1. Admin role exists in `profiles` table; admin nav item only visible to admin users
   2. Admin can view all feature request submissions (user email, text, timestamp)
@@ -511,9 +514,9 @@ Plans:
 | Stan Tatkin check-in: specific questions/structure | Phase 27 |
 | Free tier daily check-in limit (days or count) | Phase 27 |
 | AI evaluation deletion policy (GDPR) | Phase 17 → Phase 29 |
-| Trend chart: keep both views or simplify to single-category | Phase 14 |
+| Trend chart: keep both views or simplify to single-category | Phase 13 |
 | Contradiction detection: migrate to hybrid (C) when? | Phase 33 → post-launch |
-| Design asset delivery format | Phase 13 |
+| Design asset delivery format | Phase 14 |
 
 ## Post-Launch Backlog
 
