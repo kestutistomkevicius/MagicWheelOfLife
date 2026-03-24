@@ -8,6 +8,7 @@ export type TrendChartPoint = {
   date: string   // formatted for display e.g. "15 Jan 2026"
   asis: number
   tobe: number
+  savedAt: string  // ISO saved_at — for interval math, not rendered by chart
 }
 
 export type TrendChartMarker = {
