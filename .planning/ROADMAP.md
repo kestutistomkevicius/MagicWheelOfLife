@@ -298,12 +298,45 @@ Plans:
   4. The category's `is_important` flag is visible in the trend view
 
 ### Phase 14: Design Refresh
-**Goal**: Implement incoming design assets across the full app; add coaching CTA to landing page
+**Goal**: Apply the "Mindful Curator" design system (docs/design-proposal-v1/) across the full app; add coaching CTA to landing page
 **Depends on**: Phase 13
-**Open question**: Confirm design asset delivery format (MD file or Google Stitch MCP) before planning.
+**Design reference**: `docs/design-proposal-v1/` — 10 screens + `ethos_stone/DESIGN.md` design system spec
+
+**Design system summary (from DESIGN.md):**
+- **Theme**: "The Mindful Curator" — editorial layout, soft minimalism, digital sanctuary aesthetic
+- **Colors (Stone/Amber palette)**: background `#fff8f5`, primary `#8d4b00` (Warm Gold), secondary `#645d58`, surface tiers from `#ffffff` (lowest) to `#eae1da` (highest). Full token set defined in HTML `tailwind.config`.
+- **Typography**: Manrope (headlines/display, bold, expressive) + Inter (body/labels, clean). Steep hierarchy — display-lg (3.5rem) next to body-sm (0.75rem).
+- **No-Line Rule**: No 1px dividers anywhere. Boundaries defined through background color shifts between surface-container tiers only.
+- **Glassmorphism**: AiCoachDrawer uses `rgba(255,255,255,0.7)` + `backdrop-blur(12px)` — keeps wheel visible beneath.
+- **Icons**: Material Symbols Outlined (replaces current Lucide React).
+- **Shadows**: Ambient only — 40–64px blur at 6% opacity, warm-tinted (`on_surface` brown, never pure black).
+- **Buttons**: Primary = gradient Amber→Dark Amber, `rounded-full`. Secondary = `surface-container-high` bg. No drop shadows on cards.
+- **Sliders**: "Track & Pulse" — custom `surface-container-highest` track, `primary` circle thumb that grows on hover, value label above thumb.
+- **Layout**: Asymmetric editorial grid. Wheel chart placed off-center (shifted to 1/3 line).
+- **Ghost Border**: If a separator is essential for accessibility, use `outline-variant` at 15% opacity only.
+
+**Screen-to-page mapping (proposal → current app):**
+- `dashboard_main_view` → new Dashboard page (weekly overview, off-center wheel, Recent Actions sidebar, Growth Tiers bento)
+- `scoring_assessment` → WheelPage (Track & Pulse sliders, category cards)
+- `progress_trends` → TrendPage ("The Upward Path", Growth Delta hero, Category Trends chart, AI Coach Analysis)
+- `my_wheels_history` → SnapshotsPage (editorial hero, snapshot cards)
+- `front_page_marketing_view` → LandingPage (coaching CTA, feature sections)
+- `ai_coach_interface` → AiCoachDrawer ("The Growth Plan" layout, glassmorphic panel)
+- `settings_themes` → SettingsPage (Visual Themes, Profile Identity, Preferences sections)
+- `themes_gallery` → ColorSchemePicker (Amber/Ocean/Forest/Rose theme cards)
+- `support_help_center` → future (not in current app — skip this phase)
+- `coach_hub` → future coaching phases (skip this phase)
+- `reflections_archive` → future (skip this phase)
+
 **Success Criteria** (what must be TRUE):
-  1. New visual design is applied consistently across all pages
-  2. Landing page has coaching CTA at top linking to coaching website (placeholder URL)
+  1. Manrope + Inter fonts loaded; all page headings use Manrope, body text uses Inter
+  2. Stone/Amber color tokens applied via Tailwind config; existing amber/brand tokens replaced
+  3. No 1px borders remain anywhere in the app — all boundaries use surface-container tier shifts
+  4. Material Symbols Outlined icons replace Lucide React across the app
+  5. AiCoachDrawer uses glassmorphism (`bg-white/70 backdrop-blur-[12px]`)
+  6. WheelPage sliders match "Track & Pulse" design
+  7. Landing page has coaching CTA linking to coaching website (placeholder URL)
+  8. All pages visually consistent with the proposal screens
 
 ### Phase 15: Admin Foundation
 **Goal**: Minimum viable admin tooling for the founder to operate during development
