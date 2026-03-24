@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ### Milestone 2 — Strategic Depth
 
 - [x] **Phase 11: Security Fix** - Close DEC-006: prevent free users from self-elevating to premium via direct API (completed 2026-03-24)
-- [ ] **Phase 12: Multi-Wheel UX** - Fix broken multi-wheel experience; pluralise sidebar label for premium users
+- [x] **Phase 12: Multi-Wheel UX** - Fix broken multi-wheel experience; pluralise sidebar label for premium users (completed 2026-03-24)
 - [ ] **Phase 13: Design Refresh** - Implement incoming design assets; add coaching CTA to landing page
 - [ ] **Phase 14: Trend Chart Rethink** - Replace broken exact-date markers with between-snapshot interval approach
 - [ ] **Phase 15: Admin Foundation** - Minimum viable admin: feature requests view, email notifications, admin role
@@ -281,7 +281,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Premium user with 2 wheels can select each wheel independently on TrendPage with correct snapshot data
   2. Sidebar label reads "My wheels" when user has more than 1 wheel
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 12-01-PLAN.md — Test coverage for MW-01/MW-02 + stale data clear on wheel switch
@@ -556,7 +556,7 @@ Phases execute in numeric order: 1 → 2 → 3 → … → 37 → Deploy
 | 9. AI & Premium | 10/10 | Complete | 2026-03-21 |
 | 10. Pre-Launch Improvements | 7/7 | Complete | 2026-03-22 |
 | 11. Security Fix | 3/3 | Complete    | 2026-03-24 |
-| 12. Multi-Wheel UX | 1/2 | In Progress|  |
+| 12. Multi-Wheel UX | 2/2 | Complete   | 2026-03-24 |
 | 13. Design Refresh | 0/TBD | Not started | - |
 | 14. Trend Chart Rethink | 0/TBD | Not started | - |
 | 15. Admin Foundation | 0/TBD | Not started | - |

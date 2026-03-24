@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 12-01-PLAN.md — MW-01 and MW-02 test coverage added, stale data fix in TrendPage
-last_updated: "2026-03-24T14:42:27.983Z"
+stopped_at: Completed 12-02-PLAN.md — MW-01 and MW-02 UAT approved, delete-on-pending bug fixed
+last_updated: "2026-03-24T15:25:07.140Z"
 last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
   total_phases: 37
-  completed_phases: 11
+  completed_phases: 12
   total_plans: 68
-  completed_plans: 67
+  completed_plans: 68
   percent: 97
 ---
 
@@ -172,6 +172,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 11-security-fix P02 | 3min | 2 tasks | 2 files |
 | Phase 11-security-fix P03 | checkpoint | 2 tasks | 0 files |
 | Phase 12-multi-wheel-ux P01 | 149s | 3 tasks | 3 files |
+| Phase 12-multi-wheel-ux P02 | 5min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -298,6 +299,7 @@ Recent decisions affecting current work:
 - [Phase 11-security-fix]: Test 1 (SEC-01 direct PATCH) considered passed given DB-level REVOKE confirmed in Plan 01 psql verification
 - [Phase 12-multi-wheel-ux]: useWheel mock added to Sidebar.test.tsx via vi.hoisted — consistent with TrendPage mock pattern already established in Phase 8
 - [Phase 12-multi-wheel-ux]: Stale data cleared synchronously in TrendPage useEffect([wheel?.id]) before async load — prevents previous wheel chart showing during fetch
+- [Phase 12-multi-wheel-ux]: Pending-deletion wheels filtered from active dropdown and Delete button guarded by !wheel.deleted_at — soft-deleted wheels visible only in recovery banner
 
 ### Pending Todos
 
@@ -312,6 +314,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-24T14:42:27.976Z
-Stopped at: Completed 12-01-PLAN.md — MW-01 and MW-02 test coverage added, stale data fix in TrendPage
+Last session: 2026-03-24T15:25:07.131Z
+Stopped at: Completed 12-02-PLAN.md — MW-01 and MW-02 UAT approved, delete-on-pending bug fixed
 Resume file: None
