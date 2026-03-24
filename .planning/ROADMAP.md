@@ -290,12 +290,18 @@ Plans:
 ### Phase 13: Trend Chart Rethink
 **Goal**: Fix the broken action marker feature and enrich the per-category trend view with action items and importance signal
 **Depends on**: Phase 12
-**Open question**: Keep all-categories overview + single-category detail, or simplify to single-category only?
+**Resolution**: Single-category only (all-categories overview deferred to TREND-V2-01)
+**Requirements**: TREND-13-01, TREND-13-02, TREND-13-03, TREND-13-04
 **Success Criteria** (what must be TRUE):
   1. Action items completed between two snapshots are surfaced alongside the chart when score improved in that interval
   2. Markers are no longer tied to exact date matching (previous approach almost never fired)
   3. When a category is selected, its action items (and their completion status) are shown below the trend chart
   4. The category's `is_important` flag is visible in the trend view
+**Plans:** 2 plans
+
+Plans:
+- [ ] 13-01-PLAN.md — Wave 0 test prep + TrendPage refactor (interval logic, action items list, is_important badge) + ActionInsightsPanel component
+- [ ] 13-02-PLAN.md — Replace stubs: ActionInsightsPanel unit tests + TrendPage Phase 13 requirement tests
 
 ### Phase 14: Design Refresh
 **Goal**: Apply the "Mindful Curator" design system (docs/design-proposal-v1/) across the full app; add coaching CTA to landing page
