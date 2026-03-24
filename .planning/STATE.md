@@ -1,5 +1,21 @@
 ---
 gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+stopped_at: Completed 11-02-PLAN.md — useProfile.updateTier refactored to route through set-tier Edge Function
+last_updated: "2026-03-24T08:46:20.296Z"
+last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
+progress:
+  total_phases: 37
+  completed_phases: 10
+  total_plans: 66
+  completed_plans: 65
+  percent: 97
+---
+
+---
+gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Strategic Depth
 status: planning
@@ -7,7 +23,7 @@ stopped_at: Phase 11 planned — 3 plans (3 waves), verification passed. Ready t
 last_updated: "2026-03-23T12:00:00.000Z"
 last_activity: 2026-03-23 — Phase 11 (Security Fix) planned: column-level GRANT migration + set-tier Edge Function + useProfile refactor
 progress:
-  total_phases: 37
+  [██████████] 97%
   completed_phases: 10
   total_plans: 63
   completed_plans: 63
@@ -152,6 +168,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 09-ai-and-premium P08 | 5min | 2 tasks | 4 files |
 | Phase 09-ai-and-premium P09 | 520s | 2 tasks | 6 files |
 | Phase 09-ai-and-premium P10 | continuation | 2 tasks | 3 files |
+| Phase 11-security-fix P01 | 4min | 2 tasks | 2 files |
+| Phase 11-security-fix P02 | 3min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -273,6 +291,8 @@ Recent decisions affecting current work:
 - [Phase 09-ai-and-premium]: Auto-send race condition fixed with isSendingRef guard — React Strict Mode double-invokes effects; guard ensures opening AI message only sends once
 - [Phase 09-ai-and-premium]: Proposal card apply buttons disabled when score matches proposed value; card auto-dismisses after both applied
 - [Phase 09-ai-and-premium]: Edge Function injects synthetic opener when messages array is empty — Anthropic API requires non-empty messages array
+- [Phase 11-security-fix]: DEC-006 closed: REVOKE UPDATE on profiles from authenticated + GRANT UPDATE only on avatar_url/color_scheme; set-tier Edge Function is the sole service-role path for tier writes
+- [Phase 11-security-fix]: useProfile.updateTier routes through set-tier Edge Function — direct DB write revoked at DB layer in Plan 01; error propagated before setTier to ensure state only updates on success
 
 ### Pending Todos
 
@@ -287,6 +307,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-21T14:16:25.280Z
-Stopped at: Completed 09-10-PLAN.md — Phase 9 fully complete and verified
+Last session: 2026-03-24T08:46:20.289Z
+Stopped at: Completed 11-02-PLAN.md — useProfile.updateTier refactored to route through set-tier Edge Function
 Resume file: None
