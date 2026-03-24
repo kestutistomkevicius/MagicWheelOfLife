@@ -28,11 +28,10 @@ Session state is owned by GSD — check `.planning/` for roadmap, phase status, 
 **Triggers:** After any GSD phase planning completes, after any GSD phase execution/verification passes, or whenever the user signals the session is ending (e.g. "prepare for /clear", "context is getting long", "wrapping up").
 
 Ask yourself:
-1. What did I discover about this codebase that wasn't in CLAUDE.md?
+1. What did I discover about this codebase/tools that wasn't obvious or documented?
 2. Were any mistakes corrected? What pattern do they reveal?
-3. What does the next session need to know to resume cleanly?
 
-Write findings to `docs/LEARNINGS.md` using the established format. Update `.planning/STATE.md` `stopped_at` to reflect current position. Commit both files.
+Write non-obvious discoveries and corrections to `docs/LEARNINGS.md`. Do NOT write session position or "what's next" there — that belongs in `STATE.md stopped_at` (GSD manages this). Commit both files.
 
 ## Project Docs (read when relevant, not every session)
 
@@ -47,7 +46,7 @@ Write findings to `docs/LEARNINGS.md` using the established format. Update `.pla
 | `diagrams/user-flow.md` | End-to-end user journey |
 | `diagrams/local-dev.md` | Local service map and ports |
 | `diagrams/git-workflow.md` | Branch-per-phase strategy and merge workflow |
-| `docs/LEARNINGS.md` | Persistent project discoveries, corrections, session handoffs |
+| `docs/LEARNINGS.md` | Non-obvious discoveries, corrections, and patterns (not position/state) |
 
 ## Domain Model
 

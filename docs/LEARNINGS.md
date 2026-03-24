@@ -3,6 +3,9 @@
 > Updated by Claude during/after sessions.
 > Format: [YYYY-MM-DD HH:mm] Category: Learning
 > When 3+ entries share a topic → promote to a rule in CLAUDE.md, move entries to LEARNINGS-ARCHIVE.md
+>
+> **Scope:** Non-obvious discoveries, corrections, and patterns only.
+> "Where we are / what's next" → STATE.md `stopped_at`. Architectural decisions → STATE.md Decisions.
 
 ---
 
@@ -19,6 +22,8 @@
 ### Supabase & Backend Quirks
 <!-- [YYYY-MM-DD HH:mm] specific discovery about Edge Functions, RLS, Postgres, Auth, etc. -->
 
+[2026-03-24 14:43] `npx supabase status` no longer labels the anon JWT as "anon key" — it now shows "Publishable" and "Secret". The actual JWT anon key lives in `.env.local` as `VITE_SUPABASE_ANON_KEY`.
+
 ### Patterns That Worked
 <!-- [YYYY-MM-DD HH:mm] patterns worth repeating -->
 
@@ -28,14 +33,3 @@
 <!-- [YYYY-MM-DD HH:mm] CORRECTED: what was wrong → what is correct -->
 
 [2026-03-23 23:44] CORRECTED: LEARNINGS.md datetime format must be `[YYYY-MM-DD HH:mm]` using the user's **local time** (run `powershell -Command "Get-Date -Format 'yyyy-MM-dd HH:mm'"` to get it) — not UTC, not date-only, not a guessed time.
-
-### Session Handoffs
-<!-- [YYYY-MM-DD HH:mm] HANDOFF: where we left off, what's next -->
-
-[2026-03-23 23:44] HANDOFF: Phase 11 (Security Fix) fully planned — 3 plans, 3 waves, verification passed. Next: `/gsd:execute-phase 11` (fresh context).
-- Wave 1 (11-01): New migration `20260323000001_profiles_tier_column_security.sql` (REVOKE/GRANT column-level) + new Edge Function `supabase/functions/set-tier/index.ts`
-- Wave 2 (11-02): Refactor `useProfile.updateTier` from direct `supabase.from('profiles').update({tier})` to `supabase.functions.invoke('set-tier', {body:{tier}})` + update mock in `useProfile.test.ts` (supabase.functions.invoke, not supabase.from mock)
-- Wave 3 (11-03): Human verification checkpoint with live Supabase + functions serve
-- Key: `SettingsPage.test.tsx` does NOT need changes — it mocks updateTier as an injected prop, not the implementation
-- Key: seed.sql does NOT need changes — seeds run as postgres superuser, not `authenticated` role
-- Key: run `supabase db reset` (not just `migration up`) to verify privilege changes cleanly
