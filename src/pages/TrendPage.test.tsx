@@ -41,8 +41,8 @@ const { mockListSnapshots, mockFetchScores, mockWheel, mockLoadActionItems, mock
   const mockSelectWheel = vi.fn()
   const mockWheel = { id: 'wheel-1', name: 'My Wheel', user_id: 'user-1', created_at: '', updated_at: '' }
   const mockCategories = [
-    { id: 'cat-health', name: 'Health', wheel_id: 'wheel-1', user_id: 'user-1', position: 0, score_asis: 7, score_tobe: 9, created_at: '', updated_at: '' },
-    { id: 'cat-career', name: 'Career', wheel_id: 'wheel-1', user_id: 'user-1', position: 1, score_asis: 6, score_tobe: 8, created_at: '', updated_at: '' },
+    { id: 'cat-health', name: 'Health', wheel_id: 'wheel-1', user_id: 'user-1', position: 0, score_asis: 7, score_tobe: 9, is_important: false, created_at: '', updated_at: '' },
+    { id: 'cat-career', name: 'Career', wheel_id: 'wheel-1', user_id: 'user-1', position: 1, score_asis: 6, score_tobe: 8, is_important: false, created_at: '', updated_at: '' },
   ]
   const mockUseWheel = vi.fn()
   return { mockListSnapshots, mockFetchScores, mockWheel, mockLoadActionItems, mockCategories, mockUseWheel, mockSelectWheel }
@@ -277,75 +277,6 @@ describe('TrendPage', () => {
     })
   })
 
-  // Marker computation tests
-  it('passes markers array to TrendChart when completed action item date matches snapshot date', async () => {
-    // Snapshots: Jan, Feb, Mar 2026
-    // "01 Jan 2026" formatted by formatDate('2026-01-01T00:00:00Z')
-    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
-    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
-    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
-    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
-    mockFetchScores.mockImplementation((snapshotId: string) =>
-      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
-    )
-    // Action item completed on 2026-02-01 — should match snapshot s2
-    mockLoadActionItems.mockResolvedValue([
-      makeActionItem('ai-1', 'cat-health', 'Go for a run', null, true, '2026-02-01T10:00:00Z'),
-    ])
-
-    render(<TrendPage />)
-
-    await waitFor(() => {
-      const chart = screen.getByTestId('trend-chart')
-      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
-      expect(markers).toHaveLength(1)
-    })
-  })
-
-  it('passes empty markers when no action item dates match snapshot dates', async () => {
-    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
-    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
-    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
-    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
-    mockFetchScores.mockImplementation((snapshotId: string) =>
-      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
-    )
-    // Action item completed on a date that does NOT match any snapshot
-    mockLoadActionItems.mockResolvedValue([
-      makeActionItem('ai-1', 'cat-health', 'Some task', null, true, '2026-04-15T10:00:00Z'),
-    ])
-
-    render(<TrendPage />)
-
-    await waitFor(() => {
-      const chart = screen.getByTestId('trend-chart')
-      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
-      expect(markers).toHaveLength(0)
-    })
-  })
-
-  it('completed item marker has green color #16a34a', async () => {
-    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
-    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
-    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
-    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
-    mockFetchScores.mockImplementation((snapshotId: string) =>
-      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
-    )
-    mockLoadActionItems.mockResolvedValue([
-      makeActionItem('ai-1', 'cat-health', 'Completed task', null, true, '2026-01-01T10:00:00Z'),
-    ])
-
-    render(<TrendPage />)
-
-    await waitFor(() => {
-      const chart = screen.getByTestId('trend-chart')
-      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
-      expect(markers).toHaveLength(1)
-      expect(markers[0].color).toBe('#16a34a')
-    })
-  })
-
   // Wheel selector tests (CONTENT-05)
   it('does not render wheel selector when only one wheel exists', async () => {
     // Default mock already has wheels: [mockWheel] — single wheel
@@ -480,26 +411,22 @@ describe('TrendPage', () => {
     })
   })
 
-  it('overdue item marker has red color #dc2626', async () => {
-    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
-    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
-    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
-    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
-    mockFetchScores.mockImplementation((snapshotId: string) =>
-      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
-    )
-    // Deadline on 2026-01-01 — a past date, not complete → overdue (red)
-    mockLoadActionItems.mockResolvedValue([
-      makeActionItem('ai-2', 'cat-health', 'Overdue task', '2026-01-01', false, null),
-    ])
+})
 
-    render(<TrendPage />)
+describe('TrendPage — Phase 13 enhancements', () => {
+  // TREND-13-01: interval-based improvement actions
+  it.todo('shows action items completed during an improvement interval below the chart')
+  it.todo('does not show improvement panel when score did not improve between snapshots')
+  it.todo('does not show improvement panel when no action items were completed in the interval')
 
-    await waitFor(() => {
-      const chart = screen.getByTestId('trend-chart')
-      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
-      expect(markers).toHaveLength(1)
-      expect(markers[0].color).toBe('#dc2626')
-    })
-  })
+  // TREND-13-02: no exact-date matching required
+  it.todo('action items completed off snapshot dates are still surfaced in the improvement panel')
+
+  // TREND-13-03: all action items shown below chart
+  it.todo('renders action items list below the chart when a category is selected and has items')
+  it.todo('shows active and completed items in separate sections')
+
+  // TREND-13-04: is_important badge
+  it.todo('shows Priority badge when selected category has is_important true')
+  it.todo('does not show Priority badge when selected category has is_important false')
 })
