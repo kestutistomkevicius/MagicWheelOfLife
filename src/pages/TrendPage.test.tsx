@@ -424,6 +424,62 @@ describe('TrendPage', () => {
     expect(mockSelectWheel).toHaveBeenCalledWith(wheel2.id)
   })
 
+  it('reloads snapshots for the newly selected wheel when wheel is switched', async () => {
+    const wheel2 = { id: 'wheel-2', name: 'Work Wheel', user_id: 'user-1', created_at: '', updated_at: '' }
+    let activeWheel = mockWheel
+
+    mockSelectWheel.mockImplementation((id: string) => {
+      activeWheel = id === 'wheel-2' ? wheel2 : mockWheel
+      // Force re-render by updating mock return
+      mockUseWheel.mockReturnValue({
+        wheel: activeWheel,
+        loading: false,
+        wheels: [mockWheel, wheel2],
+        categories: mockCategories,
+        setCategories: vi.fn(),
+        error: null,
+        canCreateWheel: false,
+        selectWheel: mockSelectWheel,
+        createWheel: vi.fn(),
+        updateScore: vi.fn(),
+      })
+    })
+
+    mockUseWheel.mockReturnValue({
+      wheel: mockWheel,
+      loading: false,
+      wheels: [mockWheel, wheel2],
+      categories: mockCategories,
+      setCategories: vi.fn(),
+      error: null,
+      canCreateWheel: false,
+      selectWheel: mockSelectWheel,
+      createWheel: vi.fn(),
+      updateScore: vi.fn(),
+    })
+
+    mockListSnapshots.mockResolvedValue([])
+    mockFetchScores.mockResolvedValue([])
+
+    const { rerender } = render(<TrendPage />)
+
+    await waitFor(() => expect(screen.getByRole('combobox')).toBeInTheDocument())
+
+    // Select wheel-2
+    const user = userEvent.setup()
+    await user.selectOptions(screen.getByRole('combobox'), 'wheel-2')
+
+    expect(mockSelectWheel).toHaveBeenCalledWith('wheel-2')
+
+    // Rerender with updated mock (simulates React re-render after state update)
+    rerender(<TrendPage />)
+
+    await waitFor(() => {
+      // listSnapshots should have been called with wheel-2's id
+      expect(mockListSnapshots).toHaveBeenCalledWith('wheel-2')
+    })
+  })
+
   it('overdue item marker has red color #dc2626', async () => {
     const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
     const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
