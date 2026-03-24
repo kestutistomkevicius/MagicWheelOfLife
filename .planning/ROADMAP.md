@@ -281,6 +281,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Premium user with 2 wheels can select each wheel independently on TrendPage with correct snapshot data
   2. Sidebar label reads "My wheels" when user has more than 1 wheel
+**Plans:** 2 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Test coverage for MW-01/MW-02 + stale data clear on wheel switch
+- [ ] 12-02-PLAN.md — UAT checkpoint: end-to-end multi-wheel verification
 
 ### Phase 13: Design Refresh
 **Goal**: Implement incoming design assets across the full app; add coaching CTA to landing page
