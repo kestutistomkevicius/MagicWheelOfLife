@@ -297,7 +297,7 @@ Plans:
   2. Markers are no longer tied to exact date matching (previous approach almost never fired)
   3. When a category is selected, its action items (and their completion status) are shown below the trend chart
   4. The category's `is_important` flag is visible in the trend view
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 13-01-PLAN.md — Wave 0 test prep + TrendPage refactor (interval logic, action items list, is_important badge) + ActionInsightsPanel component
@@ -599,7 +599,7 @@ Phases execute in numeric order: 1 → 2 → 3 → … → 37 → Deploy
 | 10. Pre-Launch Improvements | 7/7 | Complete | 2026-03-22 |
 | 11. Security Fix | 3/3 | Complete    | 2026-03-24 |
 | 12. Multi-Wheel UX | 2/2 | Complete   | 2026-03-24 |
-| 13. Design Refresh | 0/TBD | Not started | - |
+| 13. Design Refresh | 1/2 | In Progress|  |
 | 14. Trend Chart Rethink | 0/TBD | Not started | - |
 | 15. Admin Foundation | 0/TBD | Not started | - |
 | 16. Visual & UX Fixes | 0/TBD | Not started | - |
