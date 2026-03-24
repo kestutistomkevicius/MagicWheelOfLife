@@ -301,7 +301,7 @@ Plans:
 
 Plans:
 - [ ] 13-01-PLAN.md — Wave 0 test prep + TrendPage refactor (interval logic, action items list, is_important badge) + ActionInsightsPanel component
-- [ ] 13-02-PLAN.md — Replace stubs: ActionInsightsPanel unit tests + TrendPage Phase 13 requirement tests
+- [x] 13-02-PLAN.md — Replace stubs: ActionInsightsPanel unit tests + TrendPage Phase 13 requirement tests (completed 2026-03-24)
 
 ### Phase 14: Design Refresh
 **Goal**: Apply the "Mindful Curator" design system (docs/design-proposal-v1/) across the full app; add coaching CTA to landing page
@@ -599,7 +599,7 @@ Phases execute in numeric order: 1 → 2 → 3 → … → 37 → Deploy
 | 10. Pre-Launch Improvements | 7/7 | Complete | 2026-03-22 |
 | 11. Security Fix | 3/3 | Complete    | 2026-03-24 |
 | 12. Multi-Wheel UX | 2/2 | Complete   | 2026-03-24 |
-| 13. Design Refresh | 2/2 | Complete   | 2026-03-24 |
+| 13. Design Refresh | 2/2 | Complete    | 2026-03-24 |
 | 14. Trend Chart Rethink | 0/TBD | Not started | - |
 | 15. Admin Foundation | 0/TBD | Not started | - |
 | 16. Visual & UX Fixes | 0/TBD | Not started | - |
