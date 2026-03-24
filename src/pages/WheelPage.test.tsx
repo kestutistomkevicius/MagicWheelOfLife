@@ -184,6 +184,16 @@ describe('WheelPage', () => {
       expect(mockUndoDeleteWheel).toHaveBeenCalledWith('wheel-2')
     })
 
+    it('hides Delete button when the selected wheel is pending deletion', () => {
+      const pendingWheel = { ...mockWheel, deleted_at: '2026-01-01T00:00:00Z' }
+      mockUseWheel.mockReturnValue(makeDefaultWheelMock({
+        wheel: pendingWheel,
+        wheels: [pendingWheel],
+      }))
+      render(<WheelPage />)
+      expect(screen.queryByRole('button', { name: /delete this wheel/i })).not.toBeInTheDocument()
+    })
+
     it('shows "Recover a wheel" section when wheel=null and soft-deleted wheels exist', () => {
       const softDeletedWheel = { ...mockWheel, deleted_at: '2026-01-01T00:00:00Z' }
       mockUseWheel.mockReturnValue(makeDefaultWheelMock({
