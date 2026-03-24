@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor, act } from '@testing-library/react'
 
 // ── Supabase mock (vi.hoisted for variables used inside vi.mock factory) ──────
-const { mockFrom, mockStorageFrom, mockUpload, mockGetPublicUrl, mockUpdate, mockEq, mockSelect, mockLimit } = vi.hoisted(() => {
+const { mockFrom, mockStorageFrom, mockUpload, mockGetPublicUrl, mockUpdate, mockEq, mockSelect, mockLimit, mockInvoke } = vi.hoisted(() => {
   const mockUpload = vi.fn()
   const mockGetPublicUrl = vi.fn()
   const mockUpdate = vi.fn()
@@ -11,7 +11,8 @@ const { mockFrom, mockStorageFrom, mockUpload, mockGetPublicUrl, mockUpdate, moc
   const mockLimit = vi.fn()
   const mockFrom = vi.fn()
   const mockStorageFrom = vi.fn()
-  return { mockFrom, mockStorageFrom, mockUpload, mockGetPublicUrl, mockUpdate, mockEq, mockSelect, mockLimit }
+  const mockInvoke = vi.fn().mockResolvedValue({ data: { ok: true }, error: null })
+  return { mockFrom, mockStorageFrom, mockUpload, mockGetPublicUrl, mockUpdate, mockEq, mockSelect, mockLimit, mockInvoke }
 })
 
 vi.mock('@/lib/supabase', () => {
@@ -20,6 +21,9 @@ vi.mock('@/lib/supabase', () => {
       from: mockFrom,
       storage: {
         from: mockStorageFrom,
+      },
+      functions: {
+        invoke: mockInvoke,
       },
     },
   }
@@ -124,18 +128,11 @@ describe('useProfile', () => {
     await expect(result.current.updateAvatar(bigFile)).rejects.toThrow('File must be under 2 MB')
   })
 
-  it('updateTier writes new tier to profiles row (dev only)', async () => {
+  it('updateTier calls set-tier Edge Function (not direct DB write)', async () => {
     // Initial fetch
     mockFrom.mockReturnValueOnce(
       buildDbChain({ data: [{ id: USER_ID, tier: 'free', avatar_url: null }], error: null })
     )
-    // update call
-    const updateChain: Record<string, unknown> = {}
-    updateChain.eq = vi.fn().mockReturnValue(updateChain)
-    updateChain.then = (resolve: (v: unknown) => void) => Promise.resolve({ data: null, error: null }).then(resolve)
-    mockFrom.mockReturnValueOnce({
-      update: vi.fn().mockReturnValue(updateChain),
-    })
 
     const { result } = renderHook(() => useProfile(USER_ID))
     await waitFor(() => expect(result.current.loading).toBe(false))
@@ -144,7 +141,25 @@ describe('useProfile', () => {
       await result.current.updateTier('premium')
     })
 
+    expect(mockInvoke).toHaveBeenCalledWith('set-tier', { body: { tier: 'premium' } })
     expect(result.current.tier).toBe('premium')
+  })
+
+  it('updateTier updates tier state to free when called with free', async () => {
+    // Initial fetch — premium user
+    mockFrom.mockReturnValueOnce(
+      buildDbChain({ data: [{ id: USER_ID, tier: 'premium', avatar_url: null }], error: null })
+    )
+
+    const { result } = renderHook(() => useProfile(USER_ID))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    await act(async () => {
+      await result.current.updateTier('free')
+    })
+
+    expect(mockInvoke).toHaveBeenCalledWith('set-tier', { body: { tier: 'free' } })
+    expect(result.current.tier).toBe('free')
   })
 
   // ── color_scheme extension ──────────────────────────────────────────────────
