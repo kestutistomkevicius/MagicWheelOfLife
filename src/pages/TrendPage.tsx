@@ -31,6 +31,11 @@ export function TrendPage() {
   useEffect(() => {
     if (!wheel?.id) return
 
+    // Clear stale data immediately — prevents old wheel's data showing while new data loads
+    setSnapshots([])
+    setAllScores([])
+    setSelectedCategory('')
+
     let cancelled = false
 
     async function load() {
