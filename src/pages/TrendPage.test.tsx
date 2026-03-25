@@ -544,15 +544,16 @@ describe('TrendPage — Phase 13 enhancements', () => {
     render(<TrendPage />)
     await waitFor(() => expect(screen.getByTestId('trend-chart')).toBeInTheDocument())
     await waitFor(() => {
-      // Active item should NOT have line-through
+      // Active item row should NOT have opacity-60
       const activeEl = screen.getByText('Active item')
-      const activeLi = activeEl.closest('li')
-      expect(activeLi?.className).not.toContain('line-through')
+      const activeTr = activeEl.closest('tr')
+      expect(activeTr?.className).not.toContain('opacity-60')
 
-      // Completed item SHOULD have line-through
+      // Completed item row SHOULD have opacity-60, and task cell SHOULD have line-through
       const doneEl = screen.getByText('Done item')
-      const doneLi = doneEl.closest('li')
-      expect(doneLi?.className).toContain('line-through')
+      const doneTr = doneEl.closest('tr')
+      expect(doneTr?.className).toContain('opacity-60')
+      expect(doneEl.className).toContain('line-through')
     })
   })
 
