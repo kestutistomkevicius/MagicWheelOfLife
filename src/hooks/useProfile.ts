@@ -82,11 +82,10 @@ export function useProfile(userId: string): UseProfileResult {
   }
 
   async function updateTier(newTier: 'free' | 'premium'): Promise<void> {
-    await supabase
-      .from('profiles')
-      .update({ tier: newTier })
-      .eq('id', userId)
-
+    const { error } = await supabase.functions.invoke('set-tier', {
+      body: { tier: newTier },
+    })
+    if (error) throw error
     setTier(newTier)
   }
 

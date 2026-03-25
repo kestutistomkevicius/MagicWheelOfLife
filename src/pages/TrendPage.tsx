@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { Star } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useWheel } from '@/hooks/useWheel'
 import { useSnapshots } from '@/hooks/useSnapshots'
 import { useActionItems } from '@/hooks/useActionItems'
-import { TrendChart, type TrendChartPoint, type TrendChartMarker } from '@/components/TrendChart'
-import type { SnapshotRow, SnapshotScoreRow } from '@/types/database'
+import { TrendChart, type TrendChartPoint } from '@/components/TrendChart'
+import { ActionInsightsPanel } from '@/components/ActionInsightsPanel'
+import type { SnapshotRow, SnapshotScoreRow, ActionItemRow } from '@/types/database'
 
 function formatDate(savedAt: string): string {
   return new Date(savedAt).toLocaleDateString('en-GB', {
@@ -26,10 +28,15 @@ export function TrendPage() {
   const [allScores, setAllScores] = useState<SnapshotScoreRow[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string>('')
-  const [actionItemMarkers, setActionItemMarkers] = useState<TrendChartMarker[]>([])
+  const [actionItems, setActionItems] = useState<ActionItemRow[]>([])
 
   useEffect(() => {
     if (!wheel?.id) return
+
+    // Clear stale data immediately — prevents old wheel's data showing while new data loads
+    setSnapshots([])
+    setAllScores([])
+    setSelectedCategory('')
 
     let cancelled = false
 
@@ -63,35 +70,14 @@ export function TrendPage() {
   }, [wheel?.id])
 
   useEffect(() => {
-    if (!selectedCategory || snapshots.length < 3) return
+    if (!selectedCategory || snapshots.length < 3) {
+      setActionItems([])
+      return
+    }
     const cat = categories.find(c => c.name === selectedCategory)
-    if (!cat) return
+    if (!cat) { setActionItems([]); return }
     loadActionItems(cat.id).then(items => {
-      const snapshotDates = new Set(snapshots.map(s => formatDate(s.saved_at)))
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const markers: TrendChartMarker[] = []
-      for (const item of items) {
-        // Completed items: use completed_at date
-        if (item.completed_at) {
-          const d = formatDate(item.completed_at)
-          if (snapshotDates.has(d)) {
-            markers.push({ date: d, label: item.text, color: '#16a34a' })
-          }
-        }
-        // Items with deadline (not complete)
-        if (item.deadline && !item.is_complete) {
-          const d = formatDate(item.deadline + 'T00:00:00')
-          if (snapshotDates.has(d)) {
-            const deadlineDate = new Date(item.deadline)
-            deadlineDate.setHours(0, 0, 0, 0)
-            const diff = Math.round((deadlineDate.getTime() - today.getTime()) / 86400000)
-            const color = diff < 0 ? '#dc2626' : '#d97706'
-            markers.push({ date: d, label: item.text, color })
-          }
-        }
-      }
-      setActionItemMarkers(markers)
+      setActionItems(items)
     })
   }, [selectedCategory, snapshots, categories])
 
@@ -107,9 +93,31 @@ export function TrendPage() {
         date: formatDate(snap.saved_at),
         asis: score.score_asis,
         tobe: score.score_tobe,
+        savedAt: snap.saved_at,
       }
     })
     .filter((point): point is NonNullable<typeof point> => point !== null)
+
+  const improvementActions = useMemo(() => {
+    if (chartData.length < 2 || actionItems.length === 0) return []
+    const result: Array<{ fromLabel: string; toLabel: string; scoreDelta: number; items: ActionItemRow[] }> = []
+    for (let i = 0; i < chartData.length - 1; i++) {
+      const delta = chartData[i + 1].asis - chartData[i].asis
+      if (delta <= 0) continue
+      const fromDate = chartData[i].savedAt
+      const toDate = chartData[i + 1].savedAt
+      const items = actionItems.filter(
+        item => item.completed_at && item.completed_at >= fromDate && item.completed_at <= toDate
+      )
+      if (items.length > 0) {
+        result.push({ fromLabel: chartData[i].date, toLabel: chartData[i + 1].date, scoreDelta: delta, items })
+      }
+    }
+    return result
+  }, [chartData, actionItems])
+
+  const selectedCat = categories.find(c => c.name === selectedCategory)
+  const isImportant = selectedCat?.is_important ?? false
 
   const hasEnoughSnapshots = snapshots.length >= 3
 
@@ -154,9 +162,16 @@ export function TrendPage() {
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
+              {isImportant && (
+                <span className="inline-flex items-center gap-0.5 text-amber-500 text-xs font-medium" title="Priority category">
+                  <Star size={12} fill="currentColor" aria-label="Priority category" />
+                  Priority
+                </span>
+              )}
             </div>
           )}
-          <TrendChart data={chartData} categoryName={selectedCategory} markers={actionItemMarkers} />
+          <TrendChart data={chartData} categoryName={selectedCategory} />
+          <ActionInsightsPanel improvementActions={improvementActions} allItems={actionItems} />
         </>
       )}
     </div>

@@ -1,27 +1,37 @@
 # Git Workflow
 
-```mermaid
-gitGraph
-   commit id: "master"
-   branch phase/XX-name
-   checkout phase/XX-name
-   commit id: "plan commit"
-   commit id: "plan commit"
-   checkout master
-   merge phase/XX-name id: "merge --no-ff"
+## Repository
+
+`https://github.com/kestutistomkevicius/MagicWheelOfLife.git`
+
+## Branch Model
+
 ```
+develop  →  master
+(staging)   (production)
+```
+
+- `master` — production. Merging here triggers Vercel production deploy.
+- `develop` — active development and staging. All phase work committed here directly.
+
+> **Note:** Phase branches (`phase/XX-name`) were the original plan but all phases (1–11) have been committed directly to `develop`. Keeping phase branches is deferred until team size or PR review needs arise.
+
+## Phase Workflow (repeat per phase)
+
+1. Ensure you're on develop: `git checkout develop && git pull origin develop`
+2. Do all work on `develop` (GSD executor commits atomically per task)
+3. Push: `git push origin develop`
+
+## Releasing to Production
+
+When `develop` is stable and ready to ship:
+
+1. Open PR: `develop → master`
+2. This is the deliberate "ship to users" gate — review before merging
+3. Merge with `--no-ff` → triggers Vercel production deploy
+4. Push DB migrations: `supabase db push --linked`
 
 ## Rules
 
-- One branch per phase: `git checkout -b phase/XX-phase-name`
-- All work stays on phase branch until phase is fully complete and verified.
-- Merge to master with `--no-ff`: `git merge --no-ff phase/XX-phase-name`
-- Merging master triggers Vercel auto-deploy (frontend).
-- Push DB migrations separately after merge: `supabase db push --linked`
-- Delete phase branch after merge: `git branch -d phase/XX-phase-name`
-- **Never push plan commits directly to master.**
-
-## Branch naming
-
-Match `.planning/phases/` directory names:
-`phase/01-foundation`, `phase/02-wheel-scoring`, `phase/07-action-items-and-wheel-polish`, etc.
+- NEVER push directly to master
+- NEVER merge develop → master unless staging is verified

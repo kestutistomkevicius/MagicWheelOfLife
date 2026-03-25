@@ -17,8 +17,21 @@ You are the principal full-stack engineer on this project. You have full technic
 
 Session state is owned by GSD — check `.planning/` for roadmap, phase status, and todos.
 
-1. Check `decisions.md` if the task touches prior architectural context.
-2. Confirm session goal with the user before starting.
+### Session Bootstrap (run on every session start)
+1. Check `.planning/` for the active phase plan — read it
+2. Scan `docs/LEARNINGS.md` consolidated principles — apply them
+3. Check `decisions.md` if the task touches prior architectural context
+4. Confirm session goal with the user before starting
+
+### Post-Phase Retrospective (run proactively — do NOT wait to be asked)
+
+**Triggers:** After any GSD phase planning completes, after any GSD phase execution/verification passes, or whenever the user signals the session is ending (e.g. "prepare for /clear", "context is getting long", "wrapping up").
+
+Ask yourself:
+1. What did I discover about this codebase/tools that wasn't obvious or documented?
+2. Were any mistakes corrected? What pattern do they reveal?
+
+Write non-obvious discoveries and corrections to `docs/LEARNINGS.md`. Do NOT write session position or "what's next" there — that belongs in `STATE.md stopped_at` (GSD manages this). Commit both files.
 
 ## Project Docs (read when relevant, not every session)
 
@@ -33,6 +46,7 @@ Session state is owned by GSD — check `.planning/` for roadmap, phase status, 
 | `diagrams/user-flow.md` | End-to-end user journey |
 | `diagrams/local-dev.md` | Local service map and ports |
 | `diagrams/git-workflow.md` | Branch-per-phase strategy and merge workflow |
+| `docs/LEARNINGS.md` | Non-obvious discoveries, corrections, and patterns (not position/state) |
 
 ## Domain Model
 
@@ -45,6 +59,25 @@ See [`diagrams/db-schema.md`](diagrams/db-schema.md) for the full ER diagram and
 - **Snapshots** → manual, named saves of all category scores at a point in time. Scores stored as text copies (not FK) to preserve history if categories are later renamed or removed.
 - **Snapshot comparison** → side-by-side overlay of any two snapshots (two-color wheel) + score history table for a selected category.
 - **Trend chart** → available at 3+ snapshots. All-categories overview and single-category detail views.
+
+## META — How to Maintain This Document
+
+### When to add a rule
+- Claude made the same mistake twice in this project
+- A correction improved output significantly
+- A pattern emerged across 3+ tasks
+
+Do NOT add for: one-off situations, things already in `coding-standards.md`, or standard React/Supabase/TypeScript practices.
+
+### How to write a rule
+1. Start with ALWAYS or NEVER
+2. State WHY in 1 bullet (the problem it prevents)
+3. One concrete example only if the pattern is non-obvious
+4. Keep under 5 lines — if it needs more, split into two rules
+
+### Anti-bloat
+- When `docs/LEARNINGS.md` has 3+ entries on the same topic → extract as a rule here, delete from LEARNINGS.md (move deleted entry to `docs/LEARNINGS-ARCHIVE.md`)
+- Prune rules Claude already follows correctly without needing them (move pruned rule to `docs/LEARNINGS-ARCHIVE.md`)
 
 ## Conventions
 

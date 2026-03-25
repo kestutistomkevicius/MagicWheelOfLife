@@ -349,13 +349,13 @@ export function WheelPage() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {/* Wheel switcher */}
-          {wheels.length > 1 && !editingWheelName && (
+          {wheels.filter(w => !w.deleted_at).length > 1 && !editingWheelName && (
             <select
               value={wheel.id}
               onChange={e => selectWheel(e.target.value)}
               className="text-xl font-semibold text-stone-800 bg-transparent border-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-stone-300 rounded px-1"
             >
-              {wheels.map(w => (
+              {wheels.filter(w => !w.deleted_at).map(w => (
                 <option key={w.id} value={w.id}>{w.name}</option>
               ))}
             </select>
@@ -404,7 +404,7 @@ export function WheelPage() {
               ✎
             </button>
           )}
-          {!editingWheelName && (
+          {!editingWheelName && !wheel.deleted_at && (
             <button
               onClick={() => void softDeleteWheel(wheel.id)}
               className="ml-2 text-xs text-stone-400 hover:text-red-400 transition-colors"

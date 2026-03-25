@@ -41,8 +41,8 @@ const { mockListSnapshots, mockFetchScores, mockWheel, mockLoadActionItems, mock
   const mockSelectWheel = vi.fn()
   const mockWheel = { id: 'wheel-1', name: 'My Wheel', user_id: 'user-1', created_at: '', updated_at: '' }
   const mockCategories = [
-    { id: 'cat-health', name: 'Health', wheel_id: 'wheel-1', user_id: 'user-1', position: 0, score_asis: 7, score_tobe: 9, created_at: '', updated_at: '' },
-    { id: 'cat-career', name: 'Career', wheel_id: 'wheel-1', user_id: 'user-1', position: 1, score_asis: 6, score_tobe: 8, created_at: '', updated_at: '' },
+    { id: 'cat-health', name: 'Health', wheel_id: 'wheel-1', user_id: 'user-1', position: 0, score_asis: 7, score_tobe: 9, is_important: false, created_at: '', updated_at: '' },
+    { id: 'cat-career', name: 'Career', wheel_id: 'wheel-1', user_id: 'user-1', position: 1, score_asis: 6, score_tobe: 8, is_important: false, created_at: '', updated_at: '' },
   ]
   const mockUseWheel = vi.fn()
   return { mockListSnapshots, mockFetchScores, mockWheel, mockLoadActionItems, mockCategories, mockUseWheel, mockSelectWheel }
@@ -277,75 +277,6 @@ describe('TrendPage', () => {
     })
   })
 
-  // Marker computation tests
-  it('passes markers array to TrendChart when completed action item date matches snapshot date', async () => {
-    // Snapshots: Jan, Feb, Mar 2026
-    // "01 Jan 2026" formatted by formatDate('2026-01-01T00:00:00Z')
-    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
-    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
-    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
-    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
-    mockFetchScores.mockImplementation((snapshotId: string) =>
-      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
-    )
-    // Action item completed on 2026-02-01 — should match snapshot s2
-    mockLoadActionItems.mockResolvedValue([
-      makeActionItem('ai-1', 'cat-health', 'Go for a run', null, true, '2026-02-01T10:00:00Z'),
-    ])
-
-    render(<TrendPage />)
-
-    await waitFor(() => {
-      const chart = screen.getByTestId('trend-chart')
-      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
-      expect(markers).toHaveLength(1)
-    })
-  })
-
-  it('passes empty markers when no action item dates match snapshot dates', async () => {
-    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
-    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
-    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
-    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
-    mockFetchScores.mockImplementation((snapshotId: string) =>
-      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
-    )
-    // Action item completed on a date that does NOT match any snapshot
-    mockLoadActionItems.mockResolvedValue([
-      makeActionItem('ai-1', 'cat-health', 'Some task', null, true, '2026-04-15T10:00:00Z'),
-    ])
-
-    render(<TrendPage />)
-
-    await waitFor(() => {
-      const chart = screen.getByTestId('trend-chart')
-      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
-      expect(markers).toHaveLength(0)
-    })
-  })
-
-  it('completed item marker has green color #16a34a', async () => {
-    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
-    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
-    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
-    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
-    mockFetchScores.mockImplementation((snapshotId: string) =>
-      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
-    )
-    mockLoadActionItems.mockResolvedValue([
-      makeActionItem('ai-1', 'cat-health', 'Completed task', null, true, '2026-01-01T10:00:00Z'),
-    ])
-
-    render(<TrendPage />)
-
-    await waitFor(() => {
-      const chart = screen.getByTestId('trend-chart')
-      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
-      expect(markers).toHaveLength(1)
-      expect(markers[0].color).toBe('#16a34a')
-    })
-  })
-
   // Wheel selector tests (CONTENT-05)
   it('does not render wheel selector when only one wheel exists', async () => {
     // Default mock already has wheels: [mockWheel] — single wheel
@@ -424,26 +355,242 @@ describe('TrendPage', () => {
     expect(mockSelectWheel).toHaveBeenCalledWith(wheel2.id)
   })
 
-  it('overdue item marker has red color #dc2626', async () => {
-    const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
-    const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
-    const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
+  it('reloads snapshots for the newly selected wheel when wheel is switched', async () => {
+    const wheel2 = { id: 'wheel-2', name: 'Work Wheel', user_id: 'user-1', created_at: '', updated_at: '' }
+    let activeWheel = mockWheel
+
+    mockSelectWheel.mockImplementation((id: string) => {
+      activeWheel = id === 'wheel-2' ? wheel2 : mockWheel
+      // Force re-render by updating mock return
+      mockUseWheel.mockReturnValue({
+        wheel: activeWheel,
+        loading: false,
+        wheels: [mockWheel, wheel2],
+        categories: mockCategories,
+        setCategories: vi.fn(),
+        error: null,
+        canCreateWheel: false,
+        selectWheel: mockSelectWheel,
+        createWheel: vi.fn(),
+        updateScore: vi.fn(),
+      })
+    })
+
+    mockUseWheel.mockReturnValue({
+      wheel: mockWheel,
+      loading: false,
+      wheels: [mockWheel, wheel2],
+      categories: mockCategories,
+      setCategories: vi.fn(),
+      error: null,
+      canCreateWheel: false,
+      selectWheel: mockSelectWheel,
+      createWheel: vi.fn(),
+      updateScore: vi.fn(),
+    })
+
+    mockListSnapshots.mockResolvedValue([])
+    mockFetchScores.mockResolvedValue([])
+
+    const { rerender } = render(<TrendPage />)
+
+    await waitFor(() => expect(screen.getByRole('combobox')).toBeInTheDocument())
+
+    // Select wheel-2
+    const user = userEvent.setup()
+    await user.selectOptions(screen.getByRole('combobox'), 'wheel-2')
+
+    expect(mockSelectWheel).toHaveBeenCalledWith('wheel-2')
+
+    // Rerender with updated mock (simulates React re-render after state update)
+    rerender(<TrendPage />)
+
+    await waitFor(() => {
+      // listSnapshots should have been called with wheel-2's id
+      expect(mockListSnapshots).toHaveBeenCalledWith('wheel-2')
+    })
+  })
+
+})
+
+describe('TrendPage — Phase 13 enhancements', () => {
+  const snap1 = makeSnap('s1', '2026-01-01T00:00:00Z')
+  const snap2 = makeSnap('s2', '2026-02-01T00:00:00Z')
+  const snap3 = makeSnap('s3', '2026-03-01T00:00:00Z')
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockUseWheel.mockReturnValue({
+      wheel: mockWheel,
+      loading: false,
+      wheels: [mockWheel],
+      categories: mockCategories,
+      setCategories: vi.fn(),
+      error: null,
+      canCreateWheel: false,
+      selectWheel: mockSelectWheel,
+      createWheel: vi.fn(),
+      updateScore: vi.fn(),
+    })
+    // Default: no action items
+    mockLoadActionItems.mockResolvedValue([])
+  })
+
+  // TREND-13-01: interval-based improvement actions
+  it('shows action items completed during an improvement interval below the chart', async () => {
+    // Health: s1=5, s2=8, s3=8 — improved Jan→Feb (+3), flat Feb→Mar
     mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
-    mockFetchScores.mockImplementation((snapshotId: string) =>
-      Promise.resolve([makeScore(snapshotId, 'Health', 7, 9)])
-    )
-    // Deadline on 2026-01-01 — a past date, not complete → overdue (red)
+    mockFetchScores.mockImplementation((snapId: string) => {
+      const scores: Record<string, number> = { s1: 5, s2: 8, s3: 8 }
+      return Promise.resolve([makeScore(snapId, 'Health', scores[snapId], 10)])
+    })
+    // Item completed 2026-01-15 — between snap1 (2026-01-01) and snap2 (2026-02-01)
     mockLoadActionItems.mockResolvedValue([
-      makeActionItem('ai-2', 'cat-health', 'Overdue task', '2026-01-01', false, null),
+      makeActionItem('ai-1', 'cat-health', 'Morning runs', null, true, '2026-01-15T00:00:00Z'),
     ])
 
     render(<TrendPage />)
-
+    await waitFor(() => expect(screen.getByTestId('trend-chart')).toBeInTheDocument())
+    // ActionInsightsPanel should show the improvement interval text
     await waitFor(() => {
-      const chart = screen.getByTestId('trend-chart')
-      const markers = JSON.parse(chart.getAttribute('data-markers') ?? '[]') as { color: string }[]
-      expect(markers).toHaveLength(1)
-      expect(markers[0].color).toBe('#dc2626')
+      expect(screen.getByText(/your score improved/i)).toBeInTheDocument()
     })
+  })
+
+  it('does not show improvement panel when score did not improve between snapshots', async () => {
+    // Health: s1=8, s2=5, s3=5 — declined
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapId: string) => {
+      const scores: Record<string, number> = { s1: 8, s2: 5, s3: 5 }
+      return Promise.resolve([makeScore(snapId, 'Health', scores[snapId], 10)])
+    })
+    mockLoadActionItems.mockResolvedValue([
+      makeActionItem('ai-1', 'cat-health', 'Morning runs', null, true, '2026-01-15T00:00:00Z'),
+    ])
+
+    render(<TrendPage />)
+    await waitFor(() => expect(screen.getByTestId('trend-chart')).toBeInTheDocument())
+    // No improvement interval — improvement panel text should be absent
+    expect(screen.queryByText(/your score improved/i)).not.toBeInTheDocument()
+  })
+
+  it('does not show improvement panel when no action items were completed in the interval', async () => {
+    // Health: s1=5, s2=8, s3=8 — improved Jan→Feb, but no items
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapId: string) => {
+      const scores: Record<string, number> = { s1: 5, s2: 8, s3: 8 }
+      return Promise.resolve([makeScore(snapId, 'Health', scores[snapId], 10)])
+    })
+    mockLoadActionItems.mockResolvedValue([])
+
+    render(<TrendPage />)
+    await waitFor(() => expect(screen.getByTestId('trend-chart')).toBeInTheDocument())
+    // With no items, improvement panel renders nothing — no interval card text
+    expect(screen.queryByText(/your score improved/i)).not.toBeInTheDocument()
+  })
+
+  // TREND-13-02: no exact-date matching required
+  it('action items completed off snapshot dates are still surfaced in the improvement panel', async () => {
+    // Same as improvement test: item completed 2026-01-15, NOT on any snapshot date
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapId: string) => {
+      const scores: Record<string, number> = { s1: 5, s2: 8, s3: 8 }
+      return Promise.resolve([makeScore(snapId, 'Health', scores[snapId], 10)])
+    })
+    // completed_at = 2026-01-15 — off-date (snapshots are on the 1st of each month)
+    mockLoadActionItems.mockResolvedValue([
+      makeActionItem('ai-1', 'cat-health', 'Morning runs', null, true, '2026-01-15T00:00:00Z'),
+    ])
+
+    render(<TrendPage />)
+    await waitFor(() => expect(screen.getByTestId('trend-chart')).toBeInTheDocument())
+    // Off-date completion is still captured in the improvement interval
+    await waitFor(() => {
+      expect(screen.getByText(/your score improved/i)).toBeInTheDocument()
+    })
+  })
+
+  // TREND-13-03: all action items shown below chart
+  it('renders action items list below the chart when a category is selected and has items', async () => {
+    // Health: flat scores — no improvement panel, but items still shown
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapId: string) => {
+      return Promise.resolve([makeScore(snapId, 'Health', 7, 10)])
+    })
+    mockLoadActionItems.mockResolvedValue([
+      makeActionItem('ai-1', 'cat-health', 'Active item', null, false, null),
+      makeActionItem('ai-2', 'cat-health', 'Done item', null, true, '2026-01-05T00:00:00Z'),
+    ])
+
+    render(<TrendPage />)
+    await waitFor(() => expect(screen.getByTestId('trend-chart')).toBeInTheDocument())
+    await waitFor(() => {
+      expect(screen.getByText('Active item')).toBeInTheDocument()
+      expect(screen.getByText('Done item')).toBeInTheDocument()
+    })
+  })
+
+  it('shows active and completed items in separate sections', async () => {
+    // Health: flat scores — items displayed in sections
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapId: string) => {
+      return Promise.resolve([makeScore(snapId, 'Health', 7, 10)])
+    })
+    mockLoadActionItems.mockResolvedValue([
+      makeActionItem('ai-1', 'cat-health', 'Active item', null, false, null),
+      makeActionItem('ai-2', 'cat-health', 'Done item', null, true, '2026-01-05T00:00:00Z'),
+    ])
+
+    render(<TrendPage />)
+    await waitFor(() => expect(screen.getByTestId('trend-chart')).toBeInTheDocument())
+    await waitFor(() => {
+      // Active item row should NOT have opacity-60
+      const activeEl = screen.getByText('Active item')
+      const activeTr = activeEl.closest('tr')
+      expect(activeTr?.className).not.toContain('opacity-60')
+
+      // Completed item row SHOULD have opacity-60, and task cell SHOULD have line-through
+      const doneEl = screen.getByText('Done item')
+      const doneTr = doneEl.closest('tr')
+      expect(doneTr?.className).toContain('opacity-60')
+      expect(doneEl.className).toContain('line-through')
+    })
+  })
+
+  // TREND-13-04: is_important badge
+  it('shows Priority badge when selected category has is_important true', async () => {
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapId: string) => {
+      return Promise.resolve([makeScore(snapId, 'Health', 7, 10)])
+    })
+    // Override mockUseWheel: Health is_important = true
+    mockUseWheel.mockReturnValue({
+      wheel: mockWheel,
+      loading: false,
+      wheels: [mockWheel],
+      categories: [{ ...mockCategories[0], is_important: true }, mockCategories[1]],
+      setCategories: vi.fn(),
+      error: null,
+      canCreateWheel: false,
+      selectWheel: mockSelectWheel,
+      createWheel: vi.fn(),
+      updateScore: vi.fn(),
+    })
+
+    render(<TrendPage />)
+    await waitFor(() => expect(screen.getByTestId('trend-chart')).toBeInTheDocument())
+    expect(screen.getByText(/priority/i)).toBeInTheDocument()
+  })
+
+  it('does not show Priority badge when selected category has is_important false', async () => {
+    // Default mockUseWheel has is_important: false for all categories
+    mockListSnapshots.mockResolvedValue([snap3, snap2, snap1])
+    mockFetchScores.mockImplementation((snapId: string) => {
+      return Promise.resolve([makeScore(snapId, 'Health', 7, 10)])
+    })
+
+    render(<TrendPage />)
+    await waitFor(() => expect(screen.getByTestId('trend-chart')).toBeInTheDocument())
+    expect(screen.queryByText(/priority/i)).not.toBeInTheDocument()
   })
 })

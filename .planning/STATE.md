@@ -2,12 +2,28 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-stopped_at: Phase 10 complete and verified. Phase 11 is next — ready to plan or execute.
-last_updated: "2026-03-23T00:00:00.000Z"
-last_activity: 2026-03-23 — Phase 10 fully complete and verified
+status: planning
+stopped_at: Completed 13-02-PLAN.md — all Phase 13 requirements have passing automated test coverage
+last_updated: "2026-03-24T22:41:33.858Z"
+last_activity: 2026-03-14 — Roadmap created, all 34 v1 requirements mapped to 7 phases
 progress:
-  total_phases: 11
+  total_phases: 37
+  completed_phases: 13
+  total_plans: 70
+  completed_plans: 70
+  percent: 97
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.0
+milestone_name: Strategic Depth
+status: planning
+stopped_at: Phase 11 planned — 3 plans (3 waves), verification passed. Ready to /gsd:execute-phase 11.
+last_updated: "2026-03-23T12:00:00.000Z"
+last_activity: 2026-03-23 — Phase 11 (Security Fix) planned: column-level GRANT migration + set-tier Edge Function + useProfile refactor
+progress:
+  [██████████] 97%
   completed_phases: 10
   total_plans: 63
   completed_plans: 63
@@ -152,6 +168,13 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 09-ai-and-premium P08 | 5min | 2 tasks | 4 files |
 | Phase 09-ai-and-premium P09 | 520s | 2 tasks | 6 files |
 | Phase 09-ai-and-premium P10 | continuation | 2 tasks | 3 files |
+| Phase 11-security-fix P01 | 4min | 2 tasks | 2 files |
+| Phase 11-security-fix P02 | 3min | 2 tasks | 2 files |
+| Phase 11-security-fix P03 | checkpoint | 2 tasks | 0 files |
+| Phase 12-multi-wheel-ux P01 | 149s | 3 tasks | 3 files |
+| Phase 12-multi-wheel-ux P02 | 5min | 1 tasks | 2 files |
+| Phase 13-trend-chart-rethink P01 | 5min | 2 tasks | 4 files |
+| Phase 13-trend-chart-rethink P02 | 143s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -273,6 +296,15 @@ Recent decisions affecting current work:
 - [Phase 09-ai-and-premium]: Auto-send race condition fixed with isSendingRef guard — React Strict Mode double-invokes effects; guard ensures opening AI message only sends once
 - [Phase 09-ai-and-premium]: Proposal card apply buttons disabled when score matches proposed value; card auto-dismisses after both applied
 - [Phase 09-ai-and-premium]: Edge Function injects synthetic opener when messages array is empty — Anthropic API requires non-empty messages array
+- [Phase 11-security-fix]: DEC-006 closed: REVOKE UPDATE on profiles from authenticated + GRANT UPDATE only on avatar_url/color_scheme; set-tier Edge Function is the sole service-role path for tier writes
+- [Phase 11-security-fix]: useProfile.updateTier routes through set-tier Edge Function — direct DB write revoked at DB layer in Plan 01; error propagated before setTier to ensure state only updates on success
+- [Phase 11-security-fix]: Test 1 (SEC-01 direct PATCH) considered passed given DB-level REVOKE confirmed in Plan 01 psql verification
+- [Phase 12-multi-wheel-ux]: useWheel mock added to Sidebar.test.tsx via vi.hoisted — consistent with TrendPage mock pattern already established in Phase 8
+- [Phase 12-multi-wheel-ux]: Stale data cleared synchronously in TrendPage useEffect([wheel?.id]) before async load — prevents previous wheel chart showing during fetch
+- [Phase 12-multi-wheel-ux]: Pending-deletion wheels filtered from active dropdown and Delete button guarded by !wheel.deleted_at — soft-deleted wheels visible only in recovery banner
+- [Phase 13-trend-chart-rethink]: Interval-based action surfacing uses useMemo over chartData pairs (no DB calls); ActionInsightsPanel returns null when empty; ISO string comparison for date range filtering
+- [Phase 13-trend-chart-rethink]: Assert improvement panel via /your score improved/i text (not item text) to avoid ambiguous multi-element match
+- [Phase 13-trend-chart-rethink]: Use closest('li').className to verify line-through on completed items — class is on <li> parent, not text node
 
 ### Pending Todos
 
@@ -287,6 +319,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-21T14:16:25.280Z
-Stopped at: Completed 09-10-PLAN.md — Phase 9 fully complete and verified
+Last session: 2026-03-24T22:38:21.059Z
+Stopped at: Completed 13-02-PLAN.md — all Phase 13 requirements have passing automated test coverage
 Resume file: None
